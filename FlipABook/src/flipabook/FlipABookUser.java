@@ -2,7 +2,7 @@
 
 package flipabook;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Entity;
@@ -15,7 +15,7 @@ public class FlipABookUser {
 	Long id;
 	User user;
 	boolean viewAllPosts = false;
-	List<Post> history;
+	ArrayList<Post> history;
 
 	@SuppressWarnings("unused")
 	private FlipABookUser() {
@@ -37,7 +37,7 @@ public class FlipABookUser {
 		return user.getNickname();
 	}
 	
-	public List<Post> getHistory(){
+	public ArrayList<Post> getHistory(){
 		return history;
 	}
 }
