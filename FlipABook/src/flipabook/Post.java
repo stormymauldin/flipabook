@@ -16,6 +16,7 @@ public class Post implements Comparable<Post> {
 	String title;
 	String content;
 	Date date;
+	Book book;
 
 	@SuppressWarnings("unused")
 	private Post() {
@@ -25,6 +26,14 @@ public class Post implements Comparable<Post> {
 		this.user = user;
 		this.title = title;
 		this.content = content;
+		date = new Date();
+	}
+	
+	public Post(User user, String title, String content, Book book) {
+		this.user = user;
+		this.title = title;
+		this.content = content;
+		this.book = book;
 		date = new Date();
 	}
 

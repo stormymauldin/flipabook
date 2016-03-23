@@ -2,7 +2,14 @@ package flipabook;
 
 import java.util.ArrayList;
 
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+
+@Entity
 public class Book implements Comparable<Book>{
+	
+	@Id
+	Long id;
 	private String title;
 	private String isbn;
 	private ArrayList<String> tags;

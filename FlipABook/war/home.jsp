@@ -37,8 +37,15 @@
 		if (user != null) {
 			pageContext.setAttribute("user", user);
 	%>
-		<input type="button" value="Create a post" 
-			onClick="window.location='createPost.jsp';">
+		<input type="button" value="Sell a Book!" 
+			onClick="window.location='sellABook.jsp';">
+			
+		<input type="button" value="Your Posts" 
+			onClick="window.location='userPosts.jsp';">
+			
+		<input type="button" value="Messages" 
+			onClick="window.location='messages.jsp';">
+			
 		<p>
 			<a href="<%=userService.createLogoutURL(request.getRequestURI())%>"
 			> or sign out</a>
@@ -62,7 +69,7 @@
 			if(!isSubscribed){
 				%>
 				<form action="/ofysubscribe" method="post">
-			 		<div><input type="submit" name="subscribed" value="Subscribe" /></div>
+			 		<div><input type="submit" name="subscribed" value="Subscribe(or whatever we could need the service for)" /></div>
 				</form>
 				<%
 			}
@@ -78,6 +85,10 @@
 	
 	<%
 		}
+		
+	%>
+		<h2>SEARCH BAR HERE MAYHAPS?</h2>
+	<% 
 		ObjectifyService.register(Post.class);
 		List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
 		Collections.sort(posts);
@@ -88,8 +99,9 @@
 	<%
 		} else {
 	%>
+		
 	
-		<p>Posts:</p>
+		<p>Posts: LIST OF ALL CURRENT BOOK ADVERTISEMENTS SORTED BY MOST RECENT</p>
 	
 	<%
 			for (int i = 0; i<posts.size(); i++) {

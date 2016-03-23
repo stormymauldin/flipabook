@@ -21,7 +21,7 @@ public class Subscriber {
 		this.user = user;
 	}
 
-	public FlipABookUser getUser() {
+	public FlipABookUser getFlipABookUser() {
 		return user;
 	}
 }

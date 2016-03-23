@@ -50,7 +50,7 @@ public class CronServlet extends HttpServlet {
 				Message msg = new MimeMessage(session);
 				msg.setFrom(new InternetAddress("string@flipabook-1242.appspotmail.com", "The FlipABook Team"));
 				msg.addRecipient(Message.RecipientType.TO,
-						new InternetAddress(subscribers.get(i).getUser().getEmail(), subscribers.get(i).getUser().getNickname()));
+						new InternetAddress(subscribers.get(i).getFlipABookUser().getEmail(), subscribers.get(i).getFlipABookUser().getNickname()));
 				msg.setSubject("Daily Email Digest for FlipABook Posts");
 				msg.setText(msgBody);
 				Transport.send(msg);

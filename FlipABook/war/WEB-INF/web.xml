@@ -5,38 +5,38 @@ xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet>
-		<servlet-name>Blog</servlet-name>
-		<servlet-class>flipabook.BlogServlet</servlet-class>
+		<servlet-name>home</servlet-name>
+		<servlet-class>flipabook.FlipABookServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Blog</servlet-name>
-		<url-pattern>/blog</url-pattern>
+		<servlet-name>home</servlet-name>
+		<url-pattern>/home</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-	    <servlet-name>ofypost</servlet-name>
-	    <servlet-class>flipabook.OfyMakeBlogPostServlet</servlet-class>
+	    <servlet-name>post</servlet-name>
+	    <servlet-class>flipabook.CreatePostServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-	    <servlet-name>ofypost</servlet-name>
-	    <url-pattern>/ofypost</url-pattern>
+	    <servlet-name>post</servlet-name>
+	    <url-pattern>/post</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-	    <servlet-name>ofysubscribe</servlet-name>
-	    <servlet-class>flipabook.OfySubscribeServlet</servlet-class>
+	    <servlet-name>subscribe</servlet-name>
+	    <servlet-class>flipabook.SubscribeServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-	    <servlet-name>ofysubscribe</servlet-name>
-	    <url-pattern>/ofysubscribe</url-pattern>
+	    <servlet-name>subscribe</servlet-name>
+	    <url-pattern>/subscribe</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>CronServlet</servlet-name>
+		<servlet-name>cron</servlet-name>
 		<servlet-class>flipabook.CronServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>CronServlet</servlet-name>
+		<servlet-name>cron</servlet-name>
 		<url-pattern>/cron</url-pattern>
 	</servlet-mapping>
 	

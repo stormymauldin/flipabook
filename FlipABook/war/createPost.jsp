@@ -2,6 +2,7 @@
 <%@ page import="java.util.List"%>
 <%@ page import="java.util.Collections"%>
 <%@ page import="flipabook.Post"%>
+<%@ page import="flipabook.Book"%>
 <%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
@@ -21,7 +22,7 @@
 		
 	</div>
 
-	<form action="/ofypost" method="post">
+	<form action="/post" method="post">
 		<div>
 			<h3>Subject</h3>
 			<textarea name="title" rows="1" cols="60" required></textarea>
