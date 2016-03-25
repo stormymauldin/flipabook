@@ -11,7 +11,7 @@ public class Post implements Comparable<Post>{
 	Long id;
 	String title;
 	String description;
-	User seller;
+	FlipABookUser seller;
 	Book book;
 	double price;
 	Date date;
@@ -22,7 +22,7 @@ public class Post implements Comparable<Post>{
 	private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
 	private static final long TWO_WEEKS = 14*DAY_IN_MS;
 	
-	public Post(User seller, Book book, double price, String title, String description){
+	public Post(FlipABookUser seller, Book book, double price, String title, String description){
 		this.seller = seller;
 		this.book = book;
 		this.price = price;
@@ -41,7 +41,7 @@ public class Post implements Comparable<Post>{
 		return description;
 	}
 	
-	public User getSeller() {
+	public FlipABookUser getSeller() {
 		return seller;
 	}
 	

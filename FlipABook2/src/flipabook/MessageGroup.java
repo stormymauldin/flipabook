@@ -12,16 +12,18 @@ public class MessageGroup {
 	@Id
 	Long id;
 	Post post;
-	User buyer;
+	ArrayList<FlipABookUser> participants;
 	ArrayList<Message> messages;
 	boolean meetingIsScheduled = false;
 	Date scheduleDate;
 	boolean transactionWasSuccessful = false;
 	
 	
-	public MessageGroup(Post post, User buyer){
+	public MessageGroup(Post post, FlipABookUser buyer){
 		this.post = post;
-		this.buyer = buyer;
+		participants = new ArrayList<FlipABookUser>();
+		participants.add(post.getSeller());
+		participants.add(buyer);
 		messages = new ArrayList<Message>();
 	}
 	
@@ -51,5 +53,9 @@ public class MessageGroup {
 	
 	public ArrayList<Message> getMessages(){
 		return messages;
+	}
+	
+	public ArrayList<FlipABookUser> getParticipants(){
+		return participants;
 	}
 }

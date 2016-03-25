@@ -4,50 +4,56 @@ import java.util.ArrayList;
 
 import com.google.appengine.api.users.User;
 
-public class HomePage{
+public class HomePage {
 	private static HomePage uniqueInstance;
 	private ArrayList<Post> posts;
 	private ArrayList<FlipABookUser> users;
- 
+
 	private HomePage() {
 		posts = new ArrayList<Post>();
 		users = new ArrayList<FlipABookUser>();
 	}
- 
+
 	public static synchronized HomePage getInstance() {
 		if (uniqueInstance == null) {
 			uniqueInstance = new HomePage();
 		}
 		return uniqueInstance;
 	}
- 
-	
-	public void createUser(User user){
+
+	public void createUser(User user) {
 		FlipABookUser flipABookUser = null;
-		//TODO: other stuff here to add to objectify
-		//TODO: check to see if user has email address
+		// TODO: other stuff here to add to objectify
+		// TODO: check to see if user has email address
 		users.add(flipABookUser);
 	}
-	public void deleteUser(FlipABookUser user){
-		if(users.contains(user)){
+
+	public void deleteUser(FlipABookUser user) {
+		if (users.contains(user)) {
+			for (MessageGroup messageGroup : user.getMessageGroups()) {
+				// TODO: cycle through all users involved in the conversations
+				// of the user to be deleted and notify them
+			}
+			//remove the user's posts
 			posts.remove(users.indexOf(user));
-			//TODO: other stuff here to remove from objectify
+			// TODO: delete the user's objectify data
 		}
+
 	}
-	
-	public void addPost(Post post){
-		//TODO: other stuff here to add to objectify
+
+	public void addPost(Post post) {
+		// TODO: other stuff here to add to objectify
 		posts.add(post);
 	}
-	
-	public void deletePost(Post post){
-		if(posts.contains(post)){
+
+	public void deletePost(Post post) {
+		if (posts.contains(post)) {
 			posts.remove(posts.indexOf(post));
-			//TODO: other stuff here to remove from objectify
+			// TODO: other stuff here to remove from objectify
 		}
 	}
-	
-	public void displayPosts(){
-		//TODO: print out posts to view
+
+	public void displayPosts() {
+		// TODO: print out posts to view
 	}
 }

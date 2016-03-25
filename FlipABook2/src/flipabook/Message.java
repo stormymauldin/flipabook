@@ -5,25 +5,59 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
 @Entity
-public class Message {
+public class Message implements Subject{
 	@Id
 	Long id;
-	User sender;
-	User recipient;
+	FlipABookUser sender;
+	FlipABookUser recipient;
 	String content;
+	MessageGroup messageGroup;
 	boolean read = false;
-	
-	public Message(User sender, User recipient, String content){
+
+	public Message(FlipABookUser sender, FlipABookUser recipient, String content, MessageGroup messageGroup) {
 		this.sender = sender;
 		this.recipient = recipient;
 		this.content = content;
+		this.messageGroup = messageGroup;
+		sender.update(this);
+		recipient.update(this);
 	}
-	
-	public void setRead(){
+
+	public void setRead() {
 		read = true;
 	}
-	
-	public boolean wasRead(){
+
+	public boolean wasRead() {
 		return read;
+	}
+
+	public FlipABookUser getSender() {
+		return sender;
+	}
+
+	public FlipABookUser getRecipient() {
+		return recipient;
+	}
+
+	public MessageGroup getMessageGroup() {
+		return messageGroup;
+	}
+
+	@Override
+	public void registerObserver(Observer o) {
+		sender.update(this);
+		recipient.update(this);
+	}
+
+	@Override
+	public void removeObserver(Observer o) {
+		//FlipABookUser remo
+		
+	}
+
+	@Override
+	public void notifyObservers() {
+		sender.update(this);
+		recipient.update(this);
 	}
 }
