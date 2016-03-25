@@ -5,22 +5,30 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
 @Entity
-public class Message implements Subject{
+public class Message implements Subject {
 	@Id
 	Long id;
 	FlipABookUser sender;
 	FlipABookUser recipient;
 	String content;
-	MessageGroup messageGroup;
+	Conversation conversation;
+	boolean senderDeleted = false;
+	boolean recipientDeleted = false;
 	boolean read = false;
 
-	public Message(FlipABookUser sender, FlipABookUser recipient, String content, MessageGroup messageGroup) {
-		this.sender = sender;
-		this.recipient = recipient;
+	public Message(int direction, String content, Conversation conversation) {
+		if (direction == SELLER_TO_BUYER) {
+			sender = conversation.getPost().getSeller();
+			recipient = conversation.getBuyer();
+		} else {
+			sender = conversation.getBuyer();
+			recipient = conversation.getPost().getSeller();
+		}
+
 		this.content = content;
-		this.messageGroup = messageGroup;
-		sender.update(this);
-		recipient.update(this);
+		this.conversation = conversation;
+		registerObservers(sender, recipient);
+		notifyObservers(Observer.NEW_MESSAGE);
 	}
 
 	public void setRead() {
@@ -39,25 +47,41 @@ public class Message implements Subject{
 		return recipient;
 	}
 
-	public MessageGroup getMessageGroup() {
-		return messageGroup;
+	public Conversation getConversation() {
+		return conversation;
 	}
 
+	//this implementation is called to establish the sender and recipient
 	@Override
-	public void registerObserver(Observer o) {
-		sender.update(this);
-		recipient.update(this);
+	public void registerObservers(Observer o0, Observer o1) {
+		this.sender = (FlipABookUser) o0;
+		this.recipient = (FlipABookUser) o1;
 	}
 
+	//this implementation is called when a user deletes a message
 	@Override
 	public void removeObserver(Observer o) {
-		//FlipABookUser remo
-		
+		FlipABookUser toBeRemoved = (FlipABookUser) o;
+		if(sender.compareTo(toBeRemoved) == 0){
+			sender.update(this, Observer.DELETE);
+			senderDeleted = true;
+		}
+		else{
+			recipient.update(this, Observer.DELETE);
+			recipientDeleted = true;
+		}
 	}
 
+	//this implementation is called to update the participants
 	@Override
-	public void notifyObservers() {
-		sender.update(this);
-		recipient.update(this);
+	public void notifyObservers(int updateType) {
+		if(!senderDeleted){
+			sender.update(this, updateType);
+		}
+		if(!recipientDeleted){
+			recipient.update(this, updateType);
+		}
 	}
 }
+
+

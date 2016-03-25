@@ -30,26 +30,36 @@ public class HomePage {
 
 	public void deleteUser(FlipABookUser user) {
 		if (users.contains(user)) {
-			for (MessageGroup messageGroup : user.getMessageGroups()) {
-				// TODO: cycle through all users involved in the conversations
-				// of the user to be deleted and notify them
+			//remove the user from existing conversations
+			for (Conversation conversation : user.getConversations()) {
+				//remove the user's interactions and update associated parties
+				if(conversation.getBuyer().compareTo(user) == 0)
+				{
+					conversation.deleteConversation(Conversation.BUYER_DELETED);
+				}
+				else{
+					conversation.deleteConversation(Conversation.POST_DELETED);
+				}
 			}
-			//remove the user's posts
-			posts.remove(users.indexOf(user));
+			for(Post post : user.getPosts()){
+				deletePost(post);
+			}
+			
 			// TODO: delete the user's objectify data
 		}
 
 	}
 
 	public void addPost(Post post) {
-		// TODO: other stuff here to add to objectify
 		posts.add(post);
 	}
 
 	public void deletePost(Post post) {
-		if (posts.contains(post)) {
-			posts.remove(posts.indexOf(post));
-			// TODO: other stuff here to remove from objectify
+		for(Post curPost : posts){
+			if(curPost.compareTo(post) == 0)
+			{
+				posts.remove(posts.indexOf(curPost));
+			}
 		}
 	}
 
