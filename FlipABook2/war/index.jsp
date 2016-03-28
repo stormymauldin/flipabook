@@ -52,12 +52,17 @@
 			</h1>
 			<h2 class="lead blog-description">The University of Texas'
 				Premier Book Exchange Service</h2>
-			<h3 class="input-group" style="max-width: 25%; text-align: center">
-				<span class="input-group-btn">
-					<button class="btn btn-default" type="button">Go!</button>
-				</span> <input type="text" class="form-control" placeholder="Search for...">
-			</h3>
-			<!-- /input-group -->
+			<form class="navbar-form navbar-CENTER" role="search">
+				<div class="input-group">
+					<input type="text" class="form-control"
+						placeholder="Search this site"> <span
+						class="input-group-btn">
+						<button type="submit" class="btn btn-default">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</span>
+				</div>
+			</form>
 		</div>
 
 		<!-- <div class="row"> -->
