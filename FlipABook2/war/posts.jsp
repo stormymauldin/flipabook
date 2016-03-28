@@ -1,5 +1,21 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.Collections"%>
+<%@ page import="flipabook.Book"%>
+<%@ page import="flipabook.Conversation"%>
+<%@ page import="flipabook.FlipABookUser"%>
+<%@ page import="flipabook.HomePage"%>
+<%@ page import="flipabook.Message"%>
+<%@ page import="flipabook.Observer"%>
+<%@ page import="flipabook.Post"%>
+<%@ page import="flipabook.Subject"%>
+<%@ page import="com.googlecode.objectify.*"%>
+<%@ page import="com.google.appengine.api.users.User"%>
+<%@ page import="com.google.appengine.api.users.UserService"%>
+<%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
 <head>
@@ -9,7 +25,7 @@
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="description" content="">
 <meta name="author" content="">
-<link rel="icon" href="bootstrap/assets/favicon.ico">
+<link rel="icon" href="../favicon.ico">
 
 <title>FlipABook</title>
 
@@ -73,9 +89,7 @@
 
 			<div class="blog-post">
 				<h2 class="blog-post-title">Post C</h2>
-				<p class="blog-post-meta">
-					on March 27, 2016
-				</p>
+				<p class="blog-post-meta">on March 27, 2016</p>
 				<ul style="text-align: left">
 					<li>Author: Brandon McCartney</li>
 					<li>ISBN: 123-456-789</li>
@@ -87,9 +101,7 @@
 
 			<div class="blog-post">
 				<h2 class="blog-post-title">Post B</h2>
-				<p class="blog-post-meta">
-					on March 5, 2016
-				</p>
+				<p class="blog-post-meta">on March 5, 2016</p>
 				<ul style="text-align: left">
 					<li>Author: Jonatan Aron Leandoer</li>
 					<li>ISBN: 144-454-789</li>
@@ -101,9 +113,7 @@
 
 			<div class="blog-post">
 				<h2 class="blog-post-title">Post A</h2>
-				<p class="blog-post-meta">
-					on March 17, 2016
-				</p>
+				<p class="blog-post-meta">on March 17, 2016</p>
 				<ul style="text-align: left">
 					<li>Author: Pancho Dollier</li>
 					<li>ISBN: 414-039-215</li>
