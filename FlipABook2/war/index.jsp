@@ -127,6 +127,8 @@
 	<!-- /.container -->
 
 	<footer class="blog-footer">
+	<p>Created by Tye Macon, William "Stormy" Mauldin, Daniel
+		Officewala, and Daniel Zhang.</p>
 	<p>
 		Blog template built for <a href="http://getbootstrap.com">Bootstrap</a>
 		by <a href="https://twitter.com/mdo">@mdo</a>.
@@ -145,7 +147,7 @@
 	<script>
 		window.jQuery
 				|| document
-						.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')
+						.write('<script src="bootstrap/assets/js/vendor/jquery.min.js"><\/script>')
 	</script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
