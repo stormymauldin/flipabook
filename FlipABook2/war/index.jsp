@@ -35,11 +35,11 @@
 	<div class="blog-masthead">
 		<div class="container">
 			<nav class="blog-nav"> <a class="blog-nav-item active" href="#">Home</a>
-			<a class="blog-nav-item" href="#">Your Posts</a> <a
+			<a class="blog-nav-item" href="#">Advanced Search</a> <a
+				class="blog-nav-item" href="#">Your Posts</a> <a
 				class="blog-nav-item" href="#">Messages</a> <a class="blog-nav-item"
-				href="#">Arranged Meetings</a> <a class="blog-nav-item" href="#">Account
-				Info</a> <a class="blog-nav-item" href="#">Log In/Log Out</a> <a
-				class="blog-nav-item" href="#">Advanced Search</a> </nav>
+				href="#">Scheduled Meetings</a> <a class="blog-nav-item" href="#">Account
+				Info</a> <a class="blog-nav-item" href="#">Log In/Log Out</a> </nav>
 
 		</div>
 	</div>
