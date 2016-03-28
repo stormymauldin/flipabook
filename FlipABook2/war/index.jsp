@@ -37,7 +37,10 @@
 			<nav class="blog-nav"> <a class="blog-nav-item active" href="#">Home</a>
 			<a class="blog-nav-item" href="#">Your Posts</a> <a
 				class="blog-nav-item" href="#">Messages</a> <a class="blog-nav-item"
-				href="#">Arranged Meetings</a></nav>
+				href="#">Arranged Meetings</a> <a class="blog-nav-item" href="#">Account
+				Info</a> <a class="blog-nav-item" href="#">Log In/Log Out</a> <a
+				class="blog-nav-item" href="#">Advanced Search</a> </nav>
+
 		</div>
 	</div>
 
@@ -47,20 +50,26 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<p class="lead blog-description">The University of Texas' Premier
-				Book Exchange Service</p>
+			<h2 class="lead blog-description">The University of Texas'
+				Premier Book Exchange Service</h2>
+			<h3 class="input-group" style="max-width: 25%; text-align: center">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button">Go!</button>
+				</span> <input type="text" class="form-control" placeholder="Search for...">
+			</h3>
+			<!-- /input-group -->
 		</div>
 
 		<!-- <div class="row"> -->
 
-		<div class="col-sm-8 blog-main">
+		<div class="blog-main">
 
 			<div class="blog-post">
 				<h2 class="blog-post-title">Cook Book</h2>
 				<p class="blog-post-meta">
 					March 27, 2016 by <a href="#">Keith Cozart</a>
 				</p>
-				<ul>
+				<ul style="text-align: left">
 					<li>Author: Brandon McCartney</li>
 					<li>ISBN: 123-456-789</li>
 					<li>Asking Price: $5000.00</li>
@@ -74,7 +83,7 @@
 				<p class="blog-post-meta">
 					March 5, 2016 by <a href="#">Lil Boat</a>
 				</p>
-				<ul>
+				<ul style="text-align: left">
 					<li>Author: Jonatan Aron Leandoer</li>
 					<li>ISBN: 144-454-789</li>
 					<li>Asking Price: $20.00</li>
@@ -88,7 +97,7 @@
 				<p class="blog-post-meta">
 					March 17, 2016 by <a href="#">Orange Davis</a>
 				</p>
-				<ul>
+				<ul style="text-align: left">
 					<li>Author: Pancho Dollier</li>
 					<li>ISBN: 414-039-215</li>
 					<li>Asking Price: $1.00</li>
