@@ -34,13 +34,15 @@
 
 	<div class="blog-masthead">
 		<div class="container">
-			<nav class="blog-nav"> <a class="blog-nav-item active"
-				href="../index.jsp">Home</a> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
-				Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
-				class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-				class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled Meetings</a> <a
-				class="blog-nav-item" href="../account.jsp">Account Info</a> <a
-				class="blog-nav-item" href="../loginlogout.jsp">Log In/Log Out</a> </nav>
+			<nav class="blog-nav"> <a class="blog-nav-item"
+				href="../index.jsp">Home</a> <a class="blog-nav-item"
+				href="../advancedsearch.jsp">Advanced Search</a> <a
+				class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
+				class="blog-nav-item active" href="../messages.jsp">Messages</a> <a
+				class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
+				Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
+				Info</a> <a class="blog-nav-item" href="../loginlogout.jsp">Log
+				In/Log Out</a> </nav>
 
 		</div>
 	</div>
@@ -51,12 +53,11 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description">The University of Texas'
-				Premier Book Exchange Service</h2>
+			<h2 class="lead blog-description">Messages</h2>
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
 					<input type="text" class="form-control"
-						placeholder="Search for a book..."> <span
+						placeholder="Search conversations..."> <span
 						class="input-group-btn">
 						<button type="submit" class="btn btn-default">
 							<span class="glyphicon glyphicon-search"></span>
@@ -71,44 +72,45 @@
 		<div class="blog-main">
 
 			<div class="blog-post">
-				<h2 class="blog-post-title">Cook Book</h2>
+				<h2 class="blog-post-title">Conversation C</h2>
 				<p class="blog-post-meta">
-					March 27, 2016 by <a href="#">Keith Cozart</a>
+					with <a href="#">Keith Cozart</a>
 				</p>
-				<ul style="text-align: left">
-					<li>Author: Brandon McCartney</li>
-					<li>ISBN: 123-456-789</li>
-					<li>Asking Price: $5000.00</li>
-					<li>Description: Great book, taught me everything. TYBG</li>
-				</ul>
+
+				<p>Message 5</p>
+				<p>Message 4</p>
+				<p>Message 3</p>
+				<p>Message 2</p>
+				<p>Message 1</p>
+
 			</div>
 			<!-- /.blog-post -->
 
 			<div class="blog-post">
-				<h2 class="blog-post-title">Tears of Pain</h2>
+				<h2 class="blog-post-title">Conversation B</h2>
 				<p class="blog-post-meta">
-					March 5, 2016 by <a href="#">Lil Boat</a>
+					with <a href="#">Dave Cookies</a>
 				</p>
-				<ul style="text-align: left">
-					<li>Author: Jonatan Aron Leandoer</li>
-					<li>ISBN: 144-454-789</li>
-					<li>Asking Price: $20.00</li>
-					<li>Description: I cried Arizona tears.</li>
-				</ul>
+				<p>Message 5</p>
+				<p>Message 4</p>
+				<p>Message 3</p>
+				<p>Message 2</p>
+				<p>Message 1</p>
 			</div>
 			<!-- /.blog-post -->
 
 			<div class="blog-post">
-				<h2 class="blog-post-title">Swamp Bread</h2>
+				<h2 class="blog-post-title">Conversation A</h2>
 				<p class="blog-post-meta">
-					March 17, 2016 by <a href="#">Orange Davis</a>
+					with <a href="#">Billy Osteoporosis</a>
 				</p>
-				<ul style="text-align: left">
-					<li>Author: Pancho Dollier</li>
-					<li>ISBN: 414-039-215</li>
-					<li>Asking Price: $1.00</li>
-					<li>Description: Tastes great.</li>
-				</ul>
+
+				<p>Message 5</p>
+				<p>Message 4</p>
+				<p>Message 3</p>
+				<p>Message 2</p>
+				<p>Message 1</p>
+
 			</div>
 			<!-- /.blog-post -->
 
