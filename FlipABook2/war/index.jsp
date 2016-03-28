@@ -35,9 +35,9 @@
 	<div class="blog-masthead">
 		<div class="container">
 			<nav class="blog-nav"> <a class="blog-nav-item active" href="#">Home</a>
-			<a class="blog-nav-item" href="#">New features</a> <a
-				class="blog-nav-item" href="#">Press</a> <a class="blog-nav-item"
-				href="#">New hires</a> <a class="blog-nav-item" href="#">About</a> </nav>
+			<a class="blog-nav-item" href="#">Your Posts</a> <a
+				class="blog-nav-item" href="#">Messages</a> <a class="blog-nav-item"
+				href="#">Arranged Meetings</a></nav>
 		</div>
 	</div>
 
@@ -51,89 +51,62 @@
 				Book Exchange Service</p>
 		</div>
 
-		<div class="row">
+		<!-- <div class="row"> -->
 
-			<div class="col-sm-8 blog-main">
+		<div class="col-sm-8 blog-main">
 
-				<div class="blog-post">
-					<h2 class="blog-post-title">Cook Book</h2>
-					<p class="blog-post-meta">
-						March 27, 2016 by <a href="#">Keith Cozart</a>
-					</p>
-					<ul>
-						<li>Author: Brandon McCartney</li>
-						<li>ISBN: 123-456-789</li>
-						<li>Asking Price: $5000.00</li>
-						<li>Description: Great book, taught me everything. TYBG</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-
-				<div class="blog-post">
-					<h2 class="blog-post-title">Tears of Pain</h2>
-					<p class="blog-post-meta">
-						March 5, 2016 by <a href="#">Lil Boat</a>
-					</p>
-					<ul>
-						<li>Author: Jonatan Aron Leandoer</li>
-						<li>ISBN: 144-454-789</li>
-						<li>Asking Price: $20.00</li>
-						<li>Description: I cried Arizona tears.</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-
-				<div class="blog-post">
-					<h2 class="blog-post-title">Swamp Bread</h2>
-					<p class="blog-post-meta">
-						March 17, 2016 by <a href="#">Orange Davis</a>
-					</p>
-					<ul>
-						<li>Author: Pancho Dollier</li>
-						<li>ISBN: 414-039-215</li>
-						<li>Asking Price: $1.00</li>
-						<li>Description: Tastes great.</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-
-				<nav>
-				<ul class="pager">
-					<li><a href="#">Previous</a></li>
-					<li><a href="#">Next</a></li>
+			<div class="blog-post">
+				<h2 class="blog-post-title">Cook Book</h2>
+				<p class="blog-post-meta">
+					March 27, 2016 by <a href="#">Keith Cozart</a>
+				</p>
+				<ul>
+					<li>Author: Brandon McCartney</li>
+					<li>ISBN: 123-456-789</li>
+					<li>Asking Price: $5000.00</li>
+					<li>Description: Great book, taught me everything. TYBG</li>
 				</ul>
-				</nav>
-
 			</div>
-			<!-- /.blog-main -->
+			<!-- /.blog-post -->
 
-			<div class="col-sm-3 col-sm-offset-1 blog-sidebar">
-				<div class="sidebar-module sidebar-module-inset">
-					<h4>About</h4>
-					<p>
-						Created by EE 461L students Tye Macon, William "Stormy" Mauldin, Daniel Officewala, and Daniel Zhang.
-					</p>
-				</div>
-				<div class="sidebar-module">
-					<h4>Profile Stuff</h4>
-					<ol class="list-unstyled">
-						<li><a href="#">Messages</a></li>
-						<li><a href="#">Posts</a></li>
-						<li><a href="#">Arranged Meetings</a></li>
-					</ol>
-				</div>
-				<div class="sidebar-module">
-					<h4>Links</h4>
-					<ol class="list-unstyled">
-						<li><a href="#">GitHub</a></li>
-						<li><a href="#">Twitter</a></li>
-						<li><a href="#">Facebook</a></li>
-					</ol>
-				</div>
+			<div class="blog-post">
+				<h2 class="blog-post-title">Tears of Pain</h2>
+				<p class="blog-post-meta">
+					March 5, 2016 by <a href="#">Lil Boat</a>
+				</p>
+				<ul>
+					<li>Author: Jonatan Aron Leandoer</li>
+					<li>ISBN: 144-454-789</li>
+					<li>Asking Price: $20.00</li>
+					<li>Description: I cried Arizona tears.</li>
+				</ul>
 			</div>
-			<!-- /.blog-sidebar -->
+			<!-- /.blog-post -->
+
+			<div class="blog-post">
+				<h2 class="blog-post-title">Swamp Bread</h2>
+				<p class="blog-post-meta">
+					March 17, 2016 by <a href="#">Orange Davis</a>
+				</p>
+				<ul>
+					<li>Author: Pancho Dollier</li>
+					<li>ISBN: 414-039-215</li>
+					<li>Asking Price: $1.00</li>
+					<li>Description: Tastes great.</li>
+				</ul>
+			</div>
+			<!-- /.blog-post -->
+
+			<nav>
+			<ul class="pager">
+				<li><a href="#">Previous</a></li>
+				<li><a href="#">Next</a></li>
+			</ul>
+			</nav>
 
 		</div>
+		<!-- /.blog-main -->
+		<!--</div>-->
 		<!-- /.row -->
 
 	</div>
