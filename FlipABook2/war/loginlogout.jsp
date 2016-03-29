@@ -60,15 +60,17 @@
 				class="blog-nav-item" href="../messages.jsp">Messages</a> <a
 				class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
 				Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-				Info</a> <a class="blog-nav-item" href="../loginlogout.jsp">
+				Info</a>
 				<%
 					if (user != null) {
-				%>Log In or Sign Up<%
+				%><a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
+				<%
 					} else {
-				%> Log Out<%
+				%>
+				<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a><%
 					}
 				%>
-			</a> </nav>
+			 </nav>
 
 		</div>
 	</div>
@@ -79,7 +81,16 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description">Log In / Log Out</h2>
+			<h2 class="lead blog-description">
+				<%
+					if (user != null) {
+				%>Log In<%
+					} else {
+				%>
+				Log Out<%
+					}
+				%>
+			</h2>
 		</div>
 
 		<!-- <div class="row"> -->
@@ -87,9 +98,15 @@
 		<div class="blog-main">
 
 			<div class="blog-post">
-				<h2 class="blog-post-title">Panel</h2>
-
-				<p>Dialog</p>
+				<%
+					if (user != null) {
+				%>
+				Log In<%
+					} else {
+				%>
+				Log Out<%
+					}
+				%>
 
 			</div>
 

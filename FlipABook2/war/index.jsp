@@ -52,24 +52,31 @@
 		User user = userService.getCurrentUser();
 	%>
 	<div class="blog-masthead">
-		<div class="container">
-			<nav class="blog-nav"> <a class="blog-nav-item active"
-				href="../index.jsp">Home</a> <a class="blog-nav-item"
-				href="../advancedsearch.jsp">Advanced Search</a> <a
-				class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
-				class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-				class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-				Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-				Info</a> <a class="blog-nav-item" href="../loginlogout.jsp">
-				<%
-					if (user != null) {
-				%>Log In or Sign Up<%
+		<div class="blog-masthead">
+			<div class="container">
+				<nav class="blog-nav"> <a class="blog-nav-item active"
+					href="../index.jsp">Home</a> 
+					<%
+					if (user != null) { 
+					%>
+						<a class="blog-nav-item"
+						href="../advancedsearch.jsp">Advanced Search</a> <a
+						class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
+						class="blog-nav-item" href="../messages.jsp">Messages</a> <a
+						class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
+						Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
+						Info</a>
+						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
+					<%
 					} else {
-				%> Log Out<%
+					%>
+						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
+					<%
 					}
-				%>
-			</a> </nav>
-
+					%>
+				 </nav>
+	
+			</div>
 		</div>
 	</div>
 
@@ -81,6 +88,9 @@
 			</h1>
 			<h2 class="lead blog-description">The University of Texas'
 				Premier Book Exchange Service</h2>
+		<%
+		if (user != null) { 
+		%>
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
 					<input type="text" class="form-control"
@@ -92,7 +102,14 @@
 					</span>
 				</div>
 			</form>
+		<%
+		}
+		%>
 		</div>
+		
+		<%
+		if (user != null) { 
+		%>
 
 		<!-- <div class="row"> -->
 
@@ -151,6 +168,18 @@
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
+		<%
+		} else { 
+		%>
+			<div class="blog-main">
+	
+				<div class="blog-post">
+					<h3><a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log in</a> to use FlipABook.</h3>
+				</div>
+			</div>
+		<%
+		} 
+		%>
 
 	</div>
 	<!-- /.container -->

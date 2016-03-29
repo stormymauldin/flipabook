@@ -52,35 +52,44 @@
 		User user = userService.getCurrentUser();
 	%>
 	<div class="blog-masthead">
-		<div class="container">
-			<nav class="blog-nav"> <a class="blog-nav-item active"
-				href="../index.jsp">Home</a> <a class="blog-nav-item"
-				href="../advancedsearch.jsp">Advanced Search</a> <a
-				class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
-				class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-				class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-				Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-				Info</a> <a class="blog-nav-item" href="../loginlogout.jsp">
-				<%
-					if (user != null) {
-				%>Log In or Sign Up<%
+		<div class="blog-masthead">
+			<div class="container">
+				<nav class="blog-nav"> <a class="blog-nav-item"
+					href="../index.jsp">Home</a> 
+					<%
+					if (user != null) { 
+					%>
+						<a class="blog-nav-item"
+						href="../advancedsearch.jsp">Advanced Search</a> <a
+						class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
+						class="blog-nav-item" href="../messages.jsp">Messages</a> <a
+						class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
+						Meetings</a> <a class="blog-nav-item active" href="../account.jsp">Account
+						Info</a>
+						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
+					<%
 					} else {
-				%> Log Out<%
+					%>
+						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
+					<%
 					}
-				%>
-			</a> </nav>
-
+					%>
+				 </nav>
+	
+			</div>
 		</div>
 	</div>
 
 	<div class="container">
-
 		<div class="blog-header">
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description">Account</h2>
+			<h2 class="lead blog-description"><%if(user!=null){ %>Account<%}else{%>Uh Oh!<%}%></h2>
 		</div>
+		<%
+		if (user != null) { 
+		%>
 
 		<!-- <div class="row"> -->
 
@@ -104,6 +113,18 @@
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
+		<%
+		} else { 
+		%>
+			<div class="blog-main">
+	
+				<div class="blog-post">
+					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
+				</div>
+			</div>
+		<%
+		} 
+		%>
 
 	</div>
 	<!-- /.container -->

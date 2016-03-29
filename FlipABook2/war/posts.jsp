@@ -52,34 +52,41 @@
 		User user = userService.getCurrentUser();
 	%>
 	<div class="blog-masthead">
-		<div class="container">
-			<nav class="blog-nav"> <a class="blog-nav-item active"
-				href="../index.jsp">Home</a> <a class="blog-nav-item"
-				href="../advancedsearch.jsp">Advanced Search</a> <a
-				class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
-				class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-				class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-				Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-				Info</a> <a class="blog-nav-item" href="../loginlogout.jsp">
-				<%
-					if (user != null) {
-				%>Log In or Sign Up<%
+		<div class="blog-masthead">
+			<div class="container">
+				<nav class="blog-nav"> <a class="blog-nav-item"
+					href="../index.jsp">Home</a> 
+					<%
+					if (user != null) { 
+					%>
+						<a class="blog-nav-item"
+						href="../advancedsearch.jsp">Advanced Search</a> <a
+						class="blog-nav-item active" href="../posts.jsp">Your Posts</a> <a
+						class="blog-nav-item" href="../messages.jsp">Messages</a> <a
+						class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
+						Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
+						Info</a>
+						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
+					<%
 					} else {
-				%> Log Out<%
+					%>
+						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
+					<%
 					}
-				%>
-			</a> </nav>
-
+					%>
+				 </nav>
+	
+			</div>
 		</div>
 	</div>
 
 	<div class="container">
-
 		<div class="blog-header">
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description">Your Posts</h2>
+			<h2 class="lead blog-description"><%if(user!=null){ %>Your Posts<%}else{%>Uh Oh!<%}%></h2>
+			<%if(user!=null){ %>
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
 					<input type="text" class="form-control"
@@ -91,59 +98,74 @@
 					</span>
 				</div>
 			</form>
+			<%} %>
 		</div>
-
-		<!-- <div class="row"> -->
-
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Post C</h2>
-				<p class="blog-post-meta">on March 27, 2016</p>
-				<ul style="text-align: left">
-					<li>Author: Brandon McCartney</li>
-					<li>ISBN: 123-456-789</li>
-					<li>Asking Price: $5000.00</li>
-					<li>Description: Great book, taught me everything. TYBG</li>
+		<%
+		if (user != null) { 
+		%>
+			<!-- <div class="row"> -->
+	
+			<div class="blog-main">
+	
+				<div class="blog-post">
+					<h2 class="blog-post-title">Post C</h2>
+					<p class="blog-post-meta">on March 27, 2016</p>
+					<ul style="text-align: left">
+						<li>Author: Brandon McCartney</li>
+						<li>ISBN: 123-456-789</li>
+						<li>Asking Price: $5000.00</li>
+						<li>Description: Great book, taught me everything. TYBG</li>
+					</ul>
+				</div>
+				<!-- /.blog-post -->
+	
+				<div class="blog-post">
+					<h2 class="blog-post-title">Post B</h2>
+					<p class="blog-post-meta">on March 5, 2016</p>
+					<ul style="text-align: left">
+						<li>Author: Jonatan Aron Leandoer</li>
+						<li>ISBN: 144-454-789</li>
+						<li>Asking Price: $20.00</li>
+						<li>Description: I cried Arizona tears.</li>
+					</ul>
+				</div>
+				<!-- /.blog-post -->
+	
+				<div class="blog-post">
+					<h2 class="blog-post-title">Post A</h2>
+					<p class="blog-post-meta">on March 17, 2016</p>
+					<ul style="text-align: left">
+						<li>Author: Pancho Dollier</li>
+						<li>ISBN: 414-039-215</li>
+						<li>Asking Price: $1.00</li>
+						<li>Description: Tastes great.</li>
+					</ul>
+				</div>
+				<!-- /.blog-post -->
+	
+				<nav>
+				<ul class="pager">
+					<li><a href="#">Previous</a></li>
+					<li><a href="#">Next</a></li>
 				</ul>
-			</div>
-			<!-- /.blog-post -->
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Post B</h2>
-				<p class="blog-post-meta">on March 5, 2016</p>
-				<ul style="text-align: left">
-					<li>Author: Jonatan Aron Leandoer</li>
-					<li>ISBN: 144-454-789</li>
-					<li>Asking Price: $20.00</li>
-					<li>Description: I cried Arizona tears.</li>
-				</ul>
-			</div>
-			<!-- /.blog-post -->
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Post A</h2>
-				<p class="blog-post-meta">on March 17, 2016</p>
-				<ul style="text-align: left">
-					<li>Author: Pancho Dollier</li>
-					<li>ISBN: 414-039-215</li>
-					<li>Asking Price: $1.00</li>
-					<li>Description: Tastes great.</li>
-				</ul>
-			</div>
-			<!-- /.blog-post -->
-
-			<nav>
-			<ul class="pager">
-				<li><a href="#">Previous</a></li>
-				<li><a href="#">Next</a></li>
-			</ul>
-			</nav>
+				</nav>
 
 		</div>
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
+		<%
+		} else { 
+		%>
+			<div class="blog-main">
+	
+				<div class="blog-post">
+					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
+				</div>
+			</div>
+		<%
+		} 
+		%>
 
 	</div>
 	<!-- /.container -->
