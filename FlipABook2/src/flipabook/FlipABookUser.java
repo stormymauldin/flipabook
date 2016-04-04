@@ -27,6 +27,10 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 		return user;
 	}
 
+	public User getEmail(){
+		return user.getEmail();
+	}
+	
 	public ArrayList<Post> getPosts() {
 		return posts;
 	}

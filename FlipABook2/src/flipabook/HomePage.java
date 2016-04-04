@@ -7,7 +7,7 @@ import com.google.appengine.api.users.User;
 public class HomePage {
 	private static HomePage uniqueInstance;
 	private ArrayList<Post> posts;
-	private ArrayList<FlipABookUser> users;
+	public static ArrayList<FlipABookUser> users;
 
 	private HomePage() {
 		posts = new ArrayList<Post>();
