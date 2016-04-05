@@ -12,6 +12,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>FlipABookServlet</servlet-name>
 		<url-pattern>/home</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>CreatePostServlet</servlet-name>
+		<servlet-class>flipabook.CreatePostServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CreatePostServlet</servlet-name>
+		<url-pattern>/post</url-pattern>
+	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

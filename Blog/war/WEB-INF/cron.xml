@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<cronentries>
+	<cron>
+		<url>/cron</url>
+		<description>Daily Email Digest for Stormy the Marmot's Blog de Graphic Design</description>
+		<schedule>every day 17:00</schedule>
+	</cron>
+</cronentries>

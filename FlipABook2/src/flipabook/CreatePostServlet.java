@@ -28,17 +28,39 @@ public class CreatePostServlet extends HttpServlet {
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		FlipABookUser flipABookUser = null;
-		for(FlipABookUser flip : HomePage.users)
-		{
-			if(flip.getEmail().equals(user.getEmail())){
+		for (FlipABookUser flip : HomePage.users) {
+			if (flip.getEmail().equals(user.getEmail())) {
 				flipABookUser = flip;
 				break;
 			}
 		}
-		Book book = new Book(req.getParameter("title"), req.getParameter("isbn"), req.getParameter("tags"));
+		String title = req.getParameter("title");
+		String isbn = req.getParameter("isbn");
+		String tags = req.getParameter("tags"); // TODO change to a usable
+												// format
+		String description = req.getParameter("description");
 		double price = Double.parseDouble(req.getParameter("price"));
-		ofy().save().entity(book).now();
-		ofy().save().entity(new Post(flipABookUser, book, price, book.getTitle(), req.getParameter("description"))).now();
+		Book book = new Book(title, isbn, tags);
+		Post post = new Post(flipABookUser, book, price, title, description);
+		boolean postExists = false;
+		boolean bookExists = false;
+		for (Post curPost : HomePage.posts) {
+			if (curPost.getBook().equals(book)) {
+				bookExists = true;
+				if (curPost.equals(post)) {
+					postExists = true;
+					break;
+				}
+			}
+		}
+
+		if (postExists) {
+			// TODO notify user that he cannot have duplicate posts
+			return;
+		} else if (!bookExists) {
+			ofy().save().entity(book).now();
+		}
+		ofy().save().entity(post).now();
 		resp.sendRedirect("/index.jsp");
 	}
 }
