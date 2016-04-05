@@ -11,6 +11,8 @@ public class Book implements Comparable<Book> {
 	String title;
 	String isbn;
 	ArrayList<String> tags;
+	
+	public Book(){}
 
 	public Book(String title, String isbn) {
 		this.title = title;

@@ -14,6 +14,8 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 	ArrayList<Conversation> conversations;
 	ArrayList<Message> unreadMessages;
 	ArrayList<Message> sentMessagesNotRead;
+	
+	public FlipABookUser(){}
 
 	public FlipABookUser(User user) {
 		this.user = user;

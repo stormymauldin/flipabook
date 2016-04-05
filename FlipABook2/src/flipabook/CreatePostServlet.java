@@ -60,6 +60,7 @@ public class CreatePostServlet extends HttpServlet {
 		} else if (!bookExists) {
 			ofy().save().entity(book).now();
 		}
+		HomePage.posts.add(post);
 		ofy().save().entity(post).now();
 		resp.sendRedirect("/index.jsp");
 	}
