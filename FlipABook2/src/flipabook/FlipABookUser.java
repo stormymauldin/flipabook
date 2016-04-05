@@ -29,7 +29,7 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 		return user;
 	}
 
-	public User getEmail(){
+	public String getEmail(){
 		return user.getEmail();
 	}
 	
