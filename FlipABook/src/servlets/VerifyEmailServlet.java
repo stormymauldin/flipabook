@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public class CreateUserServlet extends HttpServlet {
+public class VerifyEmailServlet extends HttpServlet {
 
 	static {
 		ObjectifyService.register(Post.class);
@@ -33,8 +33,18 @@ public class CreateUserServlet extends HttpServlet {
             throws IOException {
 		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
-		resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
-
-		resp.sendRedirect("/verifyemail");
+		User user = userService.getCurrentUser();
+		int index = HomePage.users.indexOf(user);
+		String[] parsedEmail = user.getEmail().split("@");
+		if(parsedEmail.length != 2 || !parsedEmail[1].equals("utexas.edu")){
+			req.setAttribute("utexasemail", false);
+		} else {
+			HomePage.users.add(user);
+			FlipABookUser flipABookUser = new FlipABookUser(user);
+			ofy().save().entity(flipABookUser).now();
+			HomePage.flipABookUsers.add(flipABookUser);
+			//TODO: change redirect locaiton to user's home
+			resp.sendRedirect("/index.jsp");
+		}
 	}
 }

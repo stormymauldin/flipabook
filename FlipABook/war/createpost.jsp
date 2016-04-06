@@ -82,38 +82,44 @@
 
 		<%
 			if (user != null) {
-		%>
+				//if ((Boolean) pageContext.getAttribute("exists")) {
+					%>
+		<!--
+		<p>You have already posted this book! Please try again.</p>
+		-->
+		<%//} %>
 
 		<!-- <div class="row"> -->
 
 		<div class="blog-main">
 			<form action="/post" method="post">
 				<div>
-					<h3>Title of Book</h3>
+					<h4>Title of Book</h4>
 					<textarea name="title" rows="1" cols="60" required></textarea>
 				</div>
-
+				
 				<div>
-					<h3>ISBN</h3>
+					<h4>Author</h4>
+					<textarea name="author" rows="1" cols="60" required></textarea>
+				</div>
+				
+				<div>
+					<h4>ISBN</h4>
 					<textarea name="isbn" rows="1" cols="60" required></textarea>
 				</div>
 
 				<div>
-					<h3>Asking Price</h3>
-					<textarea name="description" rows="3" cols="60" required></textarea>
+					<h4>Asking Price</h4>
+					<textarea name="price" rows="1" cols="60" required></textarea>
 				</div>
 				<div>
-					<h3>Description</h3>
+					<h4>Description</h4>
 					<textarea name="description" rows="3" cols="60" required></textarea>
-				</div>
-				<div>
-					<h3>Tags</h3>
-					<textarea name="title" rows="1" cols="60" required></textarea>
 				</div>
 
 				<div>
 					<input type="submit" value="Post" />
-					<button type="button" onclick="location = 'index.jsp'">Cancel</button>
+					<input type="button" onclick="location = 'home'" value="Cancel"/>
 				</div>
 			</form>
 		</div>

@@ -42,6 +42,7 @@
 
 <body>
 	<%
+		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 	%>
@@ -51,7 +52,23 @@
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
+ 		int index = -1;
+		for(int i = 0; i < HomePage.users.size(); i++){
+			if(HomePage.users.get(i).compareTo(user) == 0){
+				index = i;
+				break;
+			}
+		}
+ 		ObjectifyService.register(FlipABookUser.class);
+ 		FlipABookUser flipABookUser = null;
+ 		if (index == -1) {
+ 			HomePage.users.add(user);
+ 			flipABookUser = new FlipABookUser(user);
+ 			ObjectifyService.ofy().save().entity(flipABookUser).now();
+ 			HomePage.flipABookUsers.add(flipABookUser);
+ 		} else { flipABookUser = HomePage.flipABookUsers.get(index);}
  		pageContext.setAttribute("user", user);
+ 		pageContext.setAttribute("flipabookuser", flipABookUser);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -89,6 +106,7 @@
 					<input type="text" class="form-control"
 						placeholder="Search for a book..."> <span
 						class="input-group-btn">
+						
 						<button type="submit" class="btn btn-default">
 							<span class="glyphicon glyphicon-search"></span>
 						</button>
@@ -99,86 +117,52 @@
 				}
 			%>
 		</div>
-
-		<%
-			if (user != null) {
-				ObjectifyService.register(Post.class);
-				ObjectifyService.register(Book.class);
-				List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
-				Collections.sort(posts);
-				Collections.reverse(posts);
-				if (posts.isEmpty()) {
-		%>
-		<p>There are no recent posts.</p>
-		<%
-		} else {
-			for (int i = 0; i<posts.size(); i++) {
-				if (posts.get(i).getUser() != null) {
-					pageContext.setAttribute("title", posts.get(i).getTitle());
-					pageContext.setAttribute("isbn", posts.get(i).getContent());
-					pageContext.setAttribute("post_user", posts.get(i).getUser());
-					pageContext.setAttribute("post_date", posts.get(i).getDate());
-				}
-		%>
-
 		<!-- <div class="row"> -->
 
 		<div class="blog-main">
-
+			<%
+				if (user != null) {
+					ObjectifyService.register(Post.class);
+					ObjectifyService.register(Book.class);
+					List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
+					Collections.sort(posts);
+					Collections.reverse(posts);
+					if (posts.isEmpty()) {
+			%>
+			<p>There are no recent posts.</p>
+			<%
+				} else {
+						for (int i = 0; i < posts.size(); i++) {
+							pageContext.setAttribute("title", posts.get(i).getTitle());
+							pageContext.setAttribute("seller", posts.get(i).getSeller());
+							pageContext.setAttribute("date", posts.get(i).getDate());
+							pageContext.setAttribute("author", posts.get(i).getAuthor());
+							pageContext.setAttribute("isbn", posts.get(i).getIsbn());
+							pageContext.setAttribute("price", posts.get(i).getPrice());
+							pageContext.setAttribute("description", posts.get(i).getDescription());
+			%>
 			<div class="blog-post">
-				<h2 class="blog-post-title">Cook Book</h2>
+				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
 				<p class="blog-post-meta">
-					March 27, 2016 by <a href="#">Keith Cozart</a>
+					${fn:escapeXml(date)} by <a href="#">${fn:escapeXml(seller)}</a>
 				</p>
 				<ul style="text-align: left">
-					<li>Author: Brandon McCartney</li>
-					<li>ISBN: 123-456-789</li>
-					<li>Asking Price: $5000.00</li>
-					<li>Description: Great book, taught me everything. TYBG</li>
+					<li>Author: ${fn:escapeXml(author)}</li>
+					<li>ISBN: ${fn:escapeXml(isbn)}</li>
+					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
+					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
 			</div>
 			<!-- /.blog-post -->
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Tears of Pain</h2>
-				<p class="blog-post-meta">
-					March 5, 2016 by <a href="#">Lil Boat</a>
-				</p>
-				<ul style="text-align: left">
-					<li>Author: Jonatan Aron Leandoer</li>
-					<li>ISBN: 144-454-789</li>
-					<li>Asking Price: $20.00</li>
-					<li>Description: I cried Arizona tears.</li>
-				</ul>
-			</div>
-			<!-- /.blog-post -->
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Swamp Bread</h2>
-				<p class="blog-post-meta">
-					March 17, 2016 by <a href="#">Orange Davis</a>
-				</p>
-				<ul style="text-align: left">
-					<li>Author: Pancho Dollier</li>
-					<li>ISBN: 414-039-215</li>
-					<li>Asking Price: $1.00</li>
-					<li>Description: Tastes great.</li>
-				</ul>
-			</div>
-			<!-- /.blog-post -->
-
-			<nav>
-			<ul class="pager">
-				<li><a href="#">Previous</a></li>
-				<li><a href="#">Next</a></li>
-			</ul>
-			</nav>
-
+			<%
+				}
+			%>
 		</div>
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
 		<%
+			}
 			} else {
 		%>
 		<div class="blog-main">

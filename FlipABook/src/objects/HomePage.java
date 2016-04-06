@@ -7,11 +7,13 @@ import com.google.appengine.api.users.User;
 public class HomePage {
 	private static HomePage uniqueInstance;
 	public static ArrayList<Post> posts;
-	public static ArrayList<FlipABookUser> users;
+	public static ArrayList<User> users;
+	public static ArrayList<FlipABookUser> flipABookUsers;
 
 	private HomePage() {
 		posts = new ArrayList<Post>();
-		users = new ArrayList<FlipABookUser>();
+		users = new ArrayList<User>();
+		flipABookUsers = new ArrayList<FlipABookUser>();
 	}
 
 	public static synchronized HomePage getInstance() {
@@ -25,11 +27,11 @@ public class HomePage {
 		FlipABookUser flipABookUser = null;
 		// TODO: other stuff here to add to objectify
 		// TODO: check to see if user has email address
-		users.add(flipABookUser);
+		flipABookUsers.add(flipABookUser);
 	}
 
 	public void deleteUser(FlipABookUser user) {
-		if (users.contains(user)) {
+		if (flipABookUsers.contains(user)) {
 			//remove the user from existing conversations
 			for (Conversation conversation : user.getConversations()) {
 				//remove the user's interactions and update associated parties

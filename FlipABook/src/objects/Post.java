@@ -12,7 +12,7 @@ public class Post implements Comparable<Post> {
 	String description;
 	FlipABookUser seller;
 	Book book;
-	double price;
+	String price;
 	Date date;
 	Date deadline;
 	int status;
@@ -24,7 +24,7 @@ public class Post implements Comparable<Post> {
 	public Post() {
 	}
 
-	public Post(FlipABookUser seller, Book book, double price, String description) {
+	public Post(FlipABookUser seller, Book book, String price, String description) {
 		this.seller = seller;
 		this.book = book;
 		this.price = price;
@@ -36,6 +36,14 @@ public class Post implements Comparable<Post> {
 
 	public String getTitle() {
 		return book.getTitle();
+	}
+	
+	public String getIsbn(){
+		return book.getIsbn();
+	}
+	
+	public String getAuthor(){
+		return book.getAuthor();
 	}
 
 	public String getDescription() {
@@ -50,7 +58,7 @@ public class Post implements Comparable<Post> {
 		return book;
 	}
 
-	public double getPrice() {
+	public String getPrice() {
 		return price;
 	}
 
@@ -62,15 +70,11 @@ public class Post implements Comparable<Post> {
 		return status;
 	}
 
-	public void editTitle(String newTitle) {
-		title = newTitle;
-	}
-
 	public void editDescription(String newDescription) {
 		description = newDescription;
 	}
 
-	public void editPrice(double newPrice) {
+	public void editPrice(String newPrice) {
 		price = newPrice;
 	}
 
