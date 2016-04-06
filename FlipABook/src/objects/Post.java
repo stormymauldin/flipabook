@@ -1,12 +1,15 @@
 package objects;
 
+import java.io.Serializable;
 import java.util.Date;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Serialize;
 
 @Entity
-public class Post implements Comparable<Post> {
+@Serialize
+public class Post implements Comparable<Post>{
 	@Id
 	Long id;
 	String description;

@@ -1,11 +1,15 @@
 package objects;
 
+import java.io.Serializable;
+
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Serialize;
 
 @Entity
-public class Message implements Subject {
+@Serialize
+public class Message implements Subject{
 	@Id
 	Long id;
 	FlipABookUser sender;

@@ -1,12 +1,15 @@
 package objects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Serialize;
 
 @Entity
+@Serialize
 public class Book implements Comparable<Book> {
 	@Id
 	Long id;
@@ -14,16 +17,17 @@ public class Book implements Comparable<Book> {
 	String isbn;
 	String author;
 	ArrayList<String> tags = new ArrayList<String>();
-	
-	public Book(){}
+
+	public Book() {
+	}
 
 	public Book(String title, String author, String isbn) {
 		this.title = title;
 		this.isbn = isbn;
 		this.author = author;
 	}
-	
-	private void generateTags(){
+
+	private void generateTags() {
 		String[] titleTags = title.split(" ");
 		String[] authorTags = title.split(" ");
 		tags.addAll(Arrays.asList(titleTags));
@@ -33,8 +37,8 @@ public class Book implements Comparable<Book> {
 	public String getTitle() {
 		return title;
 	}
-	
-	public String getAuthor(){
+
+	public String getAuthor() {
 		return author;
 	}
 

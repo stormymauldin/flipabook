@@ -1,13 +1,16 @@
 package objects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Serialize;
 
 @Entity
+@Serialize
 public class Conversation implements Comparable <Conversation>{
 	@Id
 	Long id;

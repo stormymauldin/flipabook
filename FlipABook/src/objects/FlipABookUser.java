@@ -1,11 +1,14 @@
 package objects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Serialize;
 
 @Entity
+@Serialize
 public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 	@Id
 	Long id;
