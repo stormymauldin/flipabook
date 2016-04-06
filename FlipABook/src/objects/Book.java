@@ -1,6 +1,8 @@
 package objects;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
@@ -10,24 +12,22 @@ public class Book implements Comparable<Book> {
 	Long id;
 	String title;
 	String isbn;
-	ArrayList<String> tags;
+	String author;
+	ArrayList<String> tags = new ArrayList<String>();
 	
 	public Book(){}
 
-	public Book(String title, String isbn) {
+	public Book(String title, String author, String isbn) {
 		this.title = title;
 		this.isbn = isbn;
-		tags = new ArrayList<String>();
+		this.author = author;
 	}
-
-	public Book(String title, String isbn, String tag) {
-		this(title, isbn);
-		tags.add(tag);
-	}
-
-	public Book(String title, String isbn, ArrayList<String> tags) {
-		this(title, isbn);
-		this.tags = tags;
+	
+	private void generateTags(){
+		String[] titleTags = title.split(" ");
+		String[] authorTags = title.split(" ");
+		tags.addAll(Arrays.asList(titleTags));
+		tags.addAll(Arrays.asList(authorTags));
 	}
 
 	public String getTitle() {

@@ -9,7 +9,6 @@ import com.googlecode.objectify.annotation.Id;
 public class Post implements Comparable<Post> {
 	@Id
 	Long id;
-	String title;
 	String description;
 	FlipABookUser seller;
 	Book book;
@@ -21,14 +20,14 @@ public class Post implements Comparable<Post> {
 	public static final int SUSPENDED = 1;
 	private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
 	private static final long TWO_WEEKS = 14 * DAY_IN_MS;
-	
-	public Post(){}
 
-	public Post(FlipABookUser seller, Book book, double price, String title, String description) {
+	public Post() {
+	}
+
+	public Post(FlipABookUser seller, Book book, double price, String description) {
 		this.seller = seller;
 		this.book = book;
 		this.price = price;
-		this.title = title;
 		this.description = description;
 		date = new Date();
 		deadline = new Date(date.getTime() + TWO_WEEKS);
@@ -36,7 +35,7 @@ public class Post implements Comparable<Post> {
 	}
 
 	public String getTitle() {
-		return title;
+		return book.getTitle();
 	}
 
 	public String getDescription() {

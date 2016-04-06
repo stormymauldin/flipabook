@@ -102,6 +102,23 @@
 
 		<%
 			if (user != null) {
+				ObjectifyService.register(Post.class);
+				ObjectifyService.register(Book.class);
+				List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
+				Collections.sort(posts);
+				Collections.reverse(posts);
+				if (posts.isEmpty()) {
+		%>
+		<p>There are no recent posts.</p>
+		<%
+		} else {
+			for (int i = 0; i<posts.size(); i++) {
+				if (posts.get(i).getUser() != null) {
+					pageContext.setAttribute("title", posts.get(i).getTitle());
+					pageContext.setAttribute("isbn", posts.get(i).getContent());
+					pageContext.setAttribute("post_user", posts.get(i).getUser());
+					pageContext.setAttribute("post_date", posts.get(i).getDate());
+				}
 		%>
 
 		<!-- <div class="row"> -->

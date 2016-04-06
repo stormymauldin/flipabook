@@ -41,12 +41,12 @@ public class CreatePostServlet extends HttpServlet {
 		}
 		String title = req.getParameter("title");
 		String isbn = req.getParameter("isbn");
-		String tags = req.getParameter("tags"); // TODO change to a usable
+		String author = req.getParameter("author"); // TODO change to a usable
 												// format
 		String description = req.getParameter("description");
 		double price = Double.parseDouble(req.getParameter("price"));
-		Book book = new Book(title, isbn, tags);
-		Post post = new Post(flipABookUser, book, price, title, description);
+		Book book = new Book(title, author, isbn);
+		Post post = new Post(flipABookUser, book, price, description);
 		boolean postExists = false;
 		boolean bookExists = false;
 		for (Post curPost : HomePage.posts) {
