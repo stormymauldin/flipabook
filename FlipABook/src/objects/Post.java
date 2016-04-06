@@ -24,14 +24,25 @@ public class Post implements Comparable<Post> {
 	public Post() {
 	}
 
-	public Post(FlipABookUser seller, Book book, String price, String description) {
+	public Post(FlipABookUser seller, String title, String author, String isbn, String price, String description) {
 		this.seller = seller;
-		this.book = book;
+		getBook(isbn, title, author);
 		this.price = price;
 		this.description = description;
 		date = new Date();
 		deadline = new Date(date.getTime() + TWO_WEEKS);
 		status = ACTIVE;
+	}
+	
+	private void getBook(String title, String author, String isbn){
+		for(int i = 0; i < HomePage.books.size(); i++){
+			if(isbn.equals(HomePage.books.get(i).getIsbn())){
+				book = HomePage.books.get(i);
+				return;
+			}
+		}
+		book = new Book(title, author, isbn);
+		HomePage.books.add(book);
 	}
 
 	public String getTitle() {

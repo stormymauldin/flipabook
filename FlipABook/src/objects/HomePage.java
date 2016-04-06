@@ -9,11 +9,13 @@ public class HomePage {
 	public static ArrayList<Post> posts;
 	public static ArrayList<User> users;
 	public static ArrayList<FlipABookUser> flipABookUsers;
+	public static ArrayList<Book> books;
 
 	private HomePage() {
 		posts = new ArrayList<Post>();
 		users = new ArrayList<User>();
 		flipABookUsers = new ArrayList<FlipABookUser>();
+		books = new ArrayList<Book>();
 	}
 
 	public static synchronized HomePage getInstance() {

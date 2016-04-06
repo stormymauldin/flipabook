@@ -73,6 +73,7 @@
 
 	<div class="container">
 
+
 		<div class="blog-header">
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
@@ -82,12 +83,8 @@
 
 		<%
 			if (user != null) {
-				//if ((Boolean) pageContext.getAttribute("exists")) {
-					%>
-		<!--
-		<p>You have already posted this book! Please try again.</p>
-		-->
-		<%//} %>
+				Boolean exists = (Boolean) (pageContext.getAttribute("exists"));
+		%>
 
 		<!-- <div class="row"> -->
 
@@ -97,12 +94,12 @@
 					<h4>Title of Book</h4>
 					<textarea name="title" rows="1" cols="60" required></textarea>
 				</div>
-				
+
 				<div>
 					<h4>Author</h4>
 					<textarea name="author" rows="1" cols="60" required></textarea>
 				</div>
-				
+
 				<div>
 					<h4>ISBN</h4>
 					<textarea name="isbn" rows="1" cols="60" required></textarea>
@@ -118,8 +115,8 @@
 				</div>
 
 				<div>
-					<input type="submit" value="Post" />
-					<input type="button" onclick="location = 'home'" value="Cancel"/>
+					<input type="submit" value="Post" /> <input type="button"
+						onclick="location = 'home'" value="Cancel" />
 				</div>
 			</form>
 		</div>

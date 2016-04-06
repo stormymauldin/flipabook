@@ -22,9 +22,8 @@ import objects.Post;
 public class CreatePostServlet extends HttpServlet {
 
 	static {
-		ObjectifyService.register(Post.class);
 		ObjectifyService.register(FlipABookUser.class);
-		ObjectifyService.register(Book.class);
+		ObjectifyService.register(Post.class);
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -32,43 +31,37 @@ public class CreatePostServlet extends HttpServlet {
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
 		int index = -1;
-		for(int i = 0; i < HomePage.users.size(); i++){
-			if(HomePage.users.get(i).compareTo(user) == 0){
+		for (int i = 0; i < HomePage.users.size(); i++) {
+			if (HomePage.users.get(i).compareTo(user) == 0) {
 				index = i;
 				break;
 			}
 		}
 		FlipABookUser flipABookUser = HomePage.flipABookUsers.get(index);
-		
+
 		String title = req.getParameter("title");
 		String isbn = req.getParameter("isbn");
 		String author = req.getParameter("author"); // TODO change to a usable
-												// format
+		// format
 		String description = req.getParameter("description");
 		String price = req.getParameter("price");
-		Book book = new Book(title, author, isbn);
-		Post post = new Post(flipABookUser, book, price, description);
+		Post post = new Post(flipABookUser, title, author, isbn, price, description);
 		boolean postExists = false;
-		boolean bookExists = false;
 		for (Post curPost : HomePage.posts) {
-			if (curPost.getBook().compareTo(book) == 0) {
-				bookExists = true;
-				if (curPost.compareTo(post) == 0) {
-					postExists = true;
-					break;
-				}
+			if (curPost.compareTo(post) == 0) {
+				postExists = true;
+				break;
 			}
 		}
 
 		if (postExists) {
-			resp.sendRedirect("/createpost.jsp?exists=true");
+			req.setAttribute("exists", true);
+			resp.sendRedirect("/createpost.jsp");
 			return;
-		} else if (!bookExists) {
-			ofy().save().entity(book).now();
 		}
+		req.setAttribute("exists", false);
 		HomePage.posts.add(post);
 		ofy().save().entity(post).now();
-		
-		resp.sendRedirect("/index.jsp");
+		resp.sendRedirect("/home");
 	}
 }
