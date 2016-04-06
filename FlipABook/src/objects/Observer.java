@@ -1,4 +1,4 @@
-package flipabook;
+package objects;
 
 public interface Observer {
 	//constants for "updateType" field

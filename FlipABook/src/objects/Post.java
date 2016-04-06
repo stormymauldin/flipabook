@@ -1,4 +1,4 @@
-package flipabook;
+package objects;
 
 import java.util.Date;
 import com.google.appengine.api.users.User;

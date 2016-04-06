@@ -1,4 +1,4 @@
-package flipabook;
+package objects;
 
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Entity;

@@ -1,4 +1,4 @@
-package flipabook;
+package objects;
 
 import java.util.ArrayList;
 import com.google.appengine.api.users.User;

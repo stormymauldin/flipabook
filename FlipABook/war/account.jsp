@@ -2,14 +2,8 @@
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.util.Collections"%>
-<%@ page import="flipabook.Book"%>
-<%@ page import="flipabook.Conversation"%>
-<%@ page import="flipabook.FlipABookUser"%>
-<%@ page import="flipabook.HomePage"%>
-<%@ page import="flipabook.Message"%>
-<%@ page import="flipabook.Observer"%>
-<%@ page import="flipabook.Post"%>
-<%@ page import="flipabook.Subject"%>
+<%@ page import="objects.*"%>
+<%@ page import="servlets.*"%>
 <%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
@@ -55,27 +49,23 @@
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
-					href="../index.jsp">Home</a> 
-					<%
-					if (user != null) { 
-					%>
-						<a class="blog-nav-item"
-						href="../advancedsearch.jsp">Advanced Search</a> <a
-						class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
-						class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-						class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-						Meetings</a> <a class="blog-nav-item active" href="../account.jsp">Account
-						Info</a>
-						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
-					<%
-					} else {
-					%>
-						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
-					<%
-					}
-					%>
-				 </nav>
-	
+					href="../index.jsp">Home</a> <%
+ 	if (user != null) {
+ %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
+					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
+				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
+					class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
+					Meetings</a> <a class="blog-nav-item active" href="../account.jsp">Account
+					Info</a> <a class="blog-nav-item"
+					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
+					Out</a> <%
+ 	} else {
+ %> <a class="blog-nav-item"
+					href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+					In</a> <%
+ 	}
+ %> </nav>
+
 			</div>
 		</div>
 	</div>
@@ -85,10 +75,18 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description"><%if(user!=null){ %>Account<%}else{%>Uh Oh!<%}%></h2>
+			<h2 class="lead blog-description">
+				<%
+					if (user != null) {
+				%>Account<%
+					} else {
+				%>Uh Oh!<%
+					}
+				%>
+			</h2>
 		</div>
 		<%
-		if (user != null) { 
+			if (user != null) {
 		%>
 
 		<!-- <div class="row"> -->
@@ -114,16 +112,20 @@
 		<!--</div>-->
 		<!-- /.row -->
 		<%
-		} else { 
+			} else {
 		%>
-			<div class="blog-main">
-	
-				<div class="blog-post">
-					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
-				</div>
+		<div class="blog-main">
+
+			<div class="blog-post">
+				<h3>
+					<a href="../index.jsp">Return home</a> or <a
+						href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+						back in</a>
+				</h3>
 			</div>
+		</div>
 		<%
-		} 
+			}
 		%>
 
 	</div>

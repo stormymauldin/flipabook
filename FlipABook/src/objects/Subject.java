@@ -1,4 +1,4 @@
-package flipabook;
+package objects;
 
 public interface Subject {
 	static final int SELLER_TO_BUYER = 0;

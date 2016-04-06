@@ -1,6 +1,11 @@
-package flipabook;
+package servlets;
 
 import com.googlecode.objectify.ObjectifyService;
+
+import objects.Book;
+import objects.FlipABookUser;
+import objects.HomePage;
+import objects.Post;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
