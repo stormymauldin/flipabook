@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<cronentries>
-	<cron>
-		<url>/cron</url>
-		<description>Daily Email Digest for Available Books on FlipABook</description>
-		<schedule>every day 17:00</schedule>
-	</cron>
-</cronentries>
