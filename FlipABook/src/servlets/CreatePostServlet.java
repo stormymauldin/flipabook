@@ -3,7 +3,9 @@ package servlets;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.io.IOException;
+import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,7 +49,8 @@ public class CreatePostServlet extends HttpServlet {
 		String price = req.getParameter("price");
 		Post post = new Post(flipABookUser, title, author, isbn, price, description);
 		boolean postExists = false;
-		for (Post curPost : HomePage.posts) {
+		List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
+		for (Post curPost : posts) {
 			if (curPost.compareTo(post) == 0) {
 				postExists = true;
 				break;
@@ -55,13 +58,12 @@ public class CreatePostServlet extends HttpServlet {
 		}
 
 		if (postExists) {
-			req.setAttribute("exists", true);
-			resp.sendRedirect("/createpost.jsp");
-			return;
+			flipABookUser.setRepeatPostAttempt();
+			resp.sendRedirect("createpost.jsp");
+		} else {
+			HomePage.posts.add(post);
+			ofy().save().entity(post).now();
+			resp.sendRedirect("/home");
 		}
-		req.setAttribute("exists", false);
-		HomePage.posts.add(post);
-		ofy().save().entity(post).now();
-		resp.sendRedirect("/home");
 	}
 }

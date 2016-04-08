@@ -100,7 +100,7 @@
 				if (user != null) {
 			%>
 			<input type="button" value="Create a post"
-				onClick="window.location='createPost.jsp';">
+				onClick="window.location='createpost.jsp';">
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
 					<input type="text" class="form-control"

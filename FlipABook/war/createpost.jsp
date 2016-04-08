@@ -44,6 +44,8 @@
 	<%
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
+		HomePage.getInstance();
+		FlipABookUser flipABookUser = null;
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -52,6 +54,14 @@
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
  		pageContext.setAttribute("user", user);
+ 		int index = -1;
+		for (int i = 0; i < HomePage.users.size(); i++) {
+			if (HomePage.users.get(i).compareTo(user) == 0) {
+				index = i;
+				break;
+			}
+		}
+		flipABookUser = HomePage.flipABookUsers.get(index);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -79,12 +89,22 @@
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
 			<h2 class="lead blog-description">Create a new post</h2>
-		</div>
 
-		<%
-			if (user != null) {
-				Boolean exists = (Boolean) (pageContext.getAttribute("exists"));
-		%>
+
+			<%
+				if (flipABookUser != null) {
+					if (flipABookUser.repeatPostAttempt()) {
+						flipABookUser.removeRepeatPostAttempt();
+			%>
+			<h2 class="lead blog-description">
+				<font color="red">ERROR: You have already posted this book!!
+					Try again.</font>
+			</h2>
+			<%
+				}
+			%>
+
+		</div>
 
 		<!-- <div class="row"> -->
 
