@@ -2,23 +2,31 @@ package objects;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
 import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Serialize;
+import com.googlecode.objectify.annotation.*;
 
 @Entity
 @Serialize
-public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
+public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6021876930283938945L;
 	@Id
 	Long id;
 	User user;
+	@Container
 	ArrayList<Post> posts;
+	@Container
 	ArrayList<Conversation> conversations;
+	@Container
 	ArrayList<Message> unreadMessages;
+	@Container
 	ArrayList<Message> sentMessagesNotRead;
-	
-	public FlipABookUser(){}
+
+	public FlipABookUser() {
+	}
 
 	public FlipABookUser(User user) {
 		this.user = user;
@@ -32,10 +40,10 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 		return user;
 	}
 
-	public String getEmail(){
+	public String getEmail() {
 		return user.getEmail();
 	}
-	
+
 	public ArrayList<Post> getPosts() {
 		return posts;
 	}
@@ -97,15 +105,14 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 	// ii) notifies the user that a previously sent message has been read.
 	@Override
 	public void update(Message message, int updateType) {
-		if (updateType == Observer.NEW_MESSAGE){
+		if (updateType == Observer.NEW_MESSAGE) {
 			if (!conversations.contains(message.getConversation())) {
 				conversations.add(message.getConversation());
 			}
 			unreadMessages.add(message);
-		}
-		else if(updateType == Observer.READ){
+		} else if (updateType == Observer.READ) {
 			int index = sentMessagesNotRead.indexOf(message);
-			if(index != -1){
+			if (index != -1) {
 				sentMessagesNotRead.remove(index);
 			}
 		}

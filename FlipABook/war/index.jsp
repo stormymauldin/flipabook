@@ -134,7 +134,7 @@
 				} else {
 						for (int i = 0; i < posts.size(); i++) {
 							pageContext.setAttribute("title", posts.get(i).getTitle());
-							pageContext.setAttribute("seller", posts.get(i).getSeller());
+							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
 							pageContext.setAttribute("date", posts.get(i).getDate());
 							pageContext.setAttribute("author", posts.get(i).getAuthor());
 							pageContext.setAttribute("isbn", posts.get(i).getIsbn());

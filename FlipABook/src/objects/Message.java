@@ -2,19 +2,23 @@ package objects;
 
 import java.io.Serializable;
 
-import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Serialize;
+import com.googlecode.objectify.annotation.*;
 
 @Entity
 @Serialize
-public class Message implements Subject{
+public class Message implements Subject, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7210318335481909978L;
 	@Id
 	Long id;
+	@Container
 	FlipABookUser sender;
+	@Container
 	FlipABookUser recipient;
 	String content;
+	@Container
 	Conversation conversation;
 	boolean senderDeleted = false;
 	boolean recipientDeleted = false;
@@ -55,37 +59,34 @@ public class Message implements Subject{
 		return conversation;
 	}
 
-	//this implementation is called to establish the sender and recipient
+	// this implementation is called to establish the sender and recipient
 	@Override
 	public void registerObservers(Observer o0, Observer o1) {
 		this.sender = (FlipABookUser) o0;
 		this.recipient = (FlipABookUser) o1;
 	}
 
-	//this implementation is called when a user deletes a message
+	// this implementation is called when a user deletes a message
 	@Override
 	public void removeObserver(Observer o) {
 		FlipABookUser toBeRemoved = (FlipABookUser) o;
-		if(sender.compareTo(toBeRemoved) == 0){
+		if (sender.compareTo(toBeRemoved) == 0) {
 			sender.update(this, Observer.DELETE);
 			senderDeleted = true;
-		}
-		else{
+		} else {
 			recipient.update(this, Observer.DELETE);
 			recipientDeleted = true;
 		}
 	}
 
-	//this implementation is called to update the participants
+	// this implementation is called to update the participants
 	@Override
 	public void notifyObservers(int updateType) {
-		if(!senderDeleted){
+		if (!senderDeleted) {
 			sender.update(this, updateType);
 		}
-		if(!recipientDeleted){
+		if (!recipientDeleted) {
 			recipient.update(this, updateType);
 		}
 	}
 }
-
-

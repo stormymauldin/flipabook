@@ -2,18 +2,22 @@ package objects;
 
 import java.io.Serializable;
 import java.util.Date;
-import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Serialize;
+
+import com.googlecode.objectify.annotation.*;
 
 @Entity
 @Serialize
-public class Post implements Comparable<Post>{
+public class Post implements Comparable<Post>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5085203634956354791L;
 	@Id
 	Long id;
 	String description;
+	@Container
 	FlipABookUser seller;
+	@Container
 	Book book;
 	String price;
 	Date date;
@@ -36,10 +40,10 @@ public class Post implements Comparable<Post>{
 		deadline = new Date(date.getTime() + TWO_WEEKS);
 		status = ACTIVE;
 	}
-	
-	private void getBook(String title, String author, String isbn){
-		for(int i = 0; i < HomePage.books.size(); i++){
-			if(isbn.equals(HomePage.books.get(i).getIsbn())){
+
+	private void getBook(String title, String author, String isbn) {
+		for (int i = 0; i < HomePage.books.size(); i++) {
+			if (isbn.equals(HomePage.books.get(i).getIsbn())) {
 				book = HomePage.books.get(i);
 				return;
 			}
@@ -51,12 +55,12 @@ public class Post implements Comparable<Post>{
 	public String getTitle() {
 		return book.getTitle();
 	}
-	
-	public String getIsbn(){
+
+	public String getIsbn() {
 		return book.getIsbn();
 	}
-	
-	public String getAuthor(){
+
+	public String getAuthor() {
 		return book.getAuthor();
 	}
 

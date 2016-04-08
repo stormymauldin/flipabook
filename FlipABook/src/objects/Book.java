@@ -4,13 +4,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Serialize;
+import com.googlecode.objectify.annotation.*;
 
 @Entity
 @Serialize
-public class Book implements Comparable<Book> {
+public class Book implements Comparable<Book>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 262854116047706302L;
 	@Id
 	Long id;
 	String title;
@@ -25,6 +27,7 @@ public class Book implements Comparable<Book> {
 		this.title = title;
 		this.isbn = isbn;
 		this.author = author;
+		generateTags();
 	}
 
 	private void generateTags() {

@@ -4,93 +4,98 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Serialize;
+import com.googlecode.objectify.annotation.*;
 
 @Entity
 @Serialize
-public class Conversation implements Comparable <Conversation>{
+public class Conversation implements Comparable<Conversation>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -961566006389798376L;
 	@Id
 	Long id;
+	@Container
 	Post post;
-	//note: participant 0 is seller, participant 1 is buyer.
+	// note: participant 0 is seller, participant 1 is buyer.
+	@Container
 	FlipABookUser buyer;
+	@Container
 	ArrayList<Message> messages;
 	boolean meetingIsScheduled = false;
 	Date scheduleDate;
 	boolean transactionWasSuccessful = false;
 	static final int POST_DELETED = 0;
 	static final int BUYER_DELETED = 1;
-	
-	public Conversation(){}
-	public Conversation(Post post, FlipABookUser buyer){
+
+	public Conversation() {
+	}
+
+	public Conversation(Post post, FlipABookUser buyer) {
 		this.post = post;
 		this.buyer = buyer;
 		messages = new ArrayList<Message>();
 	}
-	
-	public Post getPost(){
+
+	public Post getPost() {
 		return post;
 	}
-	
-	public void newMessage(int direction, String content){
+
+	public void newMessage(int direction, String content) {
 		messages.add(new Message(direction, content, this));
 	}
-	
-	public void scheduleMeeting(){
+
+	public void scheduleMeeting() {
 		meetingIsScheduled = true;
 		scheduleDate = new Date();
 		post.editStatus(Post.SUSPENDED);
 	}
-	
-	public boolean meetingIsScheduled(){
+
+	public boolean meetingIsScheduled() {
 		return meetingIsScheduled;
 	}
-	
-	public Date getScheduledDate(){
+
+	public Date getScheduledDate() {
 		return scheduleDate;
 	}
-	
-	public void transactionWasSuccessful(){
+
+	public void transactionWasSuccessful() {
 		transactionWasSuccessful = true;
-		//TODO: call function to delete post
+		// TODO: call function to delete post
 	}
-	
-	public void transactionWasNotSuccesful(){
+
+	public void transactionWasNotSuccesful() {
 		meetingIsScheduled = false;
 		post.editStatus(Post.ACTIVE);
 	}
-	
-	public ArrayList<Message> getMessages(){
+
+	public ArrayList<Message> getMessages() {
 		return messages;
 	}
-	
-	public FlipABookUser getBuyer(){
+
+	public FlipABookUser getBuyer() {
 		return buyer;
 	}
+
 	@Override
 	public int compareTo(Conversation o) {
-		if(post.compareTo(o.getPost()) == 0 && buyer.compareTo(o.getBuyer()) == 0){
+		if (post.compareTo(o.getPost()) == 0 && buyer.compareTo(o.getBuyer()) == 0) {
 			return 0;
 		}
 		return -1;
 	}
-	
-	public void deleteConversation(int deletionType){
-		if(deletionType == POST_DELETED){
-			for(Message message : messages){
+
+	public void deleteConversation(int deletionType) {
+		if (deletionType == POST_DELETED) {
+			for (Message message : messages) {
 				message.removeObserver(message.getSender());
 				message.removeObserver(message.getRecipient());
 			}
-		}
-		else{
-			for(Message message : messages){
-				if(buyer.compareTo(message.getSender()) == 0){
+		} else {
+			for (Message message : messages) {
+				if (buyer.compareTo(message.getSender()) == 0) {
 					message.removeObserver(message.getSender());
-				}
-				else{
+				} else {
 					message.removeObserver(message.getRecipient());
 				}
 			}
