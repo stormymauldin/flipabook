@@ -25,6 +25,8 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	@Container
 	ArrayList<Message> sentMessagesNotRead;
 	boolean repeatPostAttempt = false;
+	boolean wrongPrice = false;
+	boolean nullFields = false;
 
 	public FlipABookUser() {
 	}
@@ -60,17 +62,41 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 		}
 		message.setRead();
 	}
-	
-	public boolean repeatPostAttempt(){
+
+	public boolean repeatPostAttempt() {
 		return repeatPostAttempt;
 	}
-	
-	public void setRepeatPostAttempt(){
+
+	public void setRepeatPostAttempt() {
 		repeatPostAttempt = true;
 	}
-	
-	public void removeRepeatPostAttempt(){
+
+	public void removeRepeatPostAttempt() {
 		repeatPostAttempt = false;
+	}
+
+	public boolean wrongPrice() {
+		return wrongPrice;
+	}
+
+	public void setWrongPrice() {
+		wrongPrice = true;
+	}
+
+	public void removeWrongPrice() {
+		wrongPrice = false;
+	}
+	
+	public boolean nullFields() {
+		return nullFields;
+	}
+
+	public void setNullFields() {
+		nullFields = true;
+	}
+
+	public void removeNullFields() {
+		nullFields = false;
 	}
 
 	private int getConversationIndex(Post post, FlipABookUser buyer) {

@@ -3,6 +3,7 @@ package servlets;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -43,22 +44,40 @@ public class CreatePostServlet extends HttpServlet {
 
 		String title = req.getParameter("title");
 		String isbn = req.getParameter("isbn");
-		String author = req.getParameter("author"); // TODO change to a usable
-		// format
+		String author = req.getParameter("author");
 		String description = req.getParameter("description");
 		String price = req.getParameter("price");
+		boolean nullFields = false;
+		if (title == null || title.equals("") || isbn == null || isbn.equals("") || author == null || author.equals("")
+				|| description == null || description.equals("") || price == null || price.equals("")) {
+			flipABookUser.setNullFields();
+			nullFields = true;
+		}
+		boolean wrongPrice = false;
+		try {
+			double parsed = Double.parseDouble(price);
+			if (parsed < 0) {
+				flipABookUser.setWrongPrice();
+				wrongPrice = true;
+			}
+			DecimalFormat moneyFormat = new DecimalFormat("#.00");
+			price = moneyFormat.format(parsed);
+		} catch (NumberFormatException e) {
+			flipABookUser.setWrongPrice();
+			wrongPrice = true;
+		}
 		Post post = new Post(flipABookUser, title, author, isbn, price, description);
 		boolean postExists = false;
 		List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
 		for (Post curPost : posts) {
 			if (curPost.compareTo(post) == 0) {
+				flipABookUser.setRepeatPostAttempt();
 				postExists = true;
 				break;
 			}
 		}
 
-		if (postExists) {
-			flipABookUser.setRepeatPostAttempt();
+		if (postExists || wrongPrice || nullFields) {
 			resp.sendRedirect("createpost.jsp");
 		} else {
 			HomePage.posts.add(post);

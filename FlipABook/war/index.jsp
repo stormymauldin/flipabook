@@ -45,6 +45,17 @@
 		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
+		ObjectifyService.register(Post.class);
+		ObjectifyService.register(Book.class);
+		final boolean clear = false; //debug variable
+		List<Post> posts = HomePage.posts;
+		if (clear) {
+			posts = ObjectifyService.ofy().load().type(Post.class).list();
+			for (int i = 0; i < posts.size(); i++) {
+				ObjectifyService.ofy().delete().entity(posts.get(0)).now();
+			}
+			HomePage.posts.clear();
+		}
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -53,12 +64,12 @@
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
  		int index = -1;
-		for(int i = 0; i < HomePage.users.size(); i++){
-			if(HomePage.users.get(i).compareTo(user) == 0){
-				index = i;
-				break;
-			}
-		}
+ 		for (int i = 0; i < HomePage.users.size(); i++) {
+ 			if (HomePage.users.get(i).compareTo(user) == 0) {
+ 				index = i;
+ 				break;
+ 			}
+ 		}
  		ObjectifyService.register(FlipABookUser.class);
  		FlipABookUser flipABookUser = null;
  		if (index == -1) {
@@ -66,7 +77,9 @@
  			flipABookUser = new FlipABookUser(user);
  			ObjectifyService.ofy().save().entity(flipABookUser).now();
  			HomePage.flipABookUsers.add(flipABookUser);
- 		} else { flipABookUser = HomePage.flipABookUsers.get(index);}
+ 		} else {
+ 			flipABookUser = HomePage.flipABookUsers.get(index);
+ 		}
  		pageContext.setAttribute("user", user);
  		pageContext.setAttribute("flipabookuser", flipABookUser);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
@@ -106,7 +119,7 @@
 					<input type="text" class="form-control"
 						placeholder="Search for a book..."> <span
 						class="input-group-btn">
-						
+
 						<button type="submit" class="btn btn-default">
 							<span class="glyphicon glyphicon-search"></span>
 						</button>
@@ -122,16 +135,13 @@
 		<div class="blog-main">
 			<%
 				if (user != null) {
-					ObjectifyService.register(Post.class);
-					ObjectifyService.register(Book.class);
-					List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
-					Collections.sort(posts);
-					Collections.reverse(posts);
 					if (posts.isEmpty()) {
 			%>
 			<p>There are no recent posts.</p>
 			<%
 				} else {
+						Collections.sort(posts);
+						Collections.reverse(posts);
 						for (int i = 0; i < posts.size(); i++) {
 							pageContext.setAttribute("title", posts.get(i).getTitle());
 							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());

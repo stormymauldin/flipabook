@@ -55,13 +55,13 @@
  	if (user != null) {
  		pageContext.setAttribute("user", user);
  		int index = -1;
-		for (int i = 0; i < HomePage.users.size(); i++) {
-			if (HomePage.users.get(i).compareTo(user) == 0) {
-				index = i;
-				break;
-			}
-		}
-		flipABookUser = HomePage.flipABookUsers.get(index);
+ 		for (int i = 0; i < HomePage.users.size(); i++) {
+ 			if (HomePage.users.get(i).compareTo(user) == 0) {
+ 				index = i;
+ 				break;
+ 			}
+ 		}
+ 		flipABookUser = HomePage.flipABookUsers.get(index);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -99,6 +99,21 @@
 			<h2 class="lead blog-description">
 				<font color="red">ERROR: You have already posted this book!!
 					Try again.</font>
+			</h2>
+			<%
+				} if (flipABookUser.wrongPrice()) {
+						flipABookUser.removeWrongPrice();
+			%>
+			<h2 class="lead blog-description">
+				<font color="red">ERROR: Please enter a valid price (no
+					dollar signs, numbers and decimal points only).</font>
+			</h2>
+			<%
+				} if (flipABookUser.nullFields()) {
+						flipABookUser.removeNullFields();
+			%>
+			<h2 class="lead blog-description">
+				<font color="red">ERROR: Please fill out all fields.</font>
 			</h2>
 			<%
 				}

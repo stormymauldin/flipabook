@@ -33,7 +33,7 @@ public class Post implements Comparable<Post>, Serializable {
 
 	public Post(FlipABookUser seller, String title, String author, String isbn, String price, String description) {
 		this.seller = seller;
-		getBook(isbn, title, author);
+		getBook(title, author, isbn);
 		this.price = price;
 		this.description = description;
 		date = new Date();
