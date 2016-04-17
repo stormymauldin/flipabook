@@ -27,6 +27,7 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	boolean repeatPostAttempt = false;
 	boolean wrongPrice = false;
 	boolean nullFields = false;
+	boolean wrongIsbn = false;
 
 	public FlipABookUser() {
 	}
@@ -97,6 +98,18 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 
 	public void removeNullFields() {
 		nullFields = false;
+	}
+	
+	public boolean wrongIsbn(){
+		return wrongIsbn;
+	}
+	
+	public void setWrongIsbn(){
+		wrongIsbn = true;
+	}
+	
+	public void removeWrongIsbn(){
+		wrongIsbn = false;
 	}
 
 	private int getConversationIndex(Post post, FlipABookUser buyer) {

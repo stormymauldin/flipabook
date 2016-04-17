@@ -101,7 +101,8 @@
 					Try again.</font>
 			</h2>
 			<%
-				} if (flipABookUser.wrongPrice()) {
+				}
+					if (flipABookUser.wrongPrice()) {
 						flipABookUser.removeWrongPrice();
 			%>
 			<h2 class="lead blog-description">
@@ -109,11 +110,21 @@
 					dollar signs, numbers and decimal points only).</font>
 			</h2>
 			<%
-				} if (flipABookUser.nullFields()) {
+				}
+					if (flipABookUser.nullFields()) {
 						flipABookUser.removeNullFields();
 			%>
 			<h2 class="lead blog-description">
 				<font color="red">ERROR: Please fill out all fields.</font>
+			</h2>
+			<%
+				}
+					if (flipABookUser.wrongIsbn()) {
+						flipABookUser.removeWrongIsbn();
+			%>
+			<h2 class="lead blog-description">
+				<font color="red">ERROR: Please enter a valid ISBN (either 10
+					or 13 digits).</font>
 			</h2>
 			<%
 				}

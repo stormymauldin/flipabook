@@ -43,7 +43,7 @@ public class CreatePostServlet extends HttpServlet {
 		FlipABookUser flipABookUser = HomePage.flipABookUsers.get(index);
 
 		String title = req.getParameter("title");
-		String isbn = req.getParameter("isbn");
+		String isbn = req.getParameter("isbn").replaceAll("\\D", "");
 		String author = req.getParameter("author");
 		String description = req.getParameter("description");
 		String price = req.getParameter("price");
@@ -52,6 +52,11 @@ public class CreatePostServlet extends HttpServlet {
 				|| description == null || description.equals("") || price == null || price.equals("")) {
 			flipABookUser.setNullFields();
 			nullFields = true;
+		}
+		boolean wrongIsbn = false;
+		if(isbn.length()!=10 || isbn.length()!=13){
+			wrongIsbn = true;
+			flipABookUser.setWrongIsbn();
 		}
 		boolean wrongPrice = false;
 		try {
@@ -77,7 +82,7 @@ public class CreatePostServlet extends HttpServlet {
 			}
 		}
 
-		if (postExists || wrongPrice || nullFields) {
+		if (postExists || wrongPrice || nullFields || wrongIsbn) {
 			resp.sendRedirect("createpost.jsp");
 		} else {
 			HomePage.posts.add(post);
