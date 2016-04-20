@@ -44,13 +44,12 @@ public class CreatePostServlet extends HttpServlet {
 			flipABookUser.setNullFields();
 			nullFields = true;
 		}
-		boolean wrongIsbn = true;
-		if (isbn.length() == 10 || isbn.length() == 13) {
-			wrongIsbn = false;
-		}
-		else {
+		boolean wrongIsbn = false;
+		if (isbn.length() != 10 && isbn.length() != 13) {
+			wrongIsbn = true;
 			flipABookUser.setWrongIsbn();
 		}
+
 		boolean wrongPrice = false;
 		try {
 			double parsed = Double.parseDouble(price);
