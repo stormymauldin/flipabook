@@ -28,6 +28,7 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	boolean wrongPrice = false;
 	boolean nullFields = false;
 	boolean wrongIsbn = false;
+	boolean conductingSearch = false;
 
 	public FlipABookUser() {
 	}
@@ -110,6 +111,18 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	
 	public void removeWrongIsbn(){
 		wrongIsbn = false;
+	}
+	
+	public boolean conductingSearch(){
+		return conductingSearch;
+	}
+	
+	public void setConductingSearch(){
+		conductingSearch = true;
+	}
+	
+	public void removeConductingSearch(){
+		conductingSearch = false;
 	}
 
 	private int getConversationIndex(Post post, FlipABookUser buyer) {

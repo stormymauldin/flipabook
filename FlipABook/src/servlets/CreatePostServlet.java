@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +15,6 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.ObjectifyService;
 
-import objects.Book;
 import objects.FlipABookUser;
 import objects.HomePage;
 import objects.Post;
@@ -33,14 +31,7 @@ public class CreatePostServlet extends HttpServlet {
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
-		int index = -1;
-		for (int i = 0; i < HomePage.users.size(); i++) {
-			if (HomePage.users.get(i).compareTo(user) == 0) {
-				index = i;
-				break;
-			}
-		}
-		FlipABookUser flipABookUser = HomePage.flipABookUsers.get(index);
+		FlipABookUser flipABookUser = HomePage.getUser(user);
 
 		String title = req.getParameter("title");
 		String isbn = req.getParameter("isbn").replaceAll("\\D", "");
@@ -54,7 +45,7 @@ public class CreatePostServlet extends HttpServlet {
 			nullFields = true;
 		}
 		boolean wrongIsbn = false;
-		if(isbn.length()!=10 || isbn.length()!=13){
+		if (isbn.length() != 10 || isbn.length() != 13) {
 			wrongIsbn = true;
 			flipABookUser.setWrongIsbn();
 		}

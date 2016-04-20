@@ -42,18 +42,19 @@
 
 <body>
 	<%
+		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		HomePage.getInstance();
-		FlipABookUser flipABookUser = null;
+		ObjectifyService.register(Post.class);
+		ObjectifyService.register(Book.class);
+		List<Post> posts = HomePage.searchResults;
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
-				<nav class="blog-nav"> <a class="blog-nav-item"
+				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
- 		pageContext.setAttribute("user", user);
  		int index = -1;
  		for (int i = 0; i < HomePage.users.size(); i++) {
  			if (HomePage.users.get(i).compareTo(user) == 0) {
@@ -61,8 +62,19 @@
  				break;
  			}
  		}
- 		flipABookUser = HomePage.flipABookUsers.get(index);
- %> <a class="blog-nav-item active" href="../advancedsearch.jsp">Advanced
+ 		ObjectifyService.register(FlipABookUser.class);
+ 		FlipABookUser flipABookUser = null;
+ 		if (index == -1) {
+ 			HomePage.users.add(user);
+ 			flipABookUser = new FlipABookUser(user);
+ 			ObjectifyService.ofy().save().entity(flipABookUser).now();
+ 			HomePage.flipABookUsers.add(flipABookUser);
+ 		} else {
+ 			flipABookUser = HomePage.flipABookUsers.get(index);
+ 		}
+ 		pageContext.setAttribute("user", user);
+ 		pageContext.setAttribute("flipabookuser", flipABookUser);
+ %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
 					class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
@@ -83,62 +95,62 @@
 
 	<div class="container">
 
-
 		<div class="blog-header">
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description">Advanced search</h2>
-
-
+			<h2 class="lead blog-description">Search Results</h2>
 			<%
-				if (flipABookUser != null) {
-					if (flipABookUser.nullFields()) {
-						flipABookUser.removeNullFields();
+				if (user != null) {
 			%>
-			<h2 class="lead blog-description">
-				<font color="red">ERROR: Please fill out at least one field.</font>
-			</h2>
+			<input type="button" value="Start another search"
+				onClick="window.location='advancedsearch.jsp';"> <input
+				type="button" value="Home" onClick="window.location='index.jsp';">
 			<%
 				}
 			%>
-
 		</div>
-
 		<!-- <div class="row"> -->
 
 		<div class="blog-main">
-			<form action="/advancedsearch" method="post">
-				<div>
-					<h4>Search by title...</h4>
-					<textarea name="title" rows="1" cols="60" required></textarea>
-				</div>
-
-				<div>
-					<h4>Search by author...</h4>
-					<textarea name="author" rows="1" cols="60" required></textarea>
-				</div>
-
-				<div>
-					<h4>Search by ISBN...</h4>
-					<textarea name="isbn" rows="1" cols="60" required></textarea>
-				</div>
-
-				<div>
-					<h4>Search by key words...</h4>
-					<textarea name="keywords" rows="3" cols="60" required></textarea>
-				</div>
-
-				<div>
-					<input type="submit" value="Search" /> <input type="button"
-						onclick="location = 'home'" value="Cancel" />
-				</div>
-			</form>
+			<%
+				if (user != null) {
+					if (posts.isEmpty()) {
+			%>
+			<p>No matching posts found.</p>
+			<%
+				} else {
+						for (int i = 0; i < posts.size(); i++) {
+							pageContext.setAttribute("title", posts.get(i).getTitle());
+							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
+							pageContext.setAttribute("date", posts.get(i).getDate());
+							pageContext.setAttribute("author", posts.get(i).getAuthor());
+							pageContext.setAttribute("isbn", posts.get(i).getIsbn());
+							pageContext.setAttribute("price", posts.get(i).getPrice());
+							pageContext.setAttribute("description", posts.get(i).getDescription());
+			%>
+			<div class="blog-post">
+				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
+				<p class="blog-post-meta">
+					${fn:escapeXml(date)} by <a href="#">${fn:escapeXml(seller)}</a>
+				</p>
+				<ul style="text-align: left">
+					<li>Author: ${fn:escapeXml(author)}</li>
+					<li>ISBN: ${fn:escapeXml(isbn)}</li>
+					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
+					<li>Description: ${fn:escapeXml(description)}</li>
+				</ul>
+			</div>
+			<!-- /.blog-post -->
+			<%
+				}
+			%>
 		</div>
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
 		<%
+			}
 			} else {
 		%>
 		<div class="blog-main">

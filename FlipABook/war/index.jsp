@@ -114,11 +114,12 @@
 			%>
 			<input type="button" value="Create a post"
 				onClick="window.location='createpost.jsp';">
-			<form class="navbar-form navbar-CENTER" role="search">
+			<form class="navbar-form navbar-CENTER" action="/basicsearch"
+				method="post">
 				<div class="input-group">
 					<input type="text" class="form-control"
-						placeholder="Search for a book..."> <span
-						class="input-group-btn">
+						placeholder="Search for a book..." name="keywords" required>
+					<span class="input-group-btn">
 
 						<button type="submit" class="btn btn-default">
 							<span class="glyphicon glyphicon-search"></span>
