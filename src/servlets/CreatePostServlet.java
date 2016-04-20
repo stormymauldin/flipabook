@@ -44,9 +44,11 @@ public class CreatePostServlet extends HttpServlet {
 			flipABookUser.setNullFields();
 			nullFields = true;
 		}
-		boolean wrongIsbn = false;
-		if (isbn.length() != 10 || isbn.length() != 13) {
-			wrongIsbn = true;
+		boolean wrongIsbn = true;
+		if (isbn.length() == 10 || isbn.length() == 13) {
+			wrongIsbn = false;
+		}
+		else {
 			flipABookUser.setWrongIsbn();
 		}
 		boolean wrongPrice = false;

@@ -142,7 +142,7 @@
 			<%
 				} else {
 						Collections.sort(posts);
-						Collections.reverse(posts);
+						//Collections.reverse(posts);
 						for (int i = 0; i < posts.size(); i++) {
 							pageContext.setAttribute("title", posts.get(i).getTitle());
 							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
