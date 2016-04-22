@@ -20,7 +20,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>CreatePostServlet</servlet-name>
 		<url-pattern>/post</url-pattern>
 	</servlet-mapping>
-	<servlet>
+	<!-- <servlet>
 		<servlet-name>DeletePostServlet</servlet-name>
 		<servlet-class>servlets.DeletePostServlet</servlet-class>
 	</servlet>
@@ -44,7 +44,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	<servlet-mapping>
 		<servlet-name>DeletePostServlet</servlet-name>
 		<url-pattern>/deleteuser</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping>-->
 	<servlet>
 		<servlet-name>AdvancedSearchServlet</servlet-name>
 		<servlet-class>servlets.AdvancedSearchServlet</servlet-class>
