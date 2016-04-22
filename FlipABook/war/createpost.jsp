@@ -1,8 +1,9 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.util.Collections"%>
-<%@ page import="flipabook.Post"%>
-<%@ page import="flipabook.Book"%>
+<%@ page import="objects.*"%>
+<%@ page import="servlets.*"%>
 <%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
