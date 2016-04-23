@@ -16,13 +16,13 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	@Id
 	Long id;
 	User user;
-	@Container
+//	@Container
 	ArrayList<Post> posts;
-	@Container
+//	@Container
 	ArrayList<Conversation> conversations;
-	@Container
+//	@Container
 	ArrayList<Message> unreadMessages;
-	@Container
+//	@Container
 	ArrayList<Message> sentMessagesNotRead;
 	boolean repeatPostAttempt = false;
 	boolean wrongPrice = false;

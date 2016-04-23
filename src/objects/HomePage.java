@@ -2,8 +2,15 @@ package objects;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
 
 public class HomePage {
@@ -16,7 +23,8 @@ public class HomePage {
 	public static boolean advancedSearch = false;
 	public static ArrayList<Post> searchResults;
 	public static ArrayList<Integer> searchResultsWeighted;
-
+	public static boolean init = false; 
+	
 	private HomePage() {
 		posts = new ArrayList<Post>();
 		users = new ArrayList<User>();
@@ -31,6 +39,36 @@ public class HomePage {
 		return uniqueInstance;
 	}
 
+	public static void initialize() {
+		if (!init) {
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
+			List<Entity> temp = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(1000));
+
+			for (Entity temp_post: temp) {
+				String temp_title = (String)temp_post.getProperty("title");
+				User temp_user = (User)temp_post.getProperty("user");
+				FlipABookUser temp_flipabook_user = HomePage.getUser(temp_user); 
+				Date temp_date = (Date)temp_post.getProperty("date");
+				if (temp_date == null) {
+					temp_date = new Date(); 
+				}
+				String temp_isbn = (String)temp_post.getProperty("isbn");
+				String temp_author = (String)temp_post.getProperty("author");
+				String temp_description = (String)temp_post.getProperty("description");
+				String temp_price = (String)temp_post.getProperty("price");
+				HomePage.posts.add(new Post(temp_flipabook_user, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date));
+			}
+			//This is for debugging purposes. 
+			for (Post post: HomePage.posts) {
+				System.out.println("Found Post from Datastore: " + post.getTitle());
+			}
+			System.out.println("Number of Posts: " + HomePage.posts.size());
+			init = true; 
+		}
+	}
+	
+	
 	public static void basicSearch(String term) {
 
 		HashSet<String> filteredTerm = breakup(term);
@@ -167,17 +205,20 @@ public class HomePage {
 		for (int i = 0; i < HomePage.users.size(); i++) {
 			if (users.get(i).compareTo(user) == 0) {
 				index = i;
-				break;
+				return flipABookUsers.get(index);
+//				break;
 			}
 		}
-		return flipABookUsers.get(index);
+		createUser(user);
+		return flipABookUsers.get(flipABookUsers.size() - 1);
+		
 	}
 
-	public void createUser(User user) {
-		FlipABookUser flipABookUser = null;
+	public static void createUser(User user) {
+		//FlipABookUser flipABookUser = null;
 		// TODO: other stuff here to add to objectify
 		// TODO: check to see if user has email address
-		flipABookUsers.add(flipABookUser);
+		flipABookUsers.add(new FlipABookUser(user));
 	}
 
 	public void deleteUser(FlipABookUser user) {

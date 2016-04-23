@@ -1,10 +1,11 @@
 package servlets;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+//import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Date;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.objectify.ObjectifyService;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+
+//import com.googlecode.objectify.ObjectifyService;
 
 import objects.FlipABookUser;
 import objects.HomePage;
@@ -22,10 +29,10 @@ import objects.Post;
 @SuppressWarnings("serial")
 public class CreatePostServlet extends HttpServlet {
 
-	static {
-		ObjectifyService.register(FlipABookUser.class);
-		ObjectifyService.register(Post.class);
-	}
+//	static {
+//		ObjectifyService.register(FlipABookUser.class);
+//		ObjectifyService.register(Post.class);
+//	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		UserService userService = UserServiceFactory.getUserService();
@@ -65,7 +72,9 @@ public class CreatePostServlet extends HttpServlet {
 		}
 		Post post = new Post(flipABookUser, title, author, isbn, price, description);
 		boolean postExists = false;
-		List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
+		
+//		List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
+		List<Post> posts = HomePage.posts;
 		for (Post curPost : posts) {
 			if (curPost.compareTo(post) == 0) {
 				flipABookUser.setRepeatPostAttempt();
@@ -77,8 +86,22 @@ public class CreatePostServlet extends HttpServlet {
 		if (postExists || wrongPrice || nullFields || wrongIsbn) {
 			resp.sendRedirect("createpost.jsp");
 		} else {
+			//This will add the post to the datastore (YES WE ARE USING THE DATASTORE NOW BECAUSE OBJECTIFY IS EVIL) 
 			HomePage.posts.add(post);
-			ofy().save().entity(post).now();
+			//Key will be the ISBN of the book followed by the USERNAME (please remember this)
+			String specific_post_key = isbn + user.getEmail(); 
+			Key postkey = KeyFactory.createKey("Post", specific_post_key);
+			Entity post_datastore = new Entity("Post", postkey);
+			post_datastore.setProperty("title", title);
+			post_datastore.setProperty("user", user);
+			post_datastore.setProperty("date", post.getDate());
+			post_datastore.setProperty("isbn", isbn);
+			post_datastore.setProperty("author", author);
+			post_datastore.setProperty("description", description);
+			post_datastore.setProperty("price", price);
+	        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+	        datastore.put(post_datastore);
+//			ofy().save().entity(post).now();
 			resp.sendRedirect("/home");
 		}
 	}

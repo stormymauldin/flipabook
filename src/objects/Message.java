@@ -13,12 +13,12 @@ public class Message implements Subject, Serializable {
 	private static final long serialVersionUID = -7210318335481909978L;
 	@Id
 	Long id;
-	@Container
+//	@Container
 	FlipABookUser sender;
-	@Container
+//	@Container
 	FlipABookUser recipient;
 	String content;
-	@Container
+//	@Container
 	Conversation conversation;
 	boolean senderDeleted = false;
 	boolean recipientDeleted = false;

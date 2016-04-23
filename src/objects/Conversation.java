@@ -15,12 +15,12 @@ public class Conversation implements Comparable<Conversation>, Serializable {
 	private static final long serialVersionUID = -961566006389798376L;
 	@Id
 	Long id;
-	@Container
+//	@Container
 	Post post;
 	// note: participant 0 is seller, participant 1 is buyer.
-	@Container
+//	@Container
 	FlipABookUser buyer;
-	@Container
+//	@Container
 	ArrayList<Message> messages;
 	boolean meetingIsScheduled = false;
 	Date scheduleDate;

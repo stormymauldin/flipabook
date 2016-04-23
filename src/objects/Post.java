@@ -2,7 +2,7 @@ package objects;
 
 import java.io.Serializable;
 import java.util.Date;
-
+import java.util.Calendar; 
 import com.googlecode.objectify.annotation.*;
 
 @Entity
@@ -15,9 +15,9 @@ public class Post implements Comparable<Post>, Serializable {
 	@Id
 	Long id;
 	String description;
-	@Container
+//	@Container
 	FlipABookUser seller;
-	@Container
+//	@Container
 	Book book;
 	String price;
 	Date date;
@@ -40,6 +40,23 @@ public class Post implements Comparable<Post>, Serializable {
 		deadline = new Date(date.getTime() + TWO_WEEKS);
 		status = ACTIVE;
 	}
+	
+	public Post(FlipABookUser seller, String title, String author, String isbn, String price, String description, Date postdate) {
+		this.seller = seller;
+		getBook(title, author, isbn);
+		this.price = price;
+		this.description = description;
+		postdate = date;
+		Calendar cal = Calendar.getInstance(); 
+		if (postdate == null) {
+			postdate = new Date(); 
+		}
+		cal.setTime(postdate);
+		cal.add(Calendar.DAY_OF_WEEK, 14);
+		deadline = cal.getTime(); //the most janky way of adding two weeks to a given date ever
+		status = ACTIVE;
+	}
+
 
 	private void getBook(String title, String author, String isbn) {
 		for (int i = 0; i < HomePage.books.size(); i++) {
