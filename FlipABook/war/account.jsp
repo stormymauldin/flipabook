@@ -87,7 +87,7 @@
 					if (user != null) {
 				%>Account<%
 					} else {
-				%>Uh Oh!<%
+				%>You have been logged out.<%
 					}
 				%>
 			</h2>

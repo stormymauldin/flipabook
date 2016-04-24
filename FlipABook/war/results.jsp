@@ -52,8 +52,8 @@
 		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		ObjectifyService.register(Post.class);
-		ObjectifyService.register(Book.class);
+		//ObjectifyService.register(Post.class);
+		//ObjectifyService.register(Book.class);
 		List<Post> posts = HomePage.searchResults;
 	%>
 	<div class="blog-masthead">
@@ -69,12 +69,12 @@
  				break;
  			}
  		}
- 		ObjectifyService.register(FlipABookUser.class);
+ 		//ObjectifyService.register(FlipABookUser.class);
  		FlipABookUser flipABookUser = null;
  		if (index == -1) {
  			HomePage.users.add(user);
  			flipABookUser = new FlipABookUser(user);
- 			ObjectifyService.ofy().save().entity(flipABookUser).now();
+ 			//ObjectifyService.ofy().save().entity(flipABookUser).now();
  			HomePage.flipABookUsers.add(flipABookUser);
  		} else {
  			flipABookUser = HomePage.flipABookUsers.get(index);
