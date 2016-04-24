@@ -58,11 +58,10 @@ public class CreatePostServlet extends HttpServlet {
 			flipABookUser.setWrongPrice();
 			wrongPrice = true;
 		}
-		Post post = new Post(flipABookUser, title, author, isbn, price, description);
 		boolean postExists = false;
 		List<Post> posts = HomePage.posts;
 		for (Post curPost : posts) {
-			if (curPost.compareTo(post) == 0) {
+			if (curPost.getIsbn().equals(isbn)) {
 				flipABookUser.setRepeatPostAttempt();
 				postExists = true;
 				break;
@@ -74,6 +73,7 @@ public class CreatePostServlet extends HttpServlet {
 		} else {
 			// This will add the post to the datastore (YES WE ARE USING THE
 			// DATASTORE NOW BECAUSE OBJECTIFY IS EVIL)
+			Post post = new Post(flipABookUser, title, author, isbn, price, description);
 			HomePage.posts.add(post);
 			// Key will be the ISBN of the book followed by the USERNAME (please
 			// remember this)

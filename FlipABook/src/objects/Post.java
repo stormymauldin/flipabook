@@ -1,10 +1,19 @@
 package objects;
 
 import java.util.Date;
+
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+
+import java.util.ArrayList;
 import java.util.Calendar; 
 
 public class Post implements Comparable<Post> {
-	Long id;
+	Key key;
 	String description;
 	FlipABookUser seller;
 	Book book;
@@ -19,6 +28,18 @@ public class Post implements Comparable<Post> {
 
 	public Post() {
 	}
+	
+	public Post(Key key){
+		this.key = key;
+		Entity entity = null;
+		try {
+			entity = DatastoreServiceFactory.getDatastoreService().get(key);
+		} catch (EntityNotFoundException e) {
+			e.printStackTrace();
+		}
+		setPropertiesFromEntity(entity);
+		HomePage.posts.add(this);
+	}
 
 	public Post(FlipABookUser seller, String title, String author, String isbn, String price, String description) {
 		this.seller = seller;
@@ -28,6 +49,8 @@ public class Post implements Comparable<Post> {
 		date = new Date();
 		deadline = new Date(date.getTime() + TWO_WEEKS);
 		status = ACTIVE;
+		keyGen();
+		addToDatastore();
 	}
 	
 	public Post(FlipABookUser seller, String title, String author, String isbn, String price, String description, Date postdate) {
@@ -44,6 +67,18 @@ public class Post implements Comparable<Post> {
 		cal.add(Calendar.DAY_OF_WEEK, 14);
 		deadline = cal.getTime(); //the most janky way of adding two weeks to a given date ever
 		status = ACTIVE;
+		keyGen();
+		addToDatastore();
+	}
+	
+	public void setPropertiesFromEntity(Entity entity){		
+		description = (String) entity.getProperty("description");
+		seller = (FlipABookUser) entity.getProperty("seller");
+		book = (Book) entity.getProperty("book");
+		price = (String) entity.getProperty("price");
+		date = (Date) entity.getProperty("date");
+		deadline = (Date) entity.getProperty("deadline");
+		status = (int) entity.getProperty("status");
 	}
 
 
@@ -55,7 +90,6 @@ public class Post implements Comparable<Post> {
 			}
 		}
 		book = new Book(title, author, isbn);
-		HomePage.books.add(book);
 	}
 
 	public String getTitle() {
@@ -96,16 +130,37 @@ public class Post implements Comparable<Post> {
 
 	public void editDescription(String newDescription) {
 		description = newDescription;
+		addToDatastore();
 	}
 
 	public void editPrice(String newPrice) {
 		price = newPrice;
+		addToDatastore();
 	}
 
 	public void editStatus(int newStatus) {
 		if (newStatus == ACTIVE || newStatus == SUSPENDED) {
 			status = newStatus;
 		}
+		addToDatastore();
+	}
+	
+	public void addToDatastore(){
+		Entity post_datastore = new Entity("Post", key);
+		post_datastore.setProperty("seller", seller);
+		post_datastore.setProperty("book", book);
+		post_datastore.setProperty("price", price);
+		post_datastore.setProperty("description", description);
+		post_datastore.setProperty("date", date);
+		post_datastore.setProperty("deadline", deadline);
+		post_datastore.setProperty("status", status);
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		datastore.put(post_datastore);
+	}
+	
+	public void keyGen(){
+		String keyString = book.isbn + seller.getEmail();
+		key = KeyFactory.createKey("Post", keyString);
 	}
 
 	@Override

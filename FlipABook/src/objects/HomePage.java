@@ -19,6 +19,8 @@ public class HomePage {
 	public static ArrayList<User> users;
 	public static ArrayList<FlipABookUser> flipABookUsers;
 	public static ArrayList<Book> books;
+	public static ArrayList<Conversation> conversations;
+	public static ArrayList<Message> messages;
 	public static boolean searchFilter = false;
 	public static boolean advancedSearch = false;
 	public static ArrayList<Post> searchResults;
@@ -28,8 +30,11 @@ public class HomePage {
 	private HomePage() {
 		posts = new ArrayList<Post>();
 		users = new ArrayList<User>();
+		conversations = new ArrayList<Conversation>();
+		messages = new ArrayList<Message>();
 		flipABookUsers = new ArrayList<FlipABookUser>();
 		books = new ArrayList<Book>();
+		update();
 	}
 
 	public static synchronized HomePage getInstance() {
@@ -37,6 +42,29 @@ public class HomePage {
 			uniqueInstance = new HomePage();
 		}
 		return uniqueInstance;
+	}
+	
+	public static void update(){
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		posts.clear();
+		users.clear();
+		conversations.clear();
+		messages.clear();
+		flipABookUsers.clear();
+		books.clear();
+		List<Entity> postEntities = datastore.prepare(new Query("Post").addSort("date", Query.SortDirection.DESCENDING)).asList(FetchOptions.Builder.withLimit(1000));
+		List<Entity> conversationEntities = datastore.prepare(new Query("Conversation")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+		List<Entity> messageEntities = datastore.prepare(new Query("Message")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+		List<Entity> bookEntities = datastore.prepare(new Query("Book")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+		List<Entity> flipABookUserEntities = datastore.prepare(new Query("Conversation")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+
+		for(Entity entity : postEntities){
+			new Post(entity.getKey());
+		}
+		
+		for(Entity entity : conversationEntities){
+			new 
+		}
 	}
 
 	public static void initialize() {

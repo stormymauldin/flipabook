@@ -58,7 +58,7 @@
 //		ObjectifyService.register(Book.class);
 		final boolean clear = false; //debug variable, DEPRECIATED, DO NOT USE!!!!
 	    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
-		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10));
+		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(100));
 		
 		if (clear) {
 			
