@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+	<servlet>
+		<servlet-name>FlipABookServlet</servlet-name>
+		<servlet-class>servlets.FlipABookServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>FlipABookServlet</servlet-name>
+		<url-pattern>/home</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>CreatePostServlet</servlet-name>
+		<servlet-class>servlets.CreatePostServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CreatePostServlet</servlet-name>
+		<url-pattern>/post</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>DeletePostServlet</servlet-name>
+		<servlet-class>servlets.DeletePostServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DeletePostServlet</servlet-name>
+		<url-pattern>/deletepost</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>CreateUserServlet</servlet-name>
+		<servlet-class>servlets.CreateUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CreateUserServlet</servlet-name>
+		<url-pattern>/createuser</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>DeleteUserServlet</servlet-name>
+		<servlet-class>servlets.DeleteUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DeletePostServlet</servlet-name>
+		<url-pattern>/deleteuser</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AdvancedSearchServlet</servlet-name>
+		<servlet-class>servlets.AdvancedSearchServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AdvancedSearchServlet</servlet-name>
+		<url-pattern>/advancedsearch</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BasicSearchServlet</servlet-name>
+		<servlet-class>servlets.BasicSearchServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BasicSearchServlet</servlet-name>
+		<url-pattern>/basicsearch</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+</web-app>
