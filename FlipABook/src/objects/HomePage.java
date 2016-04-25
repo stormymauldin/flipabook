@@ -40,6 +40,8 @@ public class HomePage {
 	public static synchronized HomePage getInstance() {
 		if (uniqueInstance == null) {
 			uniqueInstance = new HomePage();
+		} else {
+			update(); //TODO may need to remove
 		}
 		return uniqueInstance;
 	}
@@ -63,7 +65,19 @@ public class HomePage {
 		}
 		
 		for(Entity entity : conversationEntities){
-			new 
+			new Conversation(entity.getKey());
+		}
+		
+		for(Entity entity : messageEntities){
+			new Message(entity.getKey());
+		}
+		
+		for(Entity entity : bookEntities){
+			new Book(entity.getKey());
+		}
+		
+		for(Entity entity : flipABookUserEntities){
+			new FlipABookUser(entity.getKey());
 		}
 	}
 
