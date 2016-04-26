@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
@@ -19,7 +20,9 @@ public class CreateUserServlet extends HttpServlet {
 		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
-
+	//	User user = userService.getCurrentUser();
+	//	new FlipABookUser(user);
+	//	current.verifyEmail();
 		resp.sendRedirect("/verifyemail");
 	}
 }

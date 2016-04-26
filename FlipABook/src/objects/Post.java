@@ -1,22 +1,27 @@
 package objects;
 
 import java.util.Date;
+import java.util.List;
 
+import com.google.api.server.spi.auth.common.User;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Query;
 
 import java.util.ArrayList;
-import java.util.Calendar; 
+import java.util.Calendar;
 
 public class Post implements Comparable<Post> {
 	Key key;
+	public Entity post;
 	String description;
-	FlipABookUser seller;
-	Book book;
+	Entity seller;
+	Entity book;
 	String price;
 	Date date;
 	Date deadline;
@@ -28,20 +33,26 @@ public class Post implements Comparable<Post> {
 
 	public Post() {
 	}
-	
-	public Post(Key key){
+
+	public Post(Entity entity) {
+		this.post = entity;
+		this.key = entity.getKey();
+		setPropertiesFromEntity();
+		addToDatastore();
+	}
+
+	public Post(Key key) {
 		this.key = key;
-		Entity entity = null;
 		try {
-			entity = DatastoreServiceFactory.getDatastoreService().get(key);
+			post = DatastoreServiceFactory.getDatastoreService().get(key);
 		} catch (EntityNotFoundException e) {
 			e.printStackTrace();
 		}
-		setPropertiesFromEntity(entity);
-		HomePage.posts.add(this);
+		setPropertiesFromEntity();
+		addToDatastore();
 	}
 
-	public Post(FlipABookUser seller, String title, String author, String isbn, String price, String description) {
+	public Post(Entity seller, String title, String author, String isbn, String price, String description) {
 		this.seller = seller;
 		getBook(title, author, isbn);
 		this.price = price;
@@ -51,68 +62,79 @@ public class Post implements Comparable<Post> {
 		status = ACTIVE;
 		keyGen();
 		addToDatastore();
+		HomePage.posts.add(this);
 	}
-	
-	public Post(FlipABookUser seller, String title, String author, String isbn, String price, String description, Date postdate) {
+
+	public Post(Entity seller, String title, String author, String isbn, String price, String description,
+			Date postdate) {
 		this.seller = seller;
 		getBook(title, author, isbn);
 		this.price = price;
 		this.description = description;
 		postdate = date;
-		Calendar cal = Calendar.getInstance(); 
+		Calendar cal = Calendar.getInstance();
 		if (postdate == null) {
-			postdate = new Date(); 
+			postdate = new Date();
 		}
 		cal.setTime(postdate);
 		cal.add(Calendar.DAY_OF_WEEK, 14);
-		deadline = cal.getTime(); //the most janky way of adding two weeks to a given date ever
+		deadline = cal.getTime(); // the most janky way of adding two weeks to a
+									// given date ever
 		status = ACTIVE;
 		keyGen();
 		addToDatastore();
-	}
-	
-	public void setPropertiesFromEntity(Entity entity){		
-		description = (String) entity.getProperty("description");
-		seller = (FlipABookUser) entity.getProperty("seller");
-		book = (Book) entity.getProperty("book");
-		price = (String) entity.getProperty("price");
-		date = (Date) entity.getProperty("date");
-		deadline = (Date) entity.getProperty("deadline");
-		status = (int) entity.getProperty("status");
+		HomePage.posts.add(this);
 	}
 
+	public void setPropertiesFromEntity() {
+		description = (String) post.getProperty("description");
+		seller = (Entity) post.getProperty("seller");
+		book = (Entity) post.getProperty("book");
+		price = (String) post.getProperty("price");
+		date = (Date) post.getProperty("date");
+		deadline = (Date) post.getProperty("deadline");
+		status = (int) post.getProperty("status");
+	}
 
 	private void getBook(String title, String author, String isbn) {
-		for (int i = 0; i < HomePage.books.size(); i++) {
-			if (isbn.equals(HomePage.books.get(i).getIsbn())) {
-				book = HomePage.books.get(i);
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		List<Entity> bookEntities = datastore.prepare(new Query("Book"))
+				.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+
+		for (Entity entity : bookEntities) {
+			if (entity.getKey().equals(isbn)) {
+				book = entity;
+				addToDatastore();
 				return;
 			}
 		}
-		book = new Book(title, author, isbn);
+		Book newBook = new Book(title, author, isbn);
+		book = newBook.book;
+		addToDatastore();
 	}
 
 	public String getTitle() {
-		return book.getTitle();
+		return (String) book.getProperty("title");
 	}
 
 	public String getIsbn() {
-		return book.getIsbn();
+		return (String) book.getProperty("isbn");
 	}
 
 	public String getAuthor() {
-		return book.getAuthor();
+		return (String) book.getProperty("author");
+
 	}
 
 	public String getDescription() {
 		return description;
 	}
 
-	public FlipABookUser getSeller() {
+	public Entity getSeller() {
 		return seller;
 	}
 
-	public Book getBook() {
+	public Entity getBook() {
 		return book;
 	}
 
@@ -144,28 +166,28 @@ public class Post implements Comparable<Post> {
 		}
 		addToDatastore();
 	}
-	
-	public void addToDatastore(){
-		Entity post_datastore = new Entity("Post", key);
-		post_datastore.setProperty("seller", seller);
-		post_datastore.setProperty("book", book);
-		post_datastore.setProperty("price", price);
-		post_datastore.setProperty("description", description);
-		post_datastore.setProperty("date", date);
-		post_datastore.setProperty("deadline", deadline);
-		post_datastore.setProperty("status", status);
+
+	public void addToDatastore() {
+		post.setProperty("seller", seller);
+		post.setProperty("book", book);
+		post.setProperty("price", price);
+		post.setProperty("description", description);
+		post.setProperty("date", date);
+		post.setProperty("deadline", deadline);
+		post.setProperty("status", status);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		datastore.put(post_datastore);
+		datastore.put(post);
 	}
-	
-	public void keyGen(){
-		String keyString = book.isbn + seller.getEmail();
+
+	public void keyGen() {
+		String keyString = book.getProperty("isbn") + ((User) (seller.getProperty("user"))).getEmail();
 		key = KeyFactory.createKey("Post", keyString);
+		post = new Entity("Post", key);
 	}
 
 	@Override
 	public int compareTo(Post other) {
-		if (book.compareTo(other.getBook()) == 0 && seller.compareTo(other.getSeller()) == 0) {
+		if (key.equals(other.key)) {
 			// posts are the same
 			return 0;
 		}

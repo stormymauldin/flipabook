@@ -14,51 +14,59 @@ import com.google.appengine.api.users.User;
 
 public class Message implements Subject {
 	Key key;
-	FlipABookUser sender;
-	FlipABookUser recipient;
+	Entity message;
+	Entity sender;
+	Entity recipient;
 	String content;
-	Conversation conversation;
+	Entity conversation;
 	boolean senderDeleted = false;
 	boolean recipientDeleted = false;
 	boolean read = false;
-	
-	public Message(Key key){
+
+	public Message(Entity entity) {
+		message = entity;
+		key = entity.getKey();
+		setPropertiesFromEntity();
+		addToDatastore();
+	}
+
+	public Message(Key key) {
 		this.key = key;
-		Entity entity = null;
 		try {
-			entity = DatastoreServiceFactory.getDatastoreService().get(key);
+			message = DatastoreServiceFactory.getDatastoreService().get(key);
 		} catch (EntityNotFoundException e) {
 			e.printStackTrace();
 		}
-		setPropertiesFromEntity(entity);
-		HomePage.messages.add(this);
+		setPropertiesFromEntity();
+		addToDatastore();
 	}
 
 	public Message(int direction, String content, Conversation conversation) {
 		if (direction == SELLER_TO_BUYER) {
-			sender = conversation.getPost().getSeller();
+			sender = (Entity) conversation.getPost().getProperty("seller");
 			recipient = conversation.getBuyer();
 		} else {
 			sender = conversation.getBuyer();
-			recipient = conversation.getPost().getSeller();
+			recipient = (Entity) conversation.getPost().getProperty("seller");
 		}
 
 		this.content = content;
-		this.conversation = conversation;
-		registerObservers(sender, recipient);
+		this.conversation = conversation.conversation;
+		registerObservers(getFlipABookUser(sender), getFlipABookUser(recipient));
 		notifyObservers(Observer.NEW_MESSAGE);
+		HomePage.messages.add(this);
 		keyGen();
 		addToDatastore();
 	}
-	
-	public void setPropertiesFromEntity(Entity entity){		
-		sender = (FlipABookUser) entity.getProperty("sender");
-		recipient = (FlipABookUser) entity.getProperty("recipient");
-		content = (String) entity.getProperty("content");
-		conversation = (Conversation) entity.getProperty("conversation");
-		senderDeleted = (boolean) entity.getProperty("senderDeleted");
-		recipientDeleted = (boolean) entity.getProperty("recipientDeleted");
-		read = (boolean) entity.getProperty("read");
+
+	public void setPropertiesFromEntity() {
+		sender = (Entity) message.getProperty("sender");
+		recipient = (Entity) message.getProperty("recipient");
+		content = (String) message.getProperty("content");
+		conversation = (Entity) message.getProperty("conversation");
+		senderDeleted = (boolean) message.getProperty("senderDeleted");
+		recipientDeleted = (boolean) message.getProperty("recipientDeleted");
+		read = (boolean) message.getProperty("read");
 	}
 
 	public void setRead() {
@@ -70,19 +78,19 @@ public class Message implements Subject {
 		return read;
 	}
 
-	public FlipABookUser getSender() {
+	public Entity getSender() {
 		return sender;
 	}
 
-	public FlipABookUser getRecipient() {
+	public Entity getRecipient() {
 		return recipient;
 	}
 
-	public Conversation getConversation() {
+	public Entity getConversation() {
 		return conversation;
 	}
-	
-	public void addToDatastore(){
+
+	public void addToDatastore() {
 		Entity post_datastore = new Entity("Message", key);
 		post_datastore.setProperty("sender", sender);
 		post_datastore.setProperty("content", content);
@@ -94,8 +102,8 @@ public class Message implements Subject {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		datastore.put(post_datastore);
 	}
-	
-	public void keyGen(){
+
+	public void keyGen() {
 		String keyString = new BigInteger(130, new SecureRandom()).toString(32);
 		key = KeyFactory.createKey("Message", keyString);
 	}
@@ -103,31 +111,46 @@ public class Message implements Subject {
 	// this implementation is called to establish the sender and recipient
 	@Override
 	public void registerObservers(Observer o0, Observer o1) {
-		this.sender = (FlipABookUser) o0;
-		this.recipient = (FlipABookUser) o1;
+		this.sender = ((FlipABookUser) o0).flipABookUser;
+		this.recipient = ((FlipABookUser) o1).flipABookUser;
 	}
 
 	// this implementation is called when a user deletes a message
 	@Override
 	public void removeObserver(Observer o) {
 		FlipABookUser toBeRemoved = (FlipABookUser) o;
-		if (sender.compareTo(toBeRemoved) == 0) {
-			sender.update(this, Observer.DELETE);
+		FlipABookUser senderO = getFlipABookUser(sender);
+		FlipABookUser recipientO = getFlipABookUser(recipient);
+		if (senderO.compareTo(toBeRemoved) == 0) {
+			senderO.update(this, Observer.DELETE);
 			senderDeleted = true;
 		} else {
-			recipient.update(this, Observer.DELETE);
+			recipientO.update(this, Observer.DELETE);
 			recipientDeleted = true;
 		}
+		addToDatastore();
 	}
 
 	// this implementation is called to update the participants
 	@Override
 	public void notifyObservers(int updateType) {
+		FlipABookUser senderO = getFlipABookUser(sender);
+		FlipABookUser recipientO = getFlipABookUser(recipient);
 		if (!senderDeleted) {
-			sender.update(this, updateType);
+			senderO.update(this, updateType);
 		}
 		if (!recipientDeleted) {
-			recipient.update(this, updateType);
+			recipientO.update(this, updateType);
 		}
+		addToDatastore();
+	}
+
+	public FlipABookUser getFlipABookUser(Entity flipABookUser) {
+		for (FlipABookUser curFlipABookUser : HomePage.flipABookUsers) {
+			if (curFlipABookUser.flipABookUser.equals(flipABookUser)) {
+				return curFlipABookUser;
+			}
+		}
+		return null;
 	}
 }

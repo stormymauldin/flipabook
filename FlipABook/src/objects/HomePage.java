@@ -80,35 +80,27 @@ public class HomePage {
 			new FlipABookUser(entity.getKey());
 		}
 	}
-
-	public static void initialize() {
-		if (!init) {
-			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-			Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
-			List<Entity> temp = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(1000));
-
-			for (Entity temp_post : temp) {
-				String temp_title = (String) temp_post.getProperty("title");
-				User temp_user = (User) temp_post.getProperty("user");
-				FlipABookUser temp_flipabook_user = HomePage.getUser(temp_user);
-				Date temp_date = (Date) temp_post.getProperty("date");
-				if (temp_date == null) {
-					temp_date = new Date();
-				}
-				String temp_isbn = (String) temp_post.getProperty("isbn");
-				String temp_author = (String) temp_post.getProperty("author");
-				String temp_description = (String) temp_post.getProperty("description");
-				String temp_price = (String) temp_post.getProperty("price");
-				HomePage.posts.add(new Post(temp_flipabook_user, temp_title, temp_author, temp_isbn, temp_price,
-						temp_description, temp_date));
-			}
-			// This is for debugging purposes.
-			for (Post post : HomePage.posts) {
-				System.out.println("Found Post from Datastore: " + post.getTitle());
-			}
-			System.out.println("Number of Posts: " + HomePage.posts.size());
-			init = true;
+	
+	public static void addPost(Post post){
+		if(!posts.contains(post)){
+			posts.add(post);
 		}
+	}
+	
+	public static void addConversation(){
+		
+	}
+	
+	public static void addUser(){
+		
+	}
+	
+	public static void addFlipABookUser(){
+		
+	}
+	
+	public static void addMessage(){
+		
 	}
 
 	public static void basicSearch(String term) {
@@ -182,17 +174,17 @@ public class HomePage {
 	private static void searchEachPostField(HashSet<String> title, HashSet<String> author, HashSet<String> isbn,
 			HashSet<String> keywords, int postID) {
 		if (title != null) {
-			HashSet<String> postTitle = breakup(posts.get(postID).getBook().getTitle());
+			HashSet<String> postTitle = breakup((String) posts.get(postID).getBook().getProperty("title"));
 			compareSets(title, postTitle, postID);
 		}
 
 		if (author != null) {
-			HashSet<String> postAuthor = breakup(posts.get(postID).getBook().getAuthor());
+			HashSet<String> postAuthor = breakup((String) posts.get(postID).getBook().getProperty("author"));
 			compareSets(author, postAuthor, postID);
 		}
 
 		if (isbn != null) {
-			HashSet<String> postIsbn = breakup(posts.get(postID).getBook().getIsbn());
+			HashSet<String> postIsbn = breakup((String) posts.get(postID).getBook().getProperty("isbn"));
 			compareSets(isbn, postIsbn, postID);
 		}
 
@@ -243,13 +235,10 @@ public class HomePage {
 	}
 
 	public static FlipABookUser getUser(User user) {
-		int index = -1;
-		for (int i = 0; i < HomePage.users.size(); i++) {
-			if (users.get(i).compareTo(user) == 0) {
-				index = i;
-				return flipABookUsers.get(index);
-				// break;
-			}
+		int index = users.indexOf(user);
+		if(index != -1)
+		{
+			return flipABookUsers.get(index);
 		}
 		createUser(user);
 		return flipABookUsers.get(flipABookUsers.size() - 1);
@@ -257,16 +246,14 @@ public class HomePage {
 	}
 
 	public static void createUser(User user) {
-		// FlipABookUser flipABookUser = null;
-		// TODO: other stuff here to add to objectify
-		// TODO: check to see if user has email address
-		flipABookUsers.add(new FlipABookUser(user));
+		new FlipABookUser(user);
 	}
 
 	public void deleteUser(FlipABookUser user) {
+		/*
 		if (flipABookUsers.contains(user)) {
 			// remove the user from existing conversations
-			for (Conversation conversation : user.getConversations()) {
+			for (Entity conversation : user.getConversations()) {
 				// remove the user's interactions and update associated parties
 				if (conversation.getBuyer().compareTo(user) == 0) {
 					conversation.deleteConversation(Conversation.BUYER_DELETED);
@@ -278,14 +265,11 @@ public class HomePage {
 				deletePost(post);
 			}
 
-			// TODO: delete the user's objectify data
-		}
+		}*/
 
 	}
 
-	public void addPost(Post post) {
-		posts.add(post);
-	}
+
 
 	public void deletePost(Post post) {
 		for (Post curPost : posts) {

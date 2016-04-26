@@ -49,8 +49,31 @@
 
 <body>
 	<%
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
+		FlipABookUser flipABookUser = null;
+		boolean nullUser = true;
+		boolean blockedUser = true;
+		int userIndex = -1;
+		if (user != null) {
+			nullUser = false;
+			userIndex = HomePage.users.indexOf(user);
+			if (userIndex == -1) {
+				new FlipABookUser(user);
+				userIndex = HomePage.users.size() - 1;
+			}
+
+			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
+				blockedUser = true;
+			} else {
+				flipABookUser = HomePage.flipABookUsers.get(userIndex);
+				blockedUser = false;
+			}
+		} else {
+			nullUser = true;
+		}
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -58,7 +81,9 @@
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> 
 					<%
-					if (user != null) { 
+					if (!nullUser && !blockedUser) {
+				 		pageContext.setAttribute("user", user);
+				 		pageContext.setAttribute("flipABookUser", flipABookUser);
 					%>
 						<a class="blog-nav-item"
 						href="../advancedsearch.jsp">Advanced Search</a> <a
@@ -102,7 +127,7 @@
 			<%} %>
 		</div>
 		<%
-		if (user != null) { 
+		if (!nullUser) { 
 		%>
 
 		<!-- <div class="row"> -->
@@ -164,17 +189,36 @@
 		<!--</div>-->
 		<!-- /.row -->
 		<%
-		} else { 
-		%>
+		} else if (nullUser) {
+			%>
 			<div class="blog-main">
-	
+
 				<div class="blog-post">
-					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
+					<h3>
+						<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+							in </a> to use FlipABook.
+					</h3>
 				</div>
 			</div>
-		<%
-		} 
-		%>
+			<%
+				} else if (blockedUser) {
+			%>
+			<div class="blog-main">
+
+				<div class="blog-post">
+					<h3>
+						<font color="red">ERROR: Only those with valid @utexas.edu
+							emails are allowed to use FlipABook.</font>
+					</h3>
+					<h3>
+						<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+							in with a valid @utexas.edu email</a> to use FlipABook.
+					</h3>
+				</div>
+			</div>
+			<%
+				}
+			%>
 
 	</div>
 	<!-- /.container -->

@@ -7,14 +7,15 @@
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
-<%@ page import="com.google.appengine.api.datastore.Query" %>
-<%@ page import="com.google.appengine.api.datastore.Entity" %>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
-<%@ page import="com.google.appengine.api.datastore.Key" %>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
-<%@ page import="java.util.Date" %>
+<%@ page
+	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
+<%@ page import="com.google.appengine.api.datastore.Query"%>
+<%@ page import="com.google.appengine.api.datastore.Entity"%>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
+<%@ page import="com.google.appengine.api.datastore.Key"%>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
+<%@ page import="java.util.Date"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -49,35 +50,56 @@
 
 <body>
 	<%
-	  	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
+		FlipABookUser flipABookUser = null;
+		boolean nullUser = true;
+		boolean blockedUser = true;
+		int userIndex = -1;
+		if (user != null) {
+			nullUser = false;
+			userIndex = HomePage.users.indexOf(user);
+			if (userIndex == -1) {
+				new FlipABookUser(user);
+				userIndex = HomePage.users.size() - 1;
+			}
+
+			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
+				blockedUser = true;
+			} else {
+				flipABookUser = HomePage.flipABookUsers.get(userIndex);
+				blockedUser = false;
+			}
+		} else {
+			nullUser = true;
+		}
+	
+		List<Post> posts = null;
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
-					href="../index.jsp">Home</a> 
-					<%
-					if (user != null) { 
-					%>
-						<a class="blog-nav-item"
-						href="../advancedsearch.jsp">Advanced Search</a> <a
-						class="blog-nav-item active" href="../posts.jsp">Your Posts</a> <a
-						class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-						class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-						Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-						Info</a>
-						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
-					<%
-					} else {
-					%>
-						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
-					<%
-					}
-					%>
-				 </nav>
-	
+					href="../index.jsp">Home</a> <%
+ 	if (!nullUser && !blockedUser) {
+ 		posts = flipABookUser.getPosts();
+ %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
+					Search</a> <a class="blog-nav-item active" href="../posts.jsp">Your
+					Posts</a> <a class="blog-nav-item" href="../messages.jsp">Messages</a>
+				<a class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
+					Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
+					Info</a> <a class="blog-nav-item"
+					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
+					Out</a> <%
+ 	} else {
+ %> <a class="blog-nav-item"
+					href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+					In</a> <%
+ 	}
+ %> </nav>
+
 			</div>
 		</div>
 	</div>
@@ -87,8 +109,18 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description"><%if(user!=null){ %>Your Posts<%}else{%>Uh Oh!<%}%></h2>
-			<%if(user!=null){ %>
+			<h2 class="lead blog-description">
+				<%
+					if (!nullUser) {
+				%>Your Posts<%
+					} else {
+				%>You have been logged out.<%
+					}
+				%>
+			</h2>
+			<%
+				if (!nullUser) {
+			%>
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
 					<input type="text" class="form-control"
@@ -100,73 +132,85 @@
 					</span>
 				</div>
 			</form>
-			<%} %>
+			<%
+				}
+			%>
 		</div>
 		<%
-		if (user != null) { 
+			if (!nullUser) {
 		%>
-			<!-- <div class="row"> -->
-	
-			<div class="blog-main">
-	
-				<div class="blog-post">
-					<h2 class="blog-post-title">Post C</h2>
-					<p class="blog-post-meta">on March 27, 2016</p>
-					<ul style="text-align: left">
-						<li>Author: Brandon McCartney</li>
-						<li>ISBN: 123-456-789</li>
-						<li>Asking Price: $5000.00</li>
-						<li>Description: Great book, taught me everything. TYBG</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-	
-				<div class="blog-post">
-					<h2 class="blog-post-title">Post B</h2>
-					<p class="blog-post-meta">on March 5, 2016</p>
-					<ul style="text-align: left">
-						<li>Author: Jonatan Aron Leandoer</li>
-						<li>ISBN: 144-454-789</li>
-						<li>Asking Price: $20.00</li>
-						<li>Description: I cried Arizona tears.</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-	
-				<div class="blog-post">
-					<h2 class="blog-post-title">Post A</h2>
-					<p class="blog-post-meta">on March 17, 2016</p>
-					<ul style="text-align: left">
-						<li>Author: Pancho Dollier</li>
-						<li>ISBN: 414-039-215</li>
-						<li>Asking Price: $1.00</li>
-						<li>Description: Tastes great.</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-	
-				<nav>
-				<ul class="pager">
-					<li><a href="#">Previous</a></li>
-					<li><a href="#">Next</a></li>
+		<!-- <div class="row"> -->
+
+		<div class="blog-main">
+			<%
+				if (!nullUser && !blockedUser) {
+					if (posts.isEmpty()) {
+			%>
+			<p>There are no recent posts.</p>
+			<%
+				} else {
+						//Collections.sort(posts);
+						//Collections.reverse(posts);
+						for (Post post : posts) {
+							pageContext.setAttribute("title", post.getTitle());
+							pageContext.setAttribute("date", post.getDate());
+							pageContext.setAttribute("author", post.getAuthor());
+							pageContext.setAttribute("isbn", post.getIsbn());
+							pageContext.setAttribute("price", post.getPrice());
+							pageContext.setAttribute("description", post.getDescription());
+			%>
+			<div class="blog-post">
+				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
+				<p class="blog-post-meta">
+					${fn:escapeXml(date)}</a>
+				</p>
+				<ul style="text-align: left">
+					<li>Author: ${fn:escapeXml(author)}</li>
+					<li>ISBN: ${fn:escapeXml(isbn)}</li>
+					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
+					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
-				</nav>
+			</div>
+			<!-- /.blog-post -->
+			<%
+				}
+			%>
 
 		</div>
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
 		<%
-		} else { 
+				}
+			} else if (nullUser) {
 		%>
-			<div class="blog-main">
-	
-				<div class="blog-post">
-					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
-				</div>
+		<div class="blog-main">
+
+			<div class="blog-post">
+				<h3>
+					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+						in </a> to use FlipABook.
+				</h3>
 			</div>
+		</div>
 		<%
-		} 
+			} else if (blockedUser) {
+		%>
+		<div class="blog-main">
+
+			<div class="blog-post">
+				<h3>
+					<font color="red">ERROR: Only those with valid @utexas.edu
+						emails are allowed to use FlipABook.</font>
+				</h3>
+				<h3>
+					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+						in with a valid @utexas.edu email</a> to use FlipABook.
+				</h3>
+			</div>
+		</div>
+		<%
+			}
 		%>
 
 	</div>

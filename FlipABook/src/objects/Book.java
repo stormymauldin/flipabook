@@ -14,6 +14,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 public class Book implements Comparable<Book> {
 	Key key;
+	Entity book;
 	String title;
 	String isbn;
 	String author;
@@ -22,16 +23,23 @@ public class Book implements Comparable<Book> {
 	public Book() {
 	}
 	
+	public Book(Entity entity){
+		this.book = entity;
+		key = entity.getKey();
+		setPropertiesFromEntity();
+		addToDatastore();
+	}
+	
 	public Book(Key key){
 		this.key = key;
-		Entity entity = null;
 		try {
-			entity = DatastoreServiceFactory.getDatastoreService().get(key);
+			book = DatastoreServiceFactory.getDatastoreService().get(key);
 		} catch (EntityNotFoundException e) {
 			e.printStackTrace();
 		}
-		setPropertiesFromEntity(entity);
-		HomePage.books.add(this);
+		setPropertiesFromEntity();
+		addToDatastore();
+		//HomePage.books.add(this);
 	}
 
 	public Book(String title, String author, String isbn) {
@@ -41,6 +49,7 @@ public class Book implements Comparable<Book> {
 		generateTags();
 		keyGen();
 		addToDatastore();
+		HomePage.books.add(this);
 	}
 
 	private void generateTags() {
@@ -50,11 +59,11 @@ public class Book implements Comparable<Book> {
 		tags.addAll(Arrays.asList(authorTags));
 	}
 
-	public void setPropertiesFromEntity(Entity entity){
-		title = (String) entity.getProperty("title");
-		isbn = (String) entity.getProperty("isbn");
-		author = (String) entity.getProperty("author");
-		tags = (ArrayList<String>) entity.getProperty("tags");
+	public void setPropertiesFromEntity(){
+		title = (String) book.getProperty("title");
+		isbn = (String) book.getProperty("isbn");
+		author = (String) book.getProperty("author");
+		tags = (ArrayList<String>) book.getProperty("tags");
 	}
 	
 	public String getTitle() {
@@ -79,24 +88,24 @@ public class Book implements Comparable<Book> {
 	}
 	
 	public void addToDatastore(){
-		Entity post_datastore = new Entity("Book", key);
-		post_datastore.setProperty("title", title);
-		post_datastore.setProperty("isbn", isbn);
-		post_datastore.setProperty("author", author);
-		post_datastore.setProperty("tags", tags);
+		book.setProperty("title", title);
+		book.setProperty("isbn", isbn);
+		book.setProperty("author", author);
+		book.setProperty("tags", tags);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		datastore.put(post_datastore);
+		datastore.put(book);
 	}
 	
 	public void keyGen(){
 		String keyString = isbn;
 		key = KeyFactory.createKey("Book", keyString);
+		book = new Entity("Book", key);
 	}
 	
 
 	@Override
 	public int compareTo(Book other) {
-		if (isbn.equals(other.getIsbn())) {
+		if (key.equals(other.key)) {
 			// books are the same
 			return 0;
 		}

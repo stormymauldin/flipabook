@@ -27,7 +27,7 @@ public class CreatePostServlet extends HttpServlet {
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
 		FlipABookUser flipABookUser = HomePage.getUser(user);
-
+		Entity flipABookUserEntity = flipABookUser.flipABookUser;
 		String title = req.getParameter("title");
 		String isbn = req.getParameter("isbn").replaceAll("\\D", "");
 		String author = req.getParameter("author");
@@ -71,24 +71,8 @@ public class CreatePostServlet extends HttpServlet {
 		if (postExists || wrongPrice || nullFields || wrongIsbn) {
 			resp.sendRedirect("createpost.jsp");
 		} else {
-			// This will add the post to the datastore (YES WE ARE USING THE
-			// DATASTORE NOW BECAUSE OBJECTIFY IS EVIL)
-			Post post = new Post(flipABookUser, title, author, isbn, price, description);
-			HomePage.posts.add(post);
-			// Key will be the ISBN of the book followed by the USERNAME (please
-			// remember this)
-			String specific_post_key = isbn + user.getEmail();
-			Key postkey = KeyFactory.createKey("Post", specific_post_key);
-			Entity post_datastore = new Entity("Post", postkey);
-			post_datastore.setProperty("title", title);
-			post_datastore.setProperty("user", user);
-			post_datastore.setProperty("date", post.getDate());
-			post_datastore.setProperty("isbn", isbn);
-			post_datastore.setProperty("author", author);
-			post_datastore.setProperty("description", description);
-			post_datastore.setProperty("price", price);
-			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-			datastore.put(post_datastore);
+			Post newPost = new Post(flipABookUserEntity, title, author, isbn, price, description);
+			flipABookUser.addPost(newPost.post);
 			resp.sendRedirect("/home");
 		}
 	}
