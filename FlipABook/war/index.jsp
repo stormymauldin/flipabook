@@ -55,18 +55,19 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		FlipABookUser flipABookUser = null;
-		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser"))
+				.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
 
 		boolean nullUser = true;
 		boolean blockedUser = true;
 		int userIndex = -1;
 		if (user != null) {
 			nullUser = false;
-			for(int i = 0; i < flipABookUserEntities.size(); i++){
-				String thisUserEmail = ((User)(flipABookUserEntities.get(i).getProperty("user"))).getEmail();
-				if(user.getEmail().equals(thisUserEmail
-						)){
+			for (int i = 0; i < flipABookUserEntities.size(); i++) {
+				String thisUserEmail = ((User) (flipABookUserEntities.get(i).getProperty("user"))).getEmail();
+				if (user.getEmail().equals(thisUserEmail)) {
 					flipABookUser = new FlipABookUser(flipABookUserEntities.get(i));
+					break;
 				}
 			}
 			if (flipABookUser == null) {
@@ -91,8 +92,6 @@
 					href="../index.jsp">Home</a> <%
  	if (!nullUser && !blockedUser) {
  		posts = HomePage.posts;
- 		pageContext.setAttribute("user", user);
- 		pageContext.setAttribute("flipABookUser", flipABookUser);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
