@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.ArrayList"%>
+
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
@@ -12,6 +14,10 @@
 <%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
 <%@ page import="com.google.appengine.api.datastore.Query" %>
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
+<%@ page import="com.google.appengine.api.datastore.Key" %>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+
 
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
@@ -50,6 +56,24 @@
 	  	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
+		HomePage.getInstance();
+		
+//	    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
+//		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(100.));
+
+		List<Entity> posts = new ArrayList<Entity>();
+		for (Post userPost: HomePage.posts) {
+			if (userPost.getSeller().getUserInfo().equals(user)) {
+				System.out.println("Found post: " + userPost.getTitle() + " for user: " + user.getEmail());
+				String temp_key = userPost.getIsbn() + user.getEmail();			
+				String temp_isbn = userPost.getIsbn();
+			    Key userKey = KeyFactory.createKey("Post", temp_isbn + user.getEmail());
+			    Query query = new Query("Post", userKey).addSort("date", Query.SortDirection.DESCENDING);
+				posts.addAll(datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10)));
+			}
+		}
+
+
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -101,61 +125,77 @@
 			<%} %>
 		</div>
 		<%
-		if (user != null) { 
-		%>
-			<!-- <div class="row"> -->
-	
-			<div class="blog-main">
-	
-				<div class="blog-post">
-					<h2 class="blog-post-title">Post C</h2>
-					<p class="blog-post-meta">on March 27, 2016</p>
-					<ul style="text-align: left">
-						<li>Author: Brandon McCartney</li>
-						<li>ISBN: 123-456-789</li>
-						<li>Asking Price: $5000.00</li>
-						<li>Description: Great book, taught me everything. TYBG</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-	
-				<div class="blog-post">
-					<h2 class="blog-post-title">Post B</h2>
-					<p class="blog-post-meta">on March 5, 2016</p>
-					<ul style="text-align: left">
-						<li>Author: Jonatan Aron Leandoer</li>
-						<li>ISBN: 144-454-789</li>
-						<li>Asking Price: $20.00</li>
-						<li>Description: I cried Arizona tears.</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-	
-				<div class="blog-post">
-					<h2 class="blog-post-title">Post A</h2>
-					<p class="blog-post-meta">on March 17, 2016</p>
-					<ul style="text-align: left">
-						<li>Author: Pancho Dollier</li>
-						<li>ISBN: 414-039-215</li>
-						<li>Asking Price: $1.00</li>
-						<li>Description: Tastes great.</li>
-					</ul>
-				</div>
-				<!-- /.blog-post -->
-	
-				<nav>
-				<ul class="pager">
-					<li><a href="#">Previous</a></li>
-					<li><a href="#">Next</a></li>
-				</ul>
-				</nav>
+		if (user != null) {
 
-		</div>
-		<!-- /.blog-main -->
-		<!--</div>-->
-		<!-- /.row -->
-		<%
-		} else { 
+			if (posts.isEmpty()) {
+	%>
+	<div class="blog-main">
+	
+	<p>There are no recent posts.</p>
+	<%
+		} else {
+				//Collections.sort(posts);
+				//Collections.reverse(posts);
+				//Collections.sort(posts);
+				for (int i = 0; i < posts.size(); i++) {
+					Entity post = posts.get(i);
+					pageContext.setAttribute("title", post.getProperty("title"));
+					pageContext.setAttribute("seller", post.getProperty("user"));
+					pageContext.setAttribute("date", post.getProperty("date"));
+					pageContext.setAttribute("author", post.getProperty("author"));
+					pageContext.setAttribute("isbn", post.getProperty("isbn"));
+					pageContext.setAttribute("price", post.getProperty("price"));
+					pageContext.setAttribute("description", post.getProperty("description"));
+
+//				}
+//				for (int i = 0; i < posts.size(); i++) {
+//					pageContext.setAttribute("title", posts.get(i).getTitle());
+//					pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
+//					pageContext.setAttribute("date", posts.get(i).getDate());
+//					pageContext.setAttribute("author", posts.get(i).getAuthor());
+//					pageContext.setAttribute("isbn", posts.get(i).getIsbn());
+//					pageContext.setAttribute("price", posts.get(i).getPrice());
+//					pageContext.setAttribute("description", posts.get(i).getDescription());
+	%>
+<div class="blog-main">
+	<div class="blog-post">
+		<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
+		<p class="blog-post-meta">
+			${fn:escapeXml(date)} by <a href="#">${fn:escapeXml(seller)}</a>
+		</p>
+		<ul style="text-align: left">
+			<li>Author: ${fn:escapeXml(author)}</li>
+			<li>ISBN: ${fn:escapeXml(isbn)}</li>
+			<li>Asking Price: $ ${fn:escapeXml(price)}</li>
+			<li>Description: ${fn:escapeXml(description)}</li>
+		</ul>
+		
+	<form action ="/deletepost" method ="get">
+	<div><input type="submit" value="Delete post" align="middle"/>
+	</div>
+	<input type="hidden" name="deletedpost" value="${fn:escapeXml(isbn)}"/>
+	</form>
+		
+		
+	</div>
+	</div>
+	<!-- /.blog-post -->
+	<%
+		}
+	%>
+<!-- /.blog-main -->
+<!--</div>-->
+<!-- /.row -->
+<%
+	}
+			%>
+<input type="button" value="Create a post" align="middle"
+style="font-size: 50px; height:75px; width: 400px" onClick="window.location='createpost.jsp';">
+</div>	
+</div>
+					
+<%					
+	} else { 
 		%>
 			<div class="blog-main">
 	

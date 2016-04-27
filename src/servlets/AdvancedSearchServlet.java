@@ -9,19 +9,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.objectify.ObjectifyService;
 
 import objects.FlipABookUser;
 import objects.HomePage;
-import objects.Post;
 
 @SuppressWarnings("serial")
 public class AdvancedSearchServlet extends HttpServlet {
 
-	static {
-		ObjectifyService.register(FlipABookUser.class);
-		ObjectifyService.register(Post.class);
-	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		UserService userService = UserServiceFactory.getUserService();

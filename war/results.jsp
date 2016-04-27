@@ -45,8 +45,6 @@
 		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		ObjectifyService.register(Post.class);
-		ObjectifyService.register(Book.class);
 		List<Post> posts = HomePage.searchResults;
 	%>
 	<div class="blog-masthead">
@@ -55,25 +53,26 @@
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
- 		int index = -1;
- 		for (int i = 0; i < HomePage.users.size(); i++) {
- 			if (HomePage.users.get(i).compareTo(user) == 0) {
- 				index = i;
- 				break;
- 			}
- 		}
- 		ObjectifyService.register(FlipABookUser.class);
- 		FlipABookUser flipABookUser = null;
- 		if (index == -1) {
- 			HomePage.users.add(user);
- 			flipABookUser = new FlipABookUser(user);
- 			ObjectifyService.ofy().save().entity(flipABookUser).now();
- 			HomePage.flipABookUsers.add(flipABookUser);
- 		} else {
- 			flipABookUser = HomePage.flipABookUsers.get(index);
- 		}
+ 		//GO AWAY OBJECTIFY YOU SUCK ASS
+// 		int index = -1;
+// 		for (int i = 0; i < HomePage.users.size(); i++) {
+// 			if (HomePage.users.get(i).compareTo(user) == 0) {
+// 				index = i;
+// 				break;
+// 			}
+// 		}
+// 		ObjectifyService.register(FlipABookUser.class);
+// 		FlipABookUser flipABookUser = null;
+// 		if (index == -1) {
+// 			HomePage.users.add(user);
+// 			flipABookUser = new FlipABookUser(user);
+// 			ObjectifyService.ofy().save().entity(flipABookUser).now();
+// 			HomePage.flipABookUsers.add(flipABookUser);
+// 		} else {
+// 			flipABookUser = HomePage.flipABookUsers.get(index);
+// 		}
  		pageContext.setAttribute("user", user);
- 		pageContext.setAttribute("flipabookuser", flipABookUser);
+// 		pageContext.setAttribute("flipabookuser", flipABookUser);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -122,7 +121,7 @@
 				} else {
 						for (int i = 0; i < posts.size(); i++) {
 							pageContext.setAttribute("title", posts.get(i).getTitle());
-							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
+							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getEmail());
 							pageContext.setAttribute("date", posts.get(i).getDate());
 							pageContext.setAttribute("author", posts.get(i).getAuthor());
 							pageContext.setAttribute("isbn", posts.get(i).getIsbn());
@@ -140,6 +139,22 @@
 					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
 					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
+	<%			
+				if (!user.equals((User)posts.get(i).getSeller().getUserInfo())){
+					
+	%>
+	
+		<form action ="/message" method ="post">
+		<div><input type="submit" value="Message user" align="middle"/>
+		</div>
+		<input type="hidden" name="message_seller" value="${fn:escapeXml(seller)}"/>
+		<input type="hidden" name="message_isbn" value="${fn:escapeXml(isbn)}"/>
+		</form>
+			<%			
+				}
+			%>
+
+				
 			</div>
 			<!-- /.blog-post -->
 			<%

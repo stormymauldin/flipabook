@@ -5,6 +5,7 @@ package servlets;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Collections;
 import java.util.Date;
 
 import javax.servlet.http.HttpServlet;
@@ -88,6 +89,8 @@ public class CreatePostServlet extends HttpServlet {
 		} else {
 			//This will add the post to the datastore (YES WE ARE USING THE DATASTORE NOW BECAUSE OBJECTIFY IS EVIL) 
 			HomePage.posts.add(post);
+			flipABookUser.addPost(post);
+			Collections.sort(HomePage.posts);
 			//Key will be the ISBN of the book followed by the USERNAME (please remember this)
 			String specific_post_key = isbn + user.getEmail(); 
 			Key postkey = KeyFactory.createKey("Post", specific_post_key);

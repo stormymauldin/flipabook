@@ -8,6 +8,12 @@
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
+<%@ page import="com.google.appengine.api.datastore.Query" %>
+<%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
+
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -94,18 +100,32 @@
 		<div class="blog-main">
 
 			<div class="blog-post">
-				<h2 class="blog-post-title">Panel</h2>
+				<h2 class="blog-post-title">User Information</h2>
+		<%
+					FlipABookUser current_user = HomePage.getUser(user);
+					pageContext.setAttribute("username", user.getEmail());
+					//pageContext.setAttribute("totalPosts", current_user.getNumTotalPosts());
+					pageContext.setAttribute("currentPosts", current_user.getNumCurrentPosts());
+					
+					//These are only here for debugging purposes. Please disregard for now. 
+					DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+				    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
+				    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+				    for (Entity datastore_user: users) {
+				    	User next_user = (User)datastore_user.getProperty("user");
+				    	System.out.println("This user is in the datastore: " + ((User)datastore_user.getProperty("user")).getEmail());
+				    }
 
-				<p>Your information...</p>
+					
+		%>
+
+				<ul style="text-align: left">
+					<li>Username: ${fn:escapeXml(username)}</li>
+					<li>Current Posts: ${fn:escapeXml(currentPosts)}</li>
+				</ul>
 
 			</div>
 
-			<nav>
-			<ul class="pager">
-				<li><a href="#">Previous</a></li>
-				<li><a href="#">Next</a></li>
-			</ul>
-			</nav>
 
 		</div>
 		<!-- /.blog-main -->

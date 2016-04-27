@@ -167,7 +167,7 @@
 							pageContext.setAttribute("price", post.getProperty("price"));
 							pageContext.setAttribute("description", post.getProperty("description"));
 
-//						}
+
 //						for (int i = 0; i < posts.size(); i++) {
 //							pageContext.setAttribute("title", posts.get(i).getTitle());
 //							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
@@ -188,6 +188,24 @@
 					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
 					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
+				
+	<%			
+				if (!user.equals((User)post.getProperty("user"))){
+					
+	%>
+
+		<form action ="/message" method ="post">
+		<div><input type="submit" value="Message user" align="middle"/>
+		</div>
+		<input type="hidden" name="message_seller" value="${fn:escapeXml(seller)}"/>
+		<input type="hidden" name="message_isbn" value="${fn:escapeXml(isbn)}"/>
+		</form>
+			<%			
+				}
+			%>
+	
+				
+				
 			</div>
 			<!-- /.blog-post -->
 			<%

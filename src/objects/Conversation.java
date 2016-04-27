@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+
 import com.googlecode.objectify.annotation.*;
 
-@Entity
 @Serialize
 public class Conversation implements Comparable<Conversation>, Serializable {
 	/**
@@ -22,6 +25,8 @@ public class Conversation implements Comparable<Conversation>, Serializable {
 	FlipABookUser buyer;
 //	@Container
 	ArrayList<Message> messages;
+	String title;
+	String convoID;
 	boolean meetingIsScheduled = false;
 	Date scheduleDate;
 	boolean transactionWasSuccessful = false;
@@ -32,17 +37,48 @@ public class Conversation implements Comparable<Conversation>, Serializable {
 	}
 
 	public Conversation(Post post, FlipABookUser buyer) {
+		title = post.getTitle();
 		this.post = post;
 		this.buyer = buyer;
 		messages = new ArrayList<Message>();
+		//Please note, convoID is the postID + buyer + seller IN THAT ORDER
+		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail(); 
+		Entity convo = new Entity("Conversation");
+		convo.setProperty("convoID", convoID);
+		convo.setProperty("buyer", buyer.getUserInfo());
+		convo.setProperty("title", post.getTitle());
+		convo.setProperty("seller", post.getSeller().getUserInfo());
+		convo.setProperty("date", post.getDate());
+		convo.setProperty("isbn", post.getIsbn());
+		convo.setProperty("author", post.getAuthor());
+		convo.setProperty("description", post.getDescription());
+		convo.setProperty("price", post.getPrice());
+		convo.setProperty("date", new Date());
+		convo.setProperty("meetup", meetingIsScheduled);
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        datastore.put(convo);
 	}
 
+	public Conversation(Post post, FlipABookUser buyer, boolean flag) {
+		title = post.getTitle();
+		this.post = post;
+		this.buyer = buyer;
+		messages = new ArrayList<Message>();
+		//Please note, convoID is the postID + buyer + seller IN THAT ORDER
+		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail(); 
+		
+	}
+	
+	public String getConvoID(){
+		return convoID;
+	}
+	
 	public Post getPost() {
 		return post;
 	}
 
-	public void newMessage(int direction, String content) {
-		messages.add(new Message(direction, content, this));
+	public void newMessage(String content) {
+		messages.add(new Message(content, this));
 	}
 
 	public void scheduleMeeting() {
