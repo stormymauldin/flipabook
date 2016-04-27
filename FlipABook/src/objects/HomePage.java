@@ -58,7 +58,7 @@ public class HomePage {
 		List<Entity> conversationEntities = datastore.prepare(new Query("Conversation")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
 		List<Entity> messageEntities = datastore.prepare(new Query("Message")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
 		List<Entity> bookEntities = datastore.prepare(new Query("Book")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
-		List<Entity> flipABookUserEntities = datastore.prepare(new Query("Conversation")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
 
 		for(Entity entity : postEntities){
 			new Post(entity.getKey());

@@ -51,25 +51,31 @@
 <body>
 	<%
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage.getInstance();
+		HomePage homePage = HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		FlipABookUser flipABookUser = null;
+		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+
 		boolean nullUser = true;
 		boolean blockedUser = true;
 		int userIndex = -1;
 		if (user != null) {
 			nullUser = false;
-			userIndex = HomePage.users.indexOf(user);
-			if (userIndex == -1) {
+			for(int i = 0; i < flipABookUserEntities.size(); i++){
+				String thisUserEmail = ((User)(flipABookUserEntities.get(i).getProperty("user"))).getEmail();
+				if(user.getEmail().equals(thisUserEmail
+						)){
+					flipABookUser = new FlipABookUser(flipABookUserEntities.get(i));
+				}
+			}
+			if (flipABookUser == null) {
 				new FlipABookUser(user);
-				userIndex = HomePage.users.size() - 1;
 			}
 
-			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
+			if (flipABookUser.validEmail) {
 				blockedUser = true;
 			} else {
-				flipABookUser = HomePage.flipABookUsers.get(userIndex);
 				blockedUser = false;
 			}
 		} else {

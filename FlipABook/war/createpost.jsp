@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
@@ -55,21 +56,25 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		FlipABookUser flipABookUser = null;
+		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+
 		boolean nullUser = true;
 		boolean blockedUser = true;
 		int userIndex = -1;
 		if (user != null) {
 			nullUser = false;
-			userIndex = HomePage.users.indexOf(user);
-			if (userIndex == -1) {
+			for(int i = 0; i < flipABookUserEntities.size(); i++){
+				if(flipABookUserEntities.get(i).getKey().toString().equals(user.getEmail())){
+					flipABookUser = new FlipABookUser(flipABookUserEntities.get(i));
+				}
+			}
+			if (flipABookUser == null) {
 				new FlipABookUser(user);
-				userIndex = HomePage.users.size() - 1;
 			}
 
-			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
+			if (flipABookUser.validEmail) {
 				blockedUser = true;
 			} else {
-				flipABookUser = HomePage.flipABookUsers.get(userIndex);
 				blockedUser = false;
 			}
 		} else {
