@@ -1,22 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
-<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
+<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page
-	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
-<%@ page import="com.google.appengine.api.datastore.Query"%>
-<%@ page import="com.google.appengine.api.datastore.Entity"%>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
-<%@ page import="com.google.appengine.api.datastore.Key"%>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
-<%@ page import="java.util.Date"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -51,47 +42,26 @@
 
 <body>
 	<%
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
+		HomePage.getInstance();
 		FlipABookUser flipABookUser = null;
-		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
-
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			for(int i = 0; i < flipABookUserEntities.size(); i++){
-				if(flipABookUserEntities.get(i).getKey().toString().equals(user.getEmail())){
-					flipABookUser = new FlipABookUser(flipABookUserEntities.get(i));
-				}
-			}
-			if (flipABookUser == null) {
-				new FlipABookUser(user);
-			}
-
-			if (flipABookUser.validEmail) {
-				blockedUser = true;
-			} else {
-				blockedUser = false;
-			}
-		} else {
-			nullUser = true;
-		}
-
-		Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
-		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(1000));
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
-				<nav class="blog-nav"> <a class="blog-nav-item active"
+				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
- 	if (!nullUser && !blockedUser) {
+ 	if (user != null) {
  		pageContext.setAttribute("user", user);
- 		pageContext.setAttribute("flipABookUser", flipABookUser);
+ 		int index = -1;
+ 		for (int i = 0; i < HomePage.users.size(); i++) {
+ 			if (HomePage.users.get(i).compareTo(user) == 0) {
+ 				index = i;
+ 				break;
+ 			}
+ 		}
+ 		flipABookUser = HomePage.flipABookUsers.get(index);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -200,30 +170,14 @@
 		<!--</div>-->
 		<!-- /.row -->
 		<%
-			} else if (nullUser) {
+			} else {
 		%>
 		<div class="blog-main">
 
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in </a> to use FlipABook.
-				</h3>
-			</div>
-		</div>
-		<%
-			} else if (blockedUser) {
-		%>
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h3>
-					<font color="red">ERROR: Only those with valid @utexas.edu
-						emails are allowed to use FlipABook.</font>
-				</h3>
-				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in with a valid @utexas.edu email</a> to use FlipABook.
+						in</a> to use FlipABook.
 				</h3>
 			</div>
 		</div>

@@ -1,25 +1,37 @@
 package objects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+//import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
+import com.googlecode.objectify.annotation.*;
 
-public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
-	Key key;
+@Entity
+@Serialize
+public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6021876930283938945L;
+	@Id
+	Long id;
 	User user;
-	public Entity flipABookUser;
-	public boolean validEmail;
-	ArrayList<Entity> posts;
-	ArrayList<Entity> conversations;
-	ArrayList<Entity> unreadMessages;
-	ArrayList<Entity> sentMessagesNotRead;
+//	@Container
+	ArrayList<Post> posts;
+//	@Container
+	ArrayList<Conversation> conversations;
+//	@Container
+	ArrayList<Message> unreadMessages;
+//	@Container
+	ArrayList<Message> sentMessagesNotRead;
+	int totalSales; 
+	int totalPosts; 
 	boolean repeatPostAttempt = false;
 	boolean wrongPrice = false;
 	boolean nullFields = false;
@@ -29,70 +41,78 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 	public FlipABookUser() {
 	}
 
-	public FlipABookUser(Entity entity) {
-		this.flipABookUser = entity;
-		this.key = entity.getKey();
-		setPropertiesFromEntity();
-		addToDatastore();
-		verifyEmail();
-	}
-
-	public FlipABookUser(Key key) {
-		this.key = key;
-		try {
-			flipABookUser = DatastoreServiceFactory.getDatastoreService().get(key);
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
-		}
-		setPropertiesFromEntity();
-		addToDatastore();
-		verifyEmail();
-	}
-
 	public FlipABookUser(User user) {
+		totalSales = 0;
+		totalPosts = 0;
 		this.user = user;
-		posts = new ArrayList<Entity>();
-		conversations = new ArrayList<Entity>();
-		unreadMessages = new ArrayList<Entity>();
-		sentMessagesNotRead = new ArrayList<Entity>();
-
-		keyGen();
-		addToDatastore();
-		verifyEmail();
-		HomePage.users.add(user);
-		HomePage.flipABookUsers.add(this);
-	}
-
-	public void setPropertiesFromEntity() {
-		user = (User) flipABookUser.getProperty("user");
-		posts = (ArrayList<Entity>) flipABookUser.getProperty("posts");
-		conversations = (ArrayList<Entity>) flipABookUser.getProperty("conversations");
-		unreadMessages = (ArrayList<Entity>) flipABookUser.getProperty("unreadMessages");
-		sentMessagesNotRead = (ArrayList<Entity>) flipABookUser.getProperty("sentMessagesNotRead");
-		repeatPostAttempt = (boolean) flipABookUser.getProperty("repeatPostAttempt");
-		wrongPrice = (boolean) flipABookUser.getProperty("wrongPrice");
-		nullFields = (boolean) flipABookUser.getProperty("nullFields");
-		wrongIsbn = (boolean) flipABookUser.getProperty("wrongIsbn");
-		conductingSearch = (boolean) flipABookUser.getProperty("conductingSearch");
+		posts = new ArrayList<Post>();
+		conversations = new ArrayList<Conversation>();
+		unreadMessages = new ArrayList<Message>();
+		sentMessagesNotRead = new ArrayList<Message>();
+		
+		boolean exists = false;	
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+//		Entity user_datastore = new Entity("User");
+//	    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
+//	    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+//	    for (Entity datastore_user: users) {
+//	    	User next_user = (User)datastore_user.getProperty("user");
+//	    	if (next_user.equals(user)){
+//	    		exists = true;
+//	    		break;
+//	    	}
+//	    }
+//		if (!exists){
+//			user_datastore.setProperty("user", user);
+//			user_datastore.setProperty("name", user.getNickname());
+//			user_datastore.setProperty("totalposts", totalPosts);
+//	        datastore.put(user_datastore);
+//	        System.out.println("Added user to datastore: " + user.getEmail());
+//		}
 	}
 
 	public User getUserInfo() {
 		return user;
 	}
 
-	public void addPost(Entity post) {
-		posts.add(post);
-	}
-
 	public String getEmail() {
 		return user.getEmail();
 	}
+	
+	public void addPost(Post addedPost) {
+		posts.add(addedPost);
+		totalPosts++;
+//		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+//	    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
+//	    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+//	    Entity temp = null;
+//	    for (Entity datastore_user: users) {
+//	    	User next_user = (User)datastore_user.getProperty("user");
+//	    	if (next_user.equals(user)){
+//				datastore_user.setProperty("totalposts", totalPosts); //Temporarily not this (allows whole datastore to be re-init
+//				datastore_user.setProperty("totalposts", posts.size()); 
+//				datastore.delete(datastore_user.getKey());
+//				datastore.put(datastore_user);
+//				break;
+//	    	}
+//	    }
 
-	public ArrayList<Entity> getPosts() {
+	}
+	
+	public int getNumCurrentPosts(){
+		return posts.size();
+		
+	}
+	
+	public int getNumTotalPosts(){
+		return totalPosts;
+	}
+	
+	public ArrayList<Post> getPosts() {
 		return posts;
 	}
 
-	public ArrayList<Entity> getConversations() {
+	public ArrayList<Conversation> getConversations() {
 		return conversations;
 	}
 
@@ -102,7 +122,6 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 			unreadMessages.remove(index);
 		}
 		message.setRead();
-		addToDatastore();
 	}
 
 	public boolean repeatPostAttempt() {
@@ -111,119 +130,100 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 
 	public void setRepeatPostAttempt() {
 		repeatPostAttempt = true;
-		addToDatastore();
 	}
 
 	public void removeRepeatPostAttempt() {
 		repeatPostAttempt = false;
-		addToDatastore();
 	}
 
 	public boolean wrongPrice() {
 		return wrongPrice;
 	}
-
+	public void setTotalPosts(int numPosts){
+		totalPosts = numPosts; 
+	}
 	public void setWrongPrice() {
 		wrongPrice = true;
-		addToDatastore();
 	}
 
 	public void removeWrongPrice() {
 		wrongPrice = false;
-		addToDatastore();
 	}
-
+	
 	public boolean nullFields() {
 		return nullFields;
 	}
 
 	public void setNullFields() {
 		nullFields = true;
-		addToDatastore();
 	}
 
 	public void removeNullFields() {
 		nullFields = false;
-		addToDatastore();
 	}
-
-	public boolean wrongIsbn() {
+	
+	public boolean wrongIsbn(){
 		return wrongIsbn;
 	}
-
-	public void setWrongIsbn() {
+	
+	public void setWrongIsbn(){
 		wrongIsbn = true;
-		addToDatastore();
 	}
-
-	public void removeWrongIsbn() {
+	
+	public void removeWrongIsbn(){
 		wrongIsbn = false;
-		addToDatastore();
 	}
-
-	public boolean conductingSearch() {
+	
+	public boolean conductingSearch(){
 		return conductingSearch;
 	}
-
-	public void setConductingSearch() {
+	
+	public void setConductingSearch(){
 		conductingSearch = true;
-		addToDatastore();
 	}
-
-	public void removeConductingSearch() {
+	
+	public void removeConductingSearch(){
 		conductingSearch = false;
-		addToDatastore();
 	}
 
-	private int getConversationIndex(Entity post, Entity buyer) {
-		String keyString = post.getKey().toString() + ((User) (buyer.getProperty("user"))).getEmail();
-		Key aKey = KeyFactory.createKey("Conversation", keyString);
-		for (Entity conversation : conversations) {
-			if (conversation.getKey().equals(aKey)) {
+	private int getConversationIndex(Post post, FlipABookUser buyer) {
+		Conversation curConversation = new Conversation(post, buyer);
+		for (Conversation conversation : conversations) {
+			if (conversation.compareTo(curConversation) == 0) {
 				return conversations.indexOf(conversation);
 			}
 		}
 		return -1;
-
 	}
-
-	public void sendMessage(int buyingOrSelling, Entity post, Entity buyer, String content) {
-		// TODO Update so it works with entities
-
+	//Sorry this looks too hard and it's 4am and I can't understand it, please refactor later
+	public void sendMessage(int buyingOrSelling, Post post, FlipABookUser buyer, String content) {
 		Conversation curConversation = null;
 		int indexOfConversation;
 		int direction;
 		if (buyingOrSelling == Observer.BUYING) {
 			direction = Subject.BUYER_TO_SELLER;
-			int index = getConversationIndex(post, buyer);
-			indexOfConversation = getConversationIndex(post, flipABookUser);
+			indexOfConversation = getConversationIndex(post, this);
 			if (indexOfConversation == -1) {
 				indexOfConversation = conversations.size();
-				curConversation = new Conversation(post, buyer);
-				conversations.add(curConversation.conversation);
+				curConversation = new Conversation(post, this);
+				conversations.add(curConversation);
 			}
 		} else {
 			direction = Subject.SELLER_TO_BUYER;
 			indexOfConversation = getConversationIndex(post, buyer);
-			for (Conversation convo : HomePage.conversations) {
-				if (convo.conversation.equals(conversations.get(indexOfConversation))) {
-					curConversation = convo;
-				}
-			}
+			curConversation = conversations.get(indexOfConversation);
 		}
-		curConversation.newMessage(direction, content);
+		curConversation.newMessage(content);
 		int messageIndex = curConversation.getMessages().size() - 1;
 		sentMessagesNotRead.add(curConversation.getMessages().get(messageIndex));
-		addToDatastore(); // Note: creating the message automatically adds both
-							// parties as observers
-
+		// Note: creating the message automatically adds both parties as
+		// observers
 	}
 
 	// Since the conversation object is shared by both parties, the message
 	// isn't actually deleted, it just stops being observed by one party
 	public void deleteMessage(Message message) {
 		message.removeObserver(this);
-		addToDatastore();
 	}
 
 	// This implementation of updates either i) adds a new message to the list
@@ -231,53 +231,24 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 	// ii) notifies the user that a previously sent message has been read.
 	@Override
 	public void update(Message message, int updateType) {
-		// TODO update so that it works with entities
-		/*
-		 * if (updateType == Observer.NEW_MESSAGE) { if
-		 * (!conversations.contains(message.getConversation())) {
-		 * conversations.add(message.getConversation()); }
-		 * unreadMessages.add(message); } else if (updateType == Observer.READ)
-		 * { int index = sentMessagesNotRead.indexOf(message); if (index != -1)
-		 * { sentMessagesNotRead.remove(index); } } addToDatastore();
-		 */
+		if (updateType == Observer.NEW_MESSAGE) {
+			if (!conversations.contains(message.getConversation())) {
+				conversations.add(message.getConversation());
+			}
+			unreadMessages.add(message);
+		} else if (updateType == Observer.READ) {
+			int index = sentMessagesNotRead.indexOf(message);
+			if (index != -1) {
+				sentMessagesNotRead.remove(index);
+			}
+		}
 	}
 
 	@Override
 	public int compareTo(FlipABookUser o) {
-		if (key.equals(o.key)) {
+		if (user.equals(o.getUserInfo())) {
 			return 0;
 		}
 		return 1;
-	}
-
-	public void addToDatastore() {
-		flipABookUser.setProperty("user", user);
-		flipABookUser.setProperty("validEmail", validEmail);
-		flipABookUser.setProperty("posts", posts);
-		flipABookUser.setProperty("conversations", conversations);
-		flipABookUser.setProperty("unreadMessages", unreadMessages);
-		flipABookUser.setProperty("sentMessagesNotRead", sentMessagesNotRead);
-		flipABookUser.setProperty("repeatPostAttempt", repeatPostAttempt);
-		flipABookUser.setProperty("wrongPrice", wrongPrice);
-		flipABookUser.setProperty("nullFields", nullFields);
-		flipABookUser.setProperty("wrongIsbn", wrongIsbn);
-		flipABookUser.setProperty("conductingSearch", conductingSearch);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		datastore.put(flipABookUser);
-	}
-
-	public void keyGen() {
-		String keyString = user.getEmail();
-		key = KeyFactory.createKey("FlipABookUser", keyString);
-		flipABookUser = new Entity("FlipABookUser", key);
-	}
-
-	public void verifyEmail() {
-		String[] parsedEmail = user.getEmail().split("@");
-		if (parsedEmail.length != 2 || !parsedEmail[1].equals("utexas.edu")) {
-			validEmail = false;
-		} else {
-			validEmail = true;
-		}
 	}
 }

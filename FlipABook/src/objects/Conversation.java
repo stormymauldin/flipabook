@@ -1,81 +1,90 @@
 package objects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.google.appengine.api.datastore.*;
-import com.google.appengine.api.users.User;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 
-public class Conversation implements Comparable<Conversation> {
-	Key key;
-	Entity conversation;
-	Entity post;
+import com.googlecode.objectify.annotation.*;
+
+@Serialize
+public class Conversation implements Comparable<Conversation>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -961566006389798376L;
+	@Id
+	Long id;
+//	@Container
+	Post post;
 	// note: participant 0 is seller, participant 1 is buyer.
-	Entity buyer;
-	ArrayList<Entity> messages;
+//	@Container
+	FlipABookUser buyer;
+//	@Container
+	ArrayList<Message> messages;
+	String title;
+	String convoID;
 	boolean meetingIsScheduled = false;
 	Date scheduleDate;
 	boolean transactionWasSuccessful = false;
 	static final int POST_DELETED = 0;
 	static final int BUYER_DELETED = 1;
 
-	public Conversation(){
+	public Conversation() {
 	}
-	
-	public Conversation(Entity entity){
-		conversation = entity;
-		key = conversation.getKey();
-		setPropertiesFromEntity();
-		addToDatastore();
+
+	public Conversation(Post post, FlipABookUser buyer) {
+		title = post.getTitle();
+		this.post = post;
+		this.buyer = buyer;
+		messages = new ArrayList<Message>();
+		//Please note, convoID is the postID + buyer + seller IN THAT ORDER
+		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail(); 
+		Entity convo = new Entity("Conversation");
+		convo.setProperty("convoID", convoID);
+		convo.setProperty("buyer", buyer.getUserInfo());
+		convo.setProperty("title", post.getTitle());
+		convo.setProperty("seller", post.getSeller().getUserInfo());
+		convo.setProperty("date", post.getDate());
+		convo.setProperty("isbn", post.getIsbn());
+		convo.setProperty("author", post.getAuthor());
+		convo.setProperty("description", post.getDescription());
+		convo.setProperty("price", post.getPrice());
+		convo.setProperty("date", new Date());
+		convo.setProperty("meetup", meetingIsScheduled);
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        datastore.put(convo);
+	}
+
+	public Conversation(Post post, FlipABookUser buyer, boolean flag) {
+		title = post.getTitle();
+		this.post = post;
+		this.buyer = buyer;
+		messages = new ArrayList<Message>();
+		//Please note, convoID is the postID + buyer + seller IN THAT ORDER
+		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail(); 
 		
 	}
 	
-	public Conversation (Key key){
-		this.key = key;
-		try {
-			conversation = DatastoreServiceFactory.getDatastoreService().get(key);
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
-		}
-		setPropertiesFromEntity();
-		//HomePage.conversations.add(this);
-	}
-
-	public Conversation(Entity post, Entity buyer) {
-		this.post = post;
-		this.buyer = buyer;
-		messages = new ArrayList<Entity>();
-		keyGen();
-		addToDatastore();
-		HomePage.conversations.add(this);
-	}
-
-	public Entity getPost() {
-		return post;
+	public String getConvoID(){
+		return convoID;
 	}
 	
-	public void setPropertiesFromEntity(){
-		post = (Entity) conversation.getProperty("post");
-		buyer = (Entity) conversation.getProperty("buyer");
-		messages = (ArrayList<Entity>) conversation.getProperty("messages");
-		meetingIsScheduled = (boolean) conversation.getProperty("meetingIsScheduled");
-		scheduleDate = (Date) conversation.getProperty("scheduleDate");
-		transactionWasSuccessful = (boolean) conversation.getProperty("transactionWasSuccessful");
+	public Post getPost() {
+		return post;
 	}
 
-	public void newMessage(int direction, String content) {
-		Message message = new Message(direction, content, this);
-		messages.add(message.message);
-		addToDatastore();
+	public void newMessage(String content) {
+		messages.add(new Message(content, this));
 	}
 
 	public void scheduleMeeting() {
 		meetingIsScheduled = true;
 		scheduleDate = new Date();
-		post.setProperty("status", Post.SUSPENDED);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		datastore.put(post);
-		addToDatastore();
+		post.editStatus(Post.SUSPENDED);
 	}
 
 	public boolean meetingIsScheduled() {
@@ -89,89 +98,43 @@ public class Conversation implements Comparable<Conversation> {
 	public void transactionWasSuccessful() {
 		transactionWasSuccessful = true;
 		// TODO: call function to delete post
-		addToDatastore();
 	}
 
 	public void transactionWasNotSuccesful() {
 		meetingIsScheduled = false;
-		post.setProperty("status", Post.ACTIVE);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		datastore.put(post);
-		addToDatastore();
+		post.editStatus(Post.ACTIVE);
 	}
 
-	public ArrayList<Entity> getMessages() {
+	public ArrayList<Message> getMessages() {
 		return messages;
 	}
 
-	public Entity getBuyer() {
+	public FlipABookUser getBuyer() {
 		return buyer;
 	}
 
 	@Override
 	public int compareTo(Conversation o) {
-		if (key.equals(o.key)) {
+		if (post.compareTo(o.getPost()) == 0 && buyer.compareTo(o.getBuyer()) == 0) {
 			return 0;
 		}
 		return -1;
 	}
 
 	public void deleteConversation(int deletionType) {
-		//TODO update this function to work with entities
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		if (deletionType == POST_DELETED) {
-			for (Entity message : messages) {
-				Message curMessage = getMessage(message);
-				Entity senderEntity = curMessage.getSender();
-				Entity recipientEntity = curMessage.getRecipient();
-				FlipABookUser sender = curMessage.getFlipABookUser(senderEntity);
-				FlipABookUser recipient = curMessage.getFlipABookUser(recipientEntity);
-				curMessage.removeObserver(sender);
-				curMessage.removeObserver(recipient);
-				datastore.delete(message.getKey());
-				int i = HomePage.messages.indexOf(curMessage);
-				HomePage.messages.remove(i);
+			for (Message message : messages) {
+				message.removeObserver(message.getSender());
+				message.removeObserver(message.getRecipient());
 			}
 		} else {
-			for (Entity message : messages) {
-				Message curMessage = getMessage(message);
-				Entity senderEntity = curMessage.getSender();
-				Entity recipientEntity = curMessage.getRecipient();
-				FlipABookUser sender = curMessage.getFlipABookUser(senderEntity);
-				FlipABookUser recipient = curMessage.getFlipABookUser(recipientEntity);
-				if (buyer.equals(senderEntity)) {
-					curMessage.removeObserver(sender);
+			for (Message message : messages) {
+				if (buyer.compareTo(message.getSender()) == 0) {
+					message.removeObserver(message.getSender());
 				} else {
-					curMessage.removeObserver(recipient);
+					message.removeObserver(message.getRecipient());
 				}
 			}
 		}
-		addToDatastore();
-	}
-	
-	public void addToDatastore(){		
-		conversation.setProperty("post", post);
-		conversation.setProperty("buyer", buyer);
-		conversation.setProperty("messages", messages);
-		conversation.setProperty("meetingIsScheduled", meetingIsScheduled);
-		conversation.setProperty("scheduleDate", scheduleDate);
-		conversation.setProperty("transactionWasSuccessful", transactionWasSuccessful);
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		datastore.put(conversation);
-	}
-	
-	public void keyGen(){
-		String keyString = post.getKey().toString() + ((User)(buyer.getProperty("user"))).getEmail();
-		key = KeyFactory.createKey("Conversation", keyString);
-		conversation = new Entity("Conversation", key);
-	}
-	
-	public Message getMessage(Entity message){
-		for (Message curMessage : HomePage.messages) {
-			if (curMessage.message.equals(message)) {
-				return curMessage;
-			}
-		}
-		return null;
 	}
 }

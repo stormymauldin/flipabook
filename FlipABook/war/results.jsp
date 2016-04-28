@@ -4,18 +4,10 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
+<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page
-	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
-<%@ page import="com.google.appengine.api.datastore.Query"%>
-<%@ page import="com.google.appengine.api.datastore.Entity"%>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
-<%@ page import="com.google.appengine.api.datastore.Key"%>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
-<%@ page import="java.util.Date"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -50,41 +42,37 @@
 
 <body>
 	<%
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		FlipABookUser flipABookUser = null;
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			userIndex = HomePage.users.indexOf(user);
-			if (userIndex == -1) {
-				new FlipABookUser(user);
-				userIndex = HomePage.users.size() - 1;
-			}
-
-			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
-				blockedUser = true;
-			} else {
-				flipABookUser = HomePage.flipABookUsers.get(userIndex);
-				blockedUser = false;
-			}
-		} else {
-			nullUser = true;
-		}
-
-		List<Post> posts = null;
+		List<Post> posts = HomePage.searchResults;
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
- 	if (!nullUser && !blockedUser) {
- 		posts = HomePage.searchResults;
+ 	if (user != null) {
+ 		//GO AWAY OBJECTIFY YOU SUCK ASS
+// 		int index = -1;
+// 		for (int i = 0; i < HomePage.users.size(); i++) {
+// 			if (HomePage.users.get(i).compareTo(user) == 0) {
+// 				index = i;
+// 				break;
+// 			}
+// 		}
+// 		ObjectifyService.register(FlipABookUser.class);
+// 		FlipABookUser flipABookUser = null;
+// 		if (index == -1) {
+// 			HomePage.users.add(user);
+// 			flipABookUser = new FlipABookUser(user);
+// 			ObjectifyService.ofy().save().entity(flipABookUser).now();
+// 			HomePage.flipABookUsers.add(flipABookUser);
+// 		} else {
+// 			flipABookUser = HomePage.flipABookUsers.get(index);
+// 		}
+ 		pageContext.setAttribute("user", user);
+// 		pageContext.setAttribute("flipabookuser", flipABookUser);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -112,7 +100,7 @@
 			</h1>
 			<h2 class="lead blog-description">Search Results</h2>
 			<%
-				if (!nullUser) {
+				if (user != null) {
 			%>
 			<input type="button" value="Start another search"
 				onClick="window.location='advancedsearch.jsp';"> <input
@@ -125,22 +113,20 @@
 
 		<div class="blog-main">
 			<%
-				if (!nullUser && !blockedUser) {
+				if (user != null) {
 					if (posts.isEmpty()) {
 			%>
-			<p>No posts matched your queries.</p>
+			<p>No matching posts found.</p>
 			<%
 				} else {
-						//Collections.sort(posts);
-						//Collections.reverse(posts);
-						for (Post post : posts) {
-							pageContext.setAttribute("title", post.getTitle());
-							pageContext.setAttribute("seller", post.getSeller());
-							pageContext.setAttribute("date", post.getDate());
-							pageContext.setAttribute("author", post.getAuthor());
-							pageContext.setAttribute("isbn", post.getIsbn());
-							pageContext.setAttribute("price", post.getPrice());
-							pageContext.setAttribute("description", post.getDescription());
+						for (int i = 0; i < posts.size(); i++) {
+							pageContext.setAttribute("title", posts.get(i).getTitle());
+							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getEmail());
+							pageContext.setAttribute("date", posts.get(i).getDate());
+							pageContext.setAttribute("author", posts.get(i).getAuthor());
+							pageContext.setAttribute("isbn", posts.get(i).getIsbn());
+							pageContext.setAttribute("price", posts.get(i).getPrice());
+							pageContext.setAttribute("description", posts.get(i).getDescription());
 			%>
 			<div class="blog-post">
 				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
@@ -153,6 +139,22 @@
 					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
 					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
+	<%			
+				if (!user.equals((User)posts.get(i).getSeller().getUserInfo())){
+					
+	%>
+	
+		<form action ="/message" method ="post">
+		<div><input type="submit" value="Message user" align="middle"/>
+		</div>
+		<input type="hidden" name="message_seller" value="${fn:escapeXml(seller)}"/>
+		<input type="hidden" name="message_isbn" value="${fn:escapeXml(isbn)}"/>
+		</form>
+			<%			
+				}
+			%>
+
+				
 			</div>
 			<!-- /.blog-post -->
 			<%
@@ -164,30 +166,14 @@
 		<!-- /.row -->
 		<%
 			}
-			} else if (nullUser) {
+			} else {
 		%>
 		<div class="blog-main">
 
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in </a> to use FlipABook.
-				</h3>
-			</div>
-		</div>
-		<%
-			} else if (blockedUser) {
-		%>
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h3>
-					<font color="red">ERROR: Only those with valid @utexas.edu
-						emails are allowed to use FlipABook.</font>
-				</h3>
-				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in with a valid @utexas.edu email</a> to use FlipABook.
+						in</a> to use FlipABook.
 				</h3>
 			</div>
 		</div>

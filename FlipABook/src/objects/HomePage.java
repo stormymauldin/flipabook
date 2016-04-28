@@ -18,91 +18,131 @@ public class HomePage {
 	public static ArrayList<Post> posts;
 	public static ArrayList<User> users;
 	public static ArrayList<FlipABookUser> flipABookUsers;
-	public static ArrayList<Book> books;
 	public static ArrayList<Conversation> conversations;
 	public static ArrayList<Message> messages;
+	public static ArrayList<Book> books;
 	public static boolean searchFilter = false;
 	public static boolean advancedSearch = false;
 	public static ArrayList<Post> searchResults;
 	public static ArrayList<Integer> searchResultsWeighted;
-	public static boolean init = false;
-
+	public static boolean init = false; 
+	
+	
 	private HomePage() {
 		posts = new ArrayList<Post>();
 		users = new ArrayList<User>();
-		conversations = new ArrayList<Conversation>();
-		messages = new ArrayList<Message>();
 		flipABookUsers = new ArrayList<FlipABookUser>();
 		books = new ArrayList<Book>();
-		update();
+		conversations = new ArrayList<Conversation>();
+		messages = new ArrayList<Message>();
 	}
 
 	public static synchronized HomePage getInstance() {
 		if (uniqueInstance == null) {
 			uniqueInstance = new HomePage();
-		} else {
-			update(); //TODO may need to remove
 		}
 		return uniqueInstance;
 	}
-	
-	public static void update(){
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		posts.clear();
-		users.clear();
-		conversations.clear();
-		messages.clear();
-		flipABookUsers.clear();
-		books.clear();
-		List<Entity> postEntities = datastore.prepare(new Query("Post").addSort("date", Query.SortDirection.DESCENDING)).asList(FetchOptions.Builder.withLimit(1000));
-		List<Entity> conversationEntities = datastore.prepare(new Query("Conversation")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
-		List<Entity> messageEntities = datastore.prepare(new Query("Message")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
-		List<Entity> bookEntities = datastore.prepare(new Query("Book")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
-		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser")).asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
 
-		for(Entity entity : postEntities){
-			new Post(entity.getKey());
-		}
+	public static synchronized void initialize() {
+		//This will initialize all the datas from the datastore! It's probably not that useful for appengine, but it's essential for debugging. 
 		
-		for(Entity entity : conversationEntities){
-			new Conversation(entity.getKey());
-		}
-		
-		for(Entity entity : messageEntities){
-			new Message(entity.getKey());
-		}
-		
-		for(Entity entity : bookEntities){
-			new Book(entity.getKey());
-		}
-		
-		for(Entity entity : flipABookUserEntities){
-			new FlipABookUser(entity.getKey());
-		}
-	}
-	
-	public static void addPost(Post post){
-		if(!posts.contains(post)){
-			posts.add(post);
-		}
-	}
-	
-	public static void addConversation(){
-		
-	}
-	
-	public static void addUser(){
-		
-	}
-	
-	public static void addFlipABookUser(){
-		
-	}
-	
-	public static void addMessage(){
-		
-	}
+		if (!init) {
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
+		    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+		    for (Entity datastore_user: users) {
+		    	User next_user = (User)datastore_user.getProperty("user");
+		    	String name = (String)datastore_user.getProperty("name");
+		    	int totalPosts = ((Long)datastore_user.getProperty("totalposts")).intValue();
+		    	FlipABookUser temp_flipabook_user = HomePage.getUser(next_user); 
+		    	temp_flipabook_user.setTotalPosts(totalPosts);
+		    }
+		    
+		    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
+			List<Entity> temp = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(1000));
+			for (Entity temp_post: temp) {
+				String temp_title = (String)temp_post.getProperty("title");
+				User temp_user = (User)temp_post.getProperty("user");
+				FlipABookUser temp_flipabook_user = HomePage.getUser(temp_user); 
+				Date temp_date = (Date)temp_post.getProperty("date");
+				if (temp_date == null) {
+					temp_date = new Date(); 
+				}
+				String temp_isbn = (String)temp_post.getProperty("isbn");
+				String temp_author = (String)temp_post.getProperty("author");
+				String temp_description = (String)temp_post.getProperty("description");
+				String temp_price = (String)temp_post.getProperty("price");
+				Post post_obj = new Post(temp_flipabook_user, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date);
+				HomePage.posts.add(post_obj);
+//				HomePage.posts.add(new Post(temp_flipabook_user, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date));
+				temp_flipabook_user.posts.add(post_obj);
+				System.out.println("Post found from Datastore: " + temp_post.getKey());
+				System.out.println("User: " + temp_user.getEmail() + " has number of posts: " + temp_flipabook_user.getNumCurrentPosts());
+			}
+			//This is for debugging purposes. 
+		    Query convo_query = new Query("Conversation").addSort("convoID", Query.SortDirection.DESCENDING);
+			List<Entity> convos = datastore.prepare(convo_query).asList(FetchOptions.Builder.withLimit(1000));
+			
+			//Initializes all stored conversations on the server
+			for (Entity conversation: convos){
+				User buyer = (User) conversation.getProperty("buyer");
+				FlipABookUser temp_buyer = HomePage.getUser(buyer); 
+				User seller = (User) conversation.getProperty("seller");
+				FlipABookUser temp_seller = HomePage.getUser(seller); 
+				String temp_title = (String)conversation.getProperty("title");
+				String temp_isbn = (String)conversation.getProperty("isbn");
+				boolean foundPost = false;
+				for (Post temp_post: HomePage.posts){
+					if (temp_post.getIsbn().equals(temp_isbn) && seller.equals(temp_post.getSeller().getUserInfo())){
+						foundPost = true; 
+						System.out.println("Found Conversation: " + temp_title);
+						HomePage.conversations.add(new Conversation(temp_post, temp_buyer, false));
+						break;
+					}
+				}
+				if (!foundPost) {
+					Date temp_date = (Date)conversation.getProperty("date");
+					String temp_author = (String)conversation.getProperty("author");
+					String temp_description = (String)conversation.getProperty("description");
+					String temp_price = (String)conversation.getProperty("price");
+					Post post_obj = new Post(temp_seller, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date);
+					HomePage.conversations.add(new Conversation(post_obj, temp_buyer, false));
+					System.out.println("Found Conversation: " + temp_title);
+				}
+			}
+			
+			//Initializes all messages on the server
+		    Query message_query = new Query("Message").addSort("convoID", Query.SortDirection.DESCENDING);
+			List<Entity> datastore_messages = datastore.prepare(message_query).asList(FetchOptions.Builder.withLimit(1000));
+			for (Entity message: datastore_messages){
+				Date messDate = (Date) message.getProperty("date");
+				String content = (String) message.getProperty("content");
+				String convoID = (String) message.getProperty("convoID");
+				Conversation temp_convo = getConversation(convoID);
+				if (temp_convo != null) {
+					Message temp_message = new Message(content, temp_convo, messDate);
+					messages.add(temp_message);
+					temp_convo.messages.add(temp_message);
+				}
+			}
 
+			System.out.println("Number of Posts: " + HomePage.posts.size());
+			init = true; 
+		}
+	}
+	
+	public static Conversation getConversation(String ID){
+		//May return null if Conversation doesn't exist given specific convoID
+		for (Conversation convo: conversations) {
+			if (convo.convoID.equals(ID)){
+				return convo;
+			}
+		}
+		
+		return null; 
+	}
+	
 	public static void basicSearch(String term) {
 
 		HashSet<String> filteredTerm = breakup(term);
@@ -174,17 +214,17 @@ public class HomePage {
 	private static void searchEachPostField(HashSet<String> title, HashSet<String> author, HashSet<String> isbn,
 			HashSet<String> keywords, int postID) {
 		if (title != null) {
-			HashSet<String> postTitle = breakup((String) posts.get(postID).getBook().getProperty("title"));
+			HashSet<String> postTitle = breakup(posts.get(postID).getBook().getTitle());
 			compareSets(title, postTitle, postID);
 		}
 
 		if (author != null) {
-			HashSet<String> postAuthor = breakup((String) posts.get(postID).getBook().getProperty("author"));
+			HashSet<String> postAuthor = breakup(posts.get(postID).getBook().getAuthor());
 			compareSets(author, postAuthor, postID);
 		}
 
 		if (isbn != null) {
-			HashSet<String> postIsbn = breakup((String) posts.get(postID).getBook().getProperty("isbn"));
+			HashSet<String> postIsbn = breakup(posts.get(postID).getBook().getIsbn());
 			compareSets(isbn, postIsbn, postID);
 		}
 
@@ -235,25 +275,40 @@ public class HomePage {
 	}
 
 	public static FlipABookUser getUser(User user) {
-		int index = users.indexOf(user);
-		if(index != -1)
-		{
-			return flipABookUsers.get(index);
+		boolean found = false;
+		for (FlipABookUser find_user: flipABookUsers){
+			if(find_user.getUserInfo().equals(user) ){
+				found = true;
+				return find_user;
+			}
+			
 		}
-		createUser(user);
+		//Whoever made this search function is bad and should feel bad
+//		for (int i = 0; i < HomePage.users.size(); i++) {
+//			if (users.get(i).compareTo(user) == 0) {
+//				index = i;
+//				return flipABookUsers.get(index);
+////				break;
+//			}
+//		}
+		if (!found) {
+			createUser(user);
+		}
 		return flipABookUsers.get(flipABookUsers.size() - 1);
-
+		
 	}
 
 	public static void createUser(User user) {
-		new FlipABookUser(user);
+		//FlipABookUser flipABookUser = null;
+		// TODO: other stuff here to add to objectify
+		// TODO: check to see if user has email address
+		flipABookUsers.add(new FlipABookUser(user));
 	}
 
 	public void deleteUser(FlipABookUser user) {
-		/*
 		if (flipABookUsers.contains(user)) {
 			// remove the user from existing conversations
-			for (Entity conversation : user.getConversations()) {
+			for (Conversation conversation : user.getConversations()) {
 				// remove the user's interactions and update associated parties
 				if (conversation.getBuyer().compareTo(user) == 0) {
 					conversation.deleteConversation(Conversation.BUYER_DELETED);
@@ -265,11 +320,14 @@ public class HomePage {
 				deletePost(post);
 			}
 
-		}*/
+			// TODO: delete the user's objectify data
+		}
 
 	}
 
-
+	public void addPost(Post post) {
+		posts.add(post);
+	}
 
 	public void deletePost(Post post) {
 		for (Post curPost : posts) {

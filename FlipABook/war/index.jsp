@@ -7,15 +7,14 @@
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page
-	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
-<%@ page import="com.google.appengine.api.datastore.Query"%>
-<%@ page import="com.google.appengine.api.datastore.Entity"%>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
-<%@ page import="com.google.appengine.api.datastore.Key"%>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
-<%@ page import="java.util.Date"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
+<%@ page import="com.google.appengine.api.datastore.Query" %>
+<%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
+<%@ page import="com.google.appengine.api.datastore.Key" %>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="java.util.Date" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -51,47 +50,54 @@
 <body>
 	<%
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage homePage = HomePage.getInstance();
+		HomePage.getInstance();
+		HomePage.initialize();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		FlipABookUser flipABookUser = null;
-		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser"))
-				.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
-
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			for (int i = 0; i < flipABookUserEntities.size(); i++) {
-				String thisUserEmail = ((User) (flipABookUserEntities.get(i).getProperty("user"))).getEmail();
-				if (user.getEmail().equals(thisUserEmail)) {
-					flipABookUser = new FlipABookUser(flipABookUserEntities.get(i));
-					break;
-				}
-			}
-			if (flipABookUser == null) {
-				new FlipABookUser(user);
-			}
-
-			if (flipABookUser.validEmail) {
-				blockedUser = true;
-			} else {
-				blockedUser = false;
-			}
-		} else {
-			nullUser = true;
+//		ObjectifyService.register(Post.class);
+//		ObjectifyService.register(Book.class);
+		final boolean clear = false; //debug variable, DEPRECIATED, DO NOT USE!!!!
+	    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
+		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10));
+		
+		if (clear) {
+			
+//		    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+//			posts = ObjectifyService.ofy().load().type(Post.class).list();
+//			for (int i = 0; i < posts.size(); i++) {
+//				ObjectifyService.ofy().delete().entity(posts.get(0)).now();
+//			}
+			HomePage.posts.clear();
 		}
-
-		List<Post> posts = null;
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
- 	if (!nullUser && !blockedUser) {
- 		posts = HomePage.posts;
+ 	if (user != null) {
+ 		int index = -1;
+ 		for (int i = 0; i < HomePage.users.size(); i++) {
+ 			if (HomePage.users.get(i).compareTo(user) == 0) {
+ 				index = i;
+ 				break;
+ 			}
+ 		}
+// 		ObjectifyService.register(FlipABookUser.class);
+ 		FlipABookUser flipABookUser = null;
+ 		if (index == -1) {
+ 			HomePage.users.add(user);
+ 			flipABookUser = new FlipABookUser(user);
+			Key userkey = KeyFactory.createKey("Post", user.getEmail());
+ 			Entity user_datastore = new Entity("User", userkey);
+			user_datastore.setProperty("user", user);
+// 			ObjectifyService.ofy().save().entity(flipABookUser).now();
+ 			HomePage.flipABookUsers.add(flipABookUser);
+ 		} else {
+ 			flipABookUser = HomePage.flipABookUsers.get(index);
+ 		}
+ 		pageContext.setAttribute("user", user);
+ 		pageContext.setAttribute("flipabookuser", flipABookUser);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -120,7 +126,7 @@
 			<h2 class="lead blog-description">The University of Texas'
 				Premier Book Exchange Service</h2>
 			<%
-				if (!nullUser && !blockedUser) {
+				if (user != null) {
 			%>
 			<form class="navbar-form navbar-CENTER" action="/basicsearch"
 				method="post">
@@ -143,7 +149,7 @@
 
 		<div class="blog-main">
 			<%
-				if (!nullUser && !blockedUser) {
+				if (user != null) {
 					if (posts.isEmpty()) {
 			%>
 			<p>There are no recent posts.</p>
@@ -151,14 +157,25 @@
 				} else {
 						//Collections.sort(posts);
 						//Collections.reverse(posts);
-						for (Post post : posts) {
-							pageContext.setAttribute("title", post.getTitle());
-							pageContext.setAttribute("seller", post.getSeller());
-							pageContext.setAttribute("date", post.getDate());
-							pageContext.setAttribute("author", post.getAuthor());
-							pageContext.setAttribute("isbn", post.getIsbn());
-							pageContext.setAttribute("price", post.getPrice());
-							pageContext.setAttribute("description", post.getDescription());
+						for (int i = 0; i < posts.size(); i++) {
+							Entity post = posts.get(i);
+							pageContext.setAttribute("title", post.getProperty("title"));
+							pageContext.setAttribute("seller", post.getProperty("user"));
+							pageContext.setAttribute("date", post.getProperty("date"));
+							pageContext.setAttribute("author", post.getProperty("author"));
+							pageContext.setAttribute("isbn", post.getProperty("isbn"));
+							pageContext.setAttribute("price", post.getProperty("price"));
+							pageContext.setAttribute("description", post.getProperty("description"));
+
+
+//						for (int i = 0; i < posts.size(); i++) {
+//							pageContext.setAttribute("title", posts.get(i).getTitle());
+//							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
+//							pageContext.setAttribute("date", posts.get(i).getDate());
+//							pageContext.setAttribute("author", posts.get(i).getAuthor());
+//							pageContext.setAttribute("isbn", posts.get(i).getIsbn());
+//							pageContext.setAttribute("price", posts.get(i).getPrice());
+//							pageContext.setAttribute("description", posts.get(i).getDescription());
 			%>
 			<div class="blog-post">
 				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
@@ -171,6 +188,24 @@
 					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
 					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
+				
+	<%			
+				if (!user.equals((User)post.getProperty("user"))){
+					
+	%>
+
+		<form action ="/message" method ="post">
+		<div><input type="submit" value="Message user" align="middle"/>
+		</div>
+		<input type="hidden" name="message_seller" value="${fn:escapeXml(seller)}"/>
+		<input type="hidden" name="message_isbn" value="${fn:escapeXml(isbn)}"/>
+		</form>
+			<%			
+				}
+			%>
+	
+				
+				
 			</div>
 			<!-- /.blog-post -->
 			<%
@@ -182,36 +217,19 @@
 		<!-- /.row -->
 		<%
 			}
-		%>
-		<input type="button" value="Create a post"
-			style="font-size: 20px; height: 50px; width: 200px"
-			onClick="window.location='createpost.jsp';">
-
-		<%
-			} else if (nullUser) {
+					%>
+	<input type="button" value="Create a post" 
+		style="font-size: 50px; height:75px; width: 400px" onClick="window.location='createpost.jsp';">
+								
+<%					
+			} else {
 		%>
 		<div class="blog-main">
 
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in </a> to use FlipABook.
-				</h3>
-			</div>
-		</div>
-		<%
-			} else if (blockedUser) {
-		%>
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h3>
-					<font color="red">ERROR: Only those with valid @utexas.edu
-						emails are allowed to use FlipABook.</font>
-				</h3>
-				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in with a valid @utexas.edu email</a> to use FlipABook.
+						in</a> to use FlipABook.
 				</h3>
 			</div>
 		</div>

@@ -1,21 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.ArrayList"%>
+
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
+<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page
-	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
-<%@ page import="com.google.appengine.api.datastore.Query"%>
-<%@ page import="com.google.appengine.api.datastore.Entity"%>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
-<%@ page import="com.google.appengine.api.datastore.Key"%>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
-<%@ page import="java.util.Date"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
+<%@ page import="com.google.appengine.api.datastore.Query" %>
+<%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
+<%@ page import="com.google.appengine.api.datastore.Key" %>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+
+
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -50,56 +53,53 @@
 
 <body>
 	<%
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage.getInstance();
+	  	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		FlipABookUser flipABookUser = null;
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			userIndex = HomePage.users.indexOf(user);
-			if (userIndex == -1) {
-				new FlipABookUser(user);
-				userIndex = HomePage.users.size() - 1;
-			}
+		HomePage.getInstance();
+		
+//	    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
+//		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(100.));
 
-			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
-				blockedUser = true;
-			} else {
-				flipABookUser = HomePage.flipABookUsers.get(userIndex);
-				blockedUser = false;
+		List<Entity> posts = new ArrayList<Entity>();
+		for (Post userPost: HomePage.posts) {
+			if (userPost.getSeller().getUserInfo().equals(user)) {
+				System.out.println("Found post: " + userPost.getTitle() + " for user: " + user.getEmail());
+				String temp_key = userPost.getIsbn() + user.getEmail();			
+				String temp_isbn = userPost.getIsbn();
+			    Key userKey = KeyFactory.createKey("Post", temp_isbn + user.getEmail());
+			    Query query = new Query("Post", userKey).addSort("date", Query.SortDirection.DESCENDING);
+				posts.addAll(datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10)));
 			}
-		} else {
-			nullUser = true;
 		}
-	
-		List<Post> posts = null;
+
+
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
-					href="../index.jsp">Home</a> <%
- 	if (!nullUser && !blockedUser) {
- 		posts = flipABookUser.getPosts();
- %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
-					Search</a> <a class="blog-nav-item active" href="../posts.jsp">Your
-					Posts</a> <a class="blog-nav-item" href="../messages.jsp">Messages</a>
-				<a class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-					Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-					Info</a> <a class="blog-nav-item"
-					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
-					Out</a> <%
- 	} else {
- %> <a class="blog-nav-item"
-					href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-					In</a> <%
- 	}
- %> </nav>
-
+					href="../index.jsp">Home</a> 
+					<%
+					if (user != null) { 
+					%>
+						<a class="blog-nav-item"
+						href="../advancedsearch.jsp">Advanced Search</a> <a
+						class="blog-nav-item active" href="../posts.jsp">Your Posts</a> <a
+						class="blog-nav-item" href="../messages.jsp">Messages</a> <a
+						class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
+						Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
+						Info</a>
+						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
+					<%
+					} else {
+					%>
+						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
+					<%
+					}
+					%>
+				 </nav>
+	
 			</div>
 		</div>
 	</div>
@@ -109,18 +109,8 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description">
-				<%
-					if (!nullUser) {
-				%>Your Posts<%
-					} else {
-				%>You have been logged out.<%
-					}
-				%>
-			</h2>
-			<%
-				if (!nullUser) {
-			%>
+			<h2 class="lead blog-description"><%if(user!=null){ %>Your Posts<%}else{%>Uh Oh!<%}%></h2>
+			<%if(user!=null){ %>
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
 					<input type="text" class="form-control"
@@ -132,85 +122,89 @@
 					</span>
 				</div>
 			</form>
-			<%
-				}
-			%>
+			<%} %>
 		</div>
 		<%
-			if (!nullUser) {
+		if (user != null) {
+
+			if (posts.isEmpty()) {
+	%>
+	<div class="blog-main">
+	
+	<p>There are no recent posts.</p>
+	<%
+		} else {
+				//Collections.sort(posts);
+				//Collections.reverse(posts);
+				//Collections.sort(posts);
+				for (int i = 0; i < posts.size(); i++) {
+					Entity post = posts.get(i);
+					pageContext.setAttribute("title", post.getProperty("title"));
+					pageContext.setAttribute("seller", post.getProperty("user"));
+					pageContext.setAttribute("date", post.getProperty("date"));
+					pageContext.setAttribute("author", post.getProperty("author"));
+					pageContext.setAttribute("isbn", post.getProperty("isbn"));
+					pageContext.setAttribute("price", post.getProperty("price"));
+					pageContext.setAttribute("description", post.getProperty("description"));
+
+//				}
+//				for (int i = 0; i < posts.size(); i++) {
+//					pageContext.setAttribute("title", posts.get(i).getTitle());
+//					pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
+//					pageContext.setAttribute("date", posts.get(i).getDate());
+//					pageContext.setAttribute("author", posts.get(i).getAuthor());
+//					pageContext.setAttribute("isbn", posts.get(i).getIsbn());
+//					pageContext.setAttribute("price", posts.get(i).getPrice());
+//					pageContext.setAttribute("description", posts.get(i).getDescription());
+	%>
+<div class="blog-main">
+	<div class="blog-post">
+		<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
+		<p class="blog-post-meta">
+			${fn:escapeXml(date)} by <a href="#">${fn:escapeXml(seller)}</a>
+		</p>
+		<ul style="text-align: left">
+			<li>Author: ${fn:escapeXml(author)}</li>
+			<li>ISBN: ${fn:escapeXml(isbn)}</li>
+			<li>Asking Price: $ ${fn:escapeXml(price)}</li>
+			<li>Description: ${fn:escapeXml(description)}</li>
+		</ul>
+		
+	<form action ="/deletepost" method ="get">
+	<div><input type="submit" value="Delete post" align="middle"/>
+	</div>
+	<input type="hidden" name="deletedpost" value="${fn:escapeXml(isbn)}"/>
+	</form>
+		
+		
+	</div>
+	</div>
+	<!-- /.blog-post -->
+	<%
+		}
+	%>
+<!-- /.blog-main -->
+<!--</div>-->
+<!-- /.row -->
+<%
+	}
+			%>
+<input type="button" value="Create a post" align="middle"
+style="font-size: 50px; height:75px; width: 400px" onClick="window.location='createpost.jsp';">
+</div>	
+</div>
+					
+<%					
+	} else { 
 		%>
-		<!-- <div class="row"> -->
-
-		<div class="blog-main">
-			<%
-				if (!nullUser && !blockedUser) {
-					if (posts.isEmpty()) {
-			%>
-			<p>There are no recent posts.</p>
-			<%
-				} else {
-						//Collections.sort(posts);
-						//Collections.reverse(posts);
-						for (Post post : posts) {
-							pageContext.setAttribute("title", post.getTitle());
-							pageContext.setAttribute("date", post.getDate());
-							pageContext.setAttribute("author", post.getAuthor());
-							pageContext.setAttribute("isbn", post.getIsbn());
-							pageContext.setAttribute("price", post.getPrice());
-							pageContext.setAttribute("description", post.getDescription());
-			%>
-			<div class="blog-post">
-				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
-				<p class="blog-post-meta">
-					${fn:escapeXml(date)}</a>
-				</p>
-				<ul style="text-align: left">
-					<li>Author: ${fn:escapeXml(author)}</li>
-					<li>ISBN: ${fn:escapeXml(isbn)}</li>
-					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
-					<li>Description: ${fn:escapeXml(description)}</li>
-				</ul>
+			<div class="blog-main">
+	
+				<div class="blog-post">
+					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
+				</div>
 			</div>
-			<!-- /.blog-post -->
-			<%
-				}
-			%>
-
-		</div>
-		<!-- /.blog-main -->
-		<!--</div>-->
-		<!-- /.row -->
 		<%
-				}
-			} else if (nullUser) {
-		%>
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in </a> to use FlipABook.
-				</h3>
-			</div>
-		</div>
-		<%
-			} else if (blockedUser) {
-		%>
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h3>
-					<font color="red">ERROR: Only those with valid @utexas.edu
-						emails are allowed to use FlipABook.</font>
-				</h3>
-				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in with a valid @utexas.edu email</a> to use FlipABook.
-				</h3>
-			</div>
-		</div>
-		<%
-			}
+		} 
 		%>
 
 	</div>

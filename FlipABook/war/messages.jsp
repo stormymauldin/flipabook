@@ -1,20 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.ArrayList"%>
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
+<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
-<%@ page import="com.google.appengine.api.datastore.Query" %>
-<%@ page import="com.google.appengine.api.datastore.Entity" %>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
-<%@ page import="com.google.appengine.api.datastore.Key" %>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
-<%@ page import="java.util.Date" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -49,30 +43,17 @@
 
 <body>
 	<%
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		FlipABookUser flipABookUser = null;
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			userIndex = HomePage.users.indexOf(user);
-			if (userIndex == -1) {
-				new FlipABookUser(user);
-				userIndex = HomePage.users.size() - 1;
+		HomePage.getInstance();
+		
+		ArrayList<Conversation> conversations = new ArrayList<Conversation>();
+		if (HomePage.conversations != null) {
+			for (Conversation convo: HomePage.conversations){
+				if (convo.getConvoID().contains(user.getEmail())){
+					conversations.add(convo); //Only if you're in the convoID would you be involved in this conversation
+				}
 			}
-
-			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
-				blockedUser = true;
-			} else {
-				flipABookUser = HomePage.flipABookUsers.get(userIndex);
-				blockedUser = false;
-			}
-		} else {
-			nullUser = true;
 		}
 	%>
 	<div class="blog-masthead">
@@ -81,10 +62,11 @@
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> 
 					<%
-					if (!nullUser && !blockedUser) {
-				 		pageContext.setAttribute("user", user);
-				 		pageContext.setAttribute("flipABookUser", flipABookUser);
-					%>
+					if (user != null) { 
+							%>
+					
+
+			
 						<a class="blog-nav-item"
 						href="../advancedsearch.jsp">Advanced Search</a> <a
 						class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
@@ -93,6 +75,13 @@
 						Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
 						Info</a>
 						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
+						
+						
+						
+						
+						
+						
+						
 					<%
 					} else {
 					%>
@@ -112,7 +101,8 @@
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
 			<h2 class="lead blog-description"><%if(user!=null){ %>Messages<%}else{%>Uh Oh!<%}%></h2>
-			<%if(user!=null){ %>
+			<%if(user!=null){ 
+			%>
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
 					<input type="text" class="form-control"
@@ -127,7 +117,31 @@
 			<%} %>
 		</div>
 		<%
-		if (!nullUser) { 
+		if (user != null) { 
+			if (conversations.isEmpty()) {
+				%>	
+				<p>You have no active conversations.</p>
+		<%
+			} else {
+				//Back end is implemented! 
+				//Please implement front-end asap
+				for (Conversation current_convo: conversations){
+					pageContext.setAttribute("title", current_convo.getPost().getTitle());
+					String seller = current_convo.getPost().getSeller().getEmail();
+					String buyer = current_convo.getBuyer().getEmail();
+					pageContext.setAttribute("seller", current_convo.getPost().getSeller().getEmail());
+					pageContext.setAttribute("buyer", current_convo.getBuyer().getEmail());
+					if (user.getEmail().equals(seller)){
+						pageContext.setAttribute("other_user", buyer);
+					}
+					else {
+						pageContext.setAttribute("other_user", seller);
+					}
+
+				
+				
+				
+			
 		%>
 
 		<!-- <div class="row"> -->
@@ -135,9 +149,9 @@
 		<div class="blog-main">
 
 			<div class="blog-post">
-				<h2 class="blog-post-title">Conversation C</h2>
+				<h2 class="blog-post-title">Conversation: ${fn:escapeXml(title)}</h2>
 				<p class="blog-post-meta">
-					with <a href="#">Keith Cozart</a>
+					with <a href="#">${fn:escapeXml(other_user)}</a>
 				</p>
 
 				<p>Message 5</p>
@@ -147,78 +161,30 @@
 				<p>Message 1</p>
 
 			</div>
+			
+	
 			<!-- /.blog-post -->
 
-			<div class="blog-post">
-				<h2 class="blog-post-title">Conversation B</h2>
-				<p class="blog-post-meta">
-					with <a href="#">Dave Cookies</a>
-				</p>
-				<p>Message 5</p>
-				<p>Message 4</p>
-				<p>Message 3</p>
-				<p>Message 2</p>
-				<p>Message 1</p>
-			</div>
-			<!-- /.blog-post -->
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Conversation A</h2>
-				<p class="blog-post-meta">
-					with <a href="#">Billy Osteoporosis</a>
-				</p>
-
-				<p>Message 5</p>
-				<p>Message 4</p>
-				<p>Message 3</p>
-				<p>Message 2</p>
-				<p>Message 1</p>
-
-			</div>
-			<!-- /.blog-post -->
-
-			<nav>
-			<ul class="pager">
-				<li><a href="#">Previous</a></li>
-				<li><a href="#">Next</a></li>
-			</ul>
-			</nav>
 
 		</div>
+		<%	
+			}
+		%>
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
 		<%
-		} else if (nullUser) {
-			%>
+			}} else { 
+		%>
 			<div class="blog-main">
-
+	
 				<div class="blog-post">
-					<h3>
-						<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-							in </a> to use FlipABook.
-					</h3>
+					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
 				</div>
 			</div>
-			<%
-				} else if (blockedUser) {
-			%>
-			<div class="blog-main">
-
-				<div class="blog-post">
-					<h3>
-						<font color="red">ERROR: Only those with valid @utexas.edu
-							emails are allowed to use FlipABook.</font>
-					</h3>
-					<h3>
-						<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-							in with a valid @utexas.edu email</a> to use FlipABook.
-					</h3>
-				</div>
-			</div>
-			<%
-				}
-			%>
+		<%
+		} 
+		%>
 
 	</div>
 	<!-- /.container -->
