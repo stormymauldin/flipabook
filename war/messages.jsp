@@ -48,7 +48,7 @@
 		HomePage.getInstance();
 		
 		ArrayList<Conversation> conversations = new ArrayList<Conversation>();
-		if (HomePage.conversations != null) {
+		if (HomePage.conversations != null && user != null) {
 			for (Conversation convo: HomePage.conversations){
 				if (convo.getConvoID().contains(user.getEmail())){
 					conversations.add(convo); //Only if you're in the convoID would you be involved in this conversation
@@ -131,10 +131,13 @@
 					String buyer = current_convo.getBuyer().getEmail();
 					pageContext.setAttribute("seller", current_convo.getPost().getSeller().getEmail());
 					pageContext.setAttribute("buyer", current_convo.getBuyer().getEmail());
+					pageContext.setAttribute("convoID", current_convo.getConvoID());
 					if (user.getEmail().equals(seller)){
+						pageContext.setAttribute("buyer_or_seller", "SELLER");
 						pageContext.setAttribute("other_user", buyer);
 					}
 					else {
+						pageContext.setAttribute("buyer_or_seller", "BUYER");
 						pageContext.setAttribute("other_user", seller);
 					}
 
@@ -153,12 +156,50 @@
 				<p class="blog-post-meta">
 					with <a href="#">${fn:escapeXml(other_user)}</a>
 				</p>
+				<p>***You are the ${fn:escapeXml(buyer_or_seller)}***</p>
+				
+				<%
+				ArrayList<Message> messages = current_convo.getMessages();
+				Collections.sort(messages); //Sorts messages by date
+				for (Message message: messages){
+					pageContext.setAttribute("message_content", message.getContent());
+					pageContext.setAttribute("message_sender", message.getSender().getUserInfo());
+					//FlipABookUser sender = message.getSender();
+					
+					
+					%>
+					<p>${fn:escapeXml(message_sender)} said:  ${fn:escapeXml(message_content)}</p>
+						
+					
+					<%		
+					if (message.getSender().getUserInfo().equals(user)){
+						//Messages should be displayed one way if you are sender
+						%>
+							
+						
+						
+						<%
 
-				<p>Message 5</p>
-				<p>Message 4</p>
-				<p>Message 3</p>
-				<p>Message 2</p>
-				<p>Message 1</p>
+					}
+					else {
+						//Messages should be displayed a different way if you are receiver
+						
+					}
+					
+				}
+				%>				
+				<form action ="/message" method ="get">
+				<div>
+					<textarea name="content" rows="1" cols="60" required></textarea>
+				</div>
+				<p>
+				</p>
+				<div><input type="submit" value="Send Message" align="middle"/>
+				</div>
+				<input type="hidden" name="conversation" value="${fn:escapeXml(convoID)}"/>
+				<input type="hidden" name="sender" value="${fn:escapeXml(user)}"/>
+				
+				</form>
 
 			</div>
 			

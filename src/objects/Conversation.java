@@ -7,7 +7,7 @@ import java.util.Date;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-
+import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.*;
 
 @Serialize
@@ -77,8 +77,10 @@ public class Conversation implements Comparable<Conversation>, Serializable {
 		return post;
 	}
 
-	public void newMessage(String content) {
-		messages.add(new Message(content, this));
+	public void newMessage(String content, User sender) {
+		Message message = new Message(content, sender, this);
+		messages.add(message);
+		HomePage.messages.add(message);
 	}
 
 	public void scheduleMeeting() {
