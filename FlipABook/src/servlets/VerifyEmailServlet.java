@@ -1,13 +1,10 @@
 package servlets;
 
-import com.googlecode.objectify.ObjectifyService;
-
 import objects.Book;
 import objects.FlipABookUser;
 import objects.HomePage;
 import objects.Post;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -23,11 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class VerifyEmailServlet extends HttpServlet {
 
-	static {
-		ObjectifyService.register(Post.class);
-		ObjectifyService.register(FlipABookUser.class);
-		ObjectifyService.register(Book.class);
-	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -41,7 +33,6 @@ public class VerifyEmailServlet extends HttpServlet {
 		} else {
 			HomePage.users.add(user);
 			FlipABookUser flipABookUser = new FlipABookUser(user);
-			ofy().save().entity(flipABookUser).now();
 			HomePage.flipABookUsers.add(flipABookUser);
 			//TODO: change redirect locaiton to user's home
 			resp.sendRedirect("/index.jsp");

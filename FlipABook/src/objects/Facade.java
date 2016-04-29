@@ -12,7 +12,10 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 public class Facade {
 	public static User getCurrentUser(){
-		UserService userService = UserServiceFactory.getUserService();
+		return getCurrentUser(UserServiceFactory.getUserService());
+	}
+	
+	public static User getCurrentUser(UserService userService){
 		return userService.getCurrentUser();
 	}
 	

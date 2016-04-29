@@ -1,29 +1,20 @@
 package objects;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.*;
 
-//@Entity
-@Serialize
-public class Message implements Subject, Serializable, Comparable<Message> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7210318335481909978L;
-	@Id
+public class Message implements Subject, Comparable<Message> {
 	Long id;
-//	@Container
+
 	FlipABookUser sender;
-//	@Container
+
 	FlipABookUser recipient;
 	String content;
-//	@Container
+
 	Date date; 
 	Conversation conversation;
 	boolean senderDeleted = false;

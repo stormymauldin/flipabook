@@ -1,6 +1,5 @@
 package objects;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,25 +9,14 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.*;
 
-@Entity
-@Serialize
-public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6021876930283938945L;
-	@Id
-	Long id;
+
+public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
+
 	User user;
-//	@Container
 	ArrayList<Post> posts;
-//	@Container
 	ArrayList<Conversation> conversations;
-//	@Container
 	ArrayList<Message> unreadMessages;
-//	@Container
 	ArrayList<Message> sentMessagesNotRead;
 	int totalSales; 
 	int totalPosts; 

@@ -1,6 +1,5 @@
 package objects;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -8,22 +7,13 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.*;
 
-@Serialize
-public class Conversation implements Comparable<Conversation>, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -961566006389798376L;
-	@Id
-	Long id;
-//	@Container
+
+public class Conversation implements Comparable<Conversation>{
+
 	Post post;
 	// note: participant 0 is seller, participant 1 is buyer.
-//	@Container
 	FlipABookUser buyer;
-//	@Container
 	ArrayList<Message> messages;
 	String title;
 	String convoID;

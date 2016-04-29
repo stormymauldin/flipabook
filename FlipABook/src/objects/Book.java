@@ -4,17 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.googlecode.objectify.annotation.*;
+public class Book implements Comparable<Book> {
 
-@Entity
-@Serialize
-public class Book implements Comparable<Book>, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 262854116047706302L;
-	@Id
-	Long id;
 	String title;
 	String isbn;
 	String author;

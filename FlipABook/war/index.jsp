@@ -53,22 +53,8 @@
 		HomePage.getInstance();
 		HomePage.initialize();
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
-//		ObjectifyService.register(Post.class);
-//		ObjectifyService.register(Book.class);
-		final boolean clear = false; //debug variable, DEPRECIATED, DO NOT USE!!!!
-	    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
-		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10));
-		
-		if (clear) {
-			
-//		    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-//			posts = ObjectifyService.ofy().load().type(Post.class).list();
-//			for (int i = 0; i < posts.size(); i++) {
-//				ObjectifyService.ofy().delete().entity(posts.get(0)).now();
-//			}
-			HomePage.posts.clear();
-		}
+		User user = Facade.getCurrentUser(userService);
+		List<Entity> posts = Facade.getPosts();
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -83,7 +69,6 @@
  				break;
  			}
  		}
-// 		ObjectifyService.register(FlipABookUser.class);
  		FlipABookUser flipABookUser = null;
  		if (index == -1) {
  			HomePage.users.add(user);
@@ -91,7 +76,6 @@
 			Key userkey = KeyFactory.createKey("Post", user.getEmail());
  			Entity user_datastore = new Entity("User", userkey);
 			user_datastore.setProperty("user", user);
-// 			ObjectifyService.ofy().save().entity(flipABookUser).now();
  			HomePage.flipABookUsers.add(flipABookUser);
  		} else {
  			flipABookUser = HomePage.flipABookUsers.get(index);
@@ -155,8 +139,6 @@
 			<p>There are no recent posts.</p>
 			<%
 				} else {
-						//Collections.sort(posts);
-						//Collections.reverse(posts);
 						for (int i = 0; i < posts.size(); i++) {
 							Entity post = posts.get(i);
 							pageContext.setAttribute("title", post.getProperty("title"));
@@ -166,16 +148,6 @@
 							pageContext.setAttribute("isbn", post.getProperty("isbn"));
 							pageContext.setAttribute("price", post.getProperty("price"));
 							pageContext.setAttribute("description", post.getProperty("description"));
-
-
-//						for (int i = 0; i < posts.size(); i++) {
-//							pageContext.setAttribute("title", posts.get(i).getTitle());
-//							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
-//							pageContext.setAttribute("date", posts.get(i).getDate());
-//							pageContext.setAttribute("author", posts.get(i).getAuthor());
-//							pageContext.setAttribute("isbn", posts.get(i).getIsbn());
-//							pageContext.setAttribute("price", posts.get(i).getPrice());
-//							pageContext.setAttribute("description", posts.get(i).getDescription());
 			%>
 			<div class="blog-post">
 				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
