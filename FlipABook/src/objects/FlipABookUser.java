@@ -213,7 +213,7 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 			indexOfConversation = getConversationIndex(post, buyer);
 			curConversation = conversations.get(indexOfConversation);
 		}
-		curConversation.newMessage(content);
+//		curConversation.newMessage(content);
 		int messageIndex = curConversation.getMessages().size() - 1;
 		sentMessagesNotRead.add(curConversation.getMessages().get(messageIndex));
 		// Note: creating the message automatically adds both parties as

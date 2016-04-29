@@ -3,12 +3,15 @@ package objects;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.*;
 
 //@Entity
 @Serialize
-public class Message implements Subject, Serializable {
+public class Message implements Subject, Serializable, Comparable<Message> {
 	/**
 	 * 
 	 */
@@ -27,7 +30,7 @@ public class Message implements Subject, Serializable {
 	boolean recipientDeleted = false;
 	boolean read = false;
 
-	public Message(String content, Conversation conversation) {
+	public Message(String content, User sender, Conversation conversation) {
 //		if (direction == SELLER_TO_BUYER) {
 //			sender = conversation.getPost().getSeller();
 //			recipient = conversation.getBuyer();
@@ -38,20 +41,28 @@ public class Message implements Subject, Serializable {
 		date = new Date();
 		this.content = content;
 		this.conversation = conversation;
+		this.sender = HomePage.getUser(sender);
 		Entity message = new Entity("Message");
 		message.setProperty("date", date);
 		message.setProperty("content", content);
 		message.setProperty("convoID", conversation.convoID);
-		
+		message.setProperty("sender", sender);
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        datastore.put(message);
 		
 //		registerObservers(sender, recipient);
 //		notifyObservers(Observer.NEW_MESSAGE);
 	}
 	//Only use this constructor if the message already exists in the datastore
-	public Message(String content, Conversation conversation, Date messageDate) {
+	public Message(String content, User sender, Conversation conversation, Date messageDate) {
 		this.content = content;
 		this.conversation = conversation;
 		this.date = messageDate;
+		this.sender = HomePage.getUser(sender);
+	}
+	
+	public String getContent() {
+		return content;
 	}
 	
 	public void setRead() {
@@ -103,5 +114,9 @@ public class Message implements Subject, Serializable {
 		if (!recipientDeleted) {
 			recipient.update(this, updateType);
 		}
+	}
+	@Override
+	public int compareTo(Message o) {
+		return date.compareTo(o.date);
 	}
 }

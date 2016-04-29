@@ -117,11 +117,12 @@ public class HomePage {
 			List<Entity> datastore_messages = datastore.prepare(message_query).asList(FetchOptions.Builder.withLimit(1000));
 			for (Entity message: datastore_messages){
 				Date messDate = (Date) message.getProperty("date");
+				User sender = (User) message.getProperty("sender");
 				String content = (String) message.getProperty("content");
 				String convoID = (String) message.getProperty("convoID");
 				Conversation temp_convo = getConversation(convoID);
 				if (temp_convo != null) {
-					Message temp_message = new Message(content, temp_convo, messDate);
+					Message temp_message = new Message(content, sender, temp_convo, messDate);
 					messages.add(temp_message);
 					temp_convo.messages.add(temp_message);
 				}

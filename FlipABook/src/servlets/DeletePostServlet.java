@@ -19,6 +19,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+import objects.FlipABookUser;
 import objects.HomePage;
 import objects.Post;
 
@@ -41,6 +42,8 @@ public class DeletePostServlet extends HttpServlet {
 			if (userPost.getSeller().getUserInfo().equals(user)) {
 				if (deleted.equals(userPost.getIsbn())){
 					HomePage.posts.remove(userPost);
+					FlipABookUser temp_user = HomePage.getUser(user);
+					temp_user.getPosts().remove(userPost);
 				}
 			}
 		}
