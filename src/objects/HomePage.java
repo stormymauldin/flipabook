@@ -10,6 +10,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
 
@@ -50,7 +51,7 @@ public class HomePage {
 		if (!init) {
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
-		    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+		    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(100000));
 		    for (Entity datastore_user: users) {
 		    	User next_user = (User)datastore_user.getProperty("user");
 		    	String name = (String)datastore_user.getProperty("name");
@@ -60,7 +61,7 @@ public class HomePage {
 		    }
 		    
 		    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
-			List<Entity> temp = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(1000));
+			List<Entity> temp = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(100000));
 			for (Entity temp_post: temp) {
 				String temp_title = (String)temp_post.getProperty("title");
 				User temp_user = (User)temp_post.getProperty("user");
@@ -82,8 +83,9 @@ public class HomePage {
 			}
 			//This is for debugging purposes. 
 		    Query convo_query = new Query("Conversation").addSort("convoID", Query.SortDirection.DESCENDING);
-			List<Entity> convos = datastore.prepare(convo_query).asList(FetchOptions.Builder.withLimit(1000));
-			
+			List<Entity> convos = datastore.prepare(convo_query).asList(FetchOptions.Builder.withLimit(100000));
+			ArrayList<Key> delete_convos = new ArrayList<Key>();
+
 			//Initializes all stored conversations on the server
 			for (Entity conversation: convos){
 				User buyer = (User) conversation.getProperty("buyer");
@@ -102,16 +104,17 @@ public class HomePage {
 					}
 				}
 				if (!foundPost) {
-					Date temp_date = (Date)conversation.getProperty("date");
-					String temp_author = (String)conversation.getProperty("author");
-					String temp_description = (String)conversation.getProperty("description");
-					String temp_price = (String)conversation.getProperty("price");
-					Post post_obj = new Post(temp_seller, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date);
-					HomePage.conversations.add(new Conversation(post_obj, temp_buyer, false));
-					System.out.println("Found Conversation: " + temp_title);
+//					Date temp_date = (Date)conversation.getProperty("date");
+//					String temp_author = (String)conversation.getProperty("author");
+//					String temp_description = (String)conversation.getProperty("description");
+//					String temp_price = (String)conversation.getProperty("price");
+//					Post post_obj = new Post(temp_seller, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date);
+//					HomePage.conversations.add(new Conversation(post_obj, temp_buyer, false));
+					System.out.println("Zombie Conversation found: " + temp_title);
+					delete_convos.add(conversation.getKey());
 				}
 			}
-			
+			datastore.delete(delete_convos);
 			//Initializes all messages on the server
 		    Query message_query = new Query("Message").addSort("convoID", Query.SortDirection.DESCENDING);
 			List<Entity> datastore_messages = datastore.prepare(message_query).asList(FetchOptions.Builder.withLimit(1000));

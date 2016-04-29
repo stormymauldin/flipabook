@@ -121,7 +121,7 @@
 
 				<ul style="text-align: left">
 					<li>Username: ${fn:escapeXml(username)}</li>
-					<li>Current Posts: ${fn:escapeXml(currentPosts)}</li>
+					<li>Total Posts: ${fn:escapeXml(currentPosts)}</li>
 				</ul>
 
 			</div>
