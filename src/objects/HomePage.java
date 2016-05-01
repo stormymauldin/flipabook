@@ -2,6 +2,7 @@ package objects;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,68 @@ public class HomePage {
 		if (uniqueInstance == null) {
 			uniqueInstance = new HomePage();
 		}
+		else {
+			ArrayList<Key> deleted_keys = new ArrayList<Key>();
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
+			List<Entity> temp = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(1000));
+			for (Entity temp_post: temp) {
+				String temp_title = (String)temp_post.getProperty("title");
+				User temp_user = (User)temp_post.getProperty("user");
+				FlipABookUser temp_flipabook_user = HomePage.getUser(temp_user); 
+				Date temp_date = (Date)temp_post.getProperty("date");
+				if (temp_date == null) {
+					temp_date = new Date(); 
+				}
+				String temp_isbn = (String)temp_post.getProperty("isbn");
+				String temp_author = (String)temp_post.getProperty("author");
+				String temp_description = (String)temp_post.getProperty("description");
+				String temp_price = (String)temp_post.getProperty("price");
+				Calendar cal = Calendar.getInstance(); 
+				cal.setTime(temp_date);
+				cal.add(Calendar.DAY_OF_WEEK, 14);
+				//If a post is expired, delete it and all associated conversations
+				System.out.println("Post time is " + temp_date);
+				if ((new Date()).after(cal.getTime())) {
+					Post deleted_post = null;
+					ArrayList<Conversation> deleted_convos = new ArrayList<Conversation>();					
+					deleted_keys.add(temp_post.getKey());
+					System.out.println("Expired Post found from Datastore: " + temp_post.getKey());
+					for (Post userPost: HomePage.posts) {
+							if (temp_isbn.equals(userPost.getIsbn())){
+								deleted_post = userPost;
+								
+								for (Conversation conversation: HomePage.conversations) {
+									if (conversation.getPost().equals(userPost)){
+										deleted_convos.add(conversation);
+									}	
+								}
+							}
+					}
+				    Query query_convos = new Query("Conversation").addSort("convoID", Query.SortDirection.DESCENDING);
+				    List<Entity> datastore_convos = datastore.prepare(query_convos).asList(FetchOptions.Builder.withLimit(1000));
+				    for (int i = 0; i < datastore_convos.size(); i++) {
+				    	Entity datastore_convo = datastore_convos.get(i);
+				    	String temp_convo_id = (String) datastore_convo.getProperty("convoID");
+				    	for (Conversation delete_convo: deleted_convos){
+				    		if (delete_convo.getConvoID().equals(temp_convo_id)){
+				    			deleted_keys.add(datastore_convo.getKey());
+				    			System.out.println("Conversation deleted: " + delete_convo.getConvoID());
+				    		}
+				    	}
+				    	
+				    }
+
+					HomePage.conversations.removeAll(deleted_convos);
+					HomePage.posts.remove(deleted_post);
+				    datastore.delete(deleted_keys);
+				  }		
+			}
+
+		}
+		if (!init){
+			initialize();
+		}
 		return uniqueInstance;
 	}
 
@@ -49,9 +112,10 @@ public class HomePage {
 		//This will initialize all the datas from the datastore! It's probably not that useful for appengine, but it's essential for debugging. 
 		
 		if (!init) {
+			ArrayList<Key> deleted_keys = new ArrayList<Key>();
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
-		    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+		    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(100000));
 		    for (Entity datastore_user: users) {
 		    	User next_user = (User)datastore_user.getProperty("user");
 		    	String name = (String)datastore_user.getProperty("name");
@@ -74,16 +138,25 @@ public class HomePage {
 				String temp_author = (String)temp_post.getProperty("author");
 				String temp_description = (String)temp_post.getProperty("description");
 				String temp_price = (String)temp_post.getProperty("price");
-				Post post_obj = new Post(temp_flipabook_user, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date);
-				HomePage.posts.add(post_obj);
-//				HomePage.posts.add(new Post(temp_flipabook_user, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date));
-				temp_flipabook_user.posts.add(post_obj);
-				System.out.println("Post found from Datastore: " + temp_post.getKey());
-				System.out.println("User: " + temp_user.getEmail() + " has number of posts: " + temp_flipabook_user.getNumCurrentPosts());
+				Calendar cal = Calendar.getInstance(); 
+				cal.setTime(temp_date);
+				cal.add(Calendar.DAY_OF_WEEK, 14);
+				if (temp_date.after(cal.getTime())){
+					deleted_keys.add(temp_post.getKey());
+					System.out.println("Expired Post found from Datastore: " + temp_post.getKey());
+				}
+				else {
+					Post post_obj = new Post(temp_flipabook_user, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date);
+					HomePage.posts.add(post_obj);
+					temp_flipabook_user.posts.add(post_obj);
+					System.out.println("Post found from Datastore: " + temp_post.getKey());
+					System.out.println("User: " + temp_user.getEmail() + " has number of posts: " + temp_flipabook_user.getNumCurrentPosts());
+
+				}
 			}
 			//This is for debugging purposes. 
 		    Query convo_query = new Query("Conversation").addSort("convoID", Query.SortDirection.DESCENDING);
-			List<Entity> convos = datastore.prepare(convo_query).asList(FetchOptions.Builder.withLimit(1000));
+			List<Entity> convos = datastore.prepare(convo_query).asList(FetchOptions.Builder.withLimit(100000));
 			
 			//Initializes all stored conversations on the server
 			for (Entity conversation: convos){
@@ -116,7 +189,6 @@ public class HomePage {
 			//Initializes all messages on the server
 		    Query message_query = new Query("Message").addSort("convoID", Query.SortDirection.DESCENDING);
 			List<Entity> datastore_messages = datastore.prepare(message_query).asList(FetchOptions.Builder.withLimit(100000));
-			ArrayList<Key> deleted_keys = new ArrayList<Key>();
 			for (Entity message: datastore_messages){
 				Date messDate = (Date) message.getProperty("date");
 				User sender = (User) message.getProperty("sender");

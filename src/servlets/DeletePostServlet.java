@@ -118,10 +118,6 @@ public class DeletePostServlet extends HttpServlet {
 	    	
 	    }
 	    datastore.delete(deleted_keys);
-//		for (Key deletekey: deleted_keys){
-//			datastore.delete(deletekey);
-//		}
-		
 		System.out.println("Post deleted: " + postkey);
 		datastore.delete(postkey);
 		resp.sendRedirect("posts.jsp");
