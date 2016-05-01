@@ -4,7 +4,6 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
-<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
@@ -43,7 +42,7 @@
 <body>
 	<%
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		User user = Facade.getCurrentUser(userService);
 		HomePage.getInstance();
 		FlipABookUser flipABookUser = null;
 	%>
@@ -54,14 +53,7 @@
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
  		pageContext.setAttribute("user", user);
- 		int index = -1;
- 		for (int i = 0; i < HomePage.users.size(); i++) {
- 			if (HomePage.users.get(i).compareTo(user) == 0) {
- 				index = i;
- 				break;
- 			}
- 		}
- 		flipABookUser = HomePage.flipABookUsers.get(index);
+ 		flipABookUser = Facade.getFlipABookUser(user);
  %> <a class="blog-nav-item active" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a

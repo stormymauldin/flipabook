@@ -5,7 +5,6 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
-<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>

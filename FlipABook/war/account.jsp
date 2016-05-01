@@ -4,7 +4,6 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
-<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
@@ -49,7 +48,7 @@
 <body>
 	<%
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		User user = Facade.getCurrentUser(userService);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -86,7 +85,7 @@
 					if (user != null) {
 				%>Account<%
 					} else {
-				%>Uh Oh!<%
+				%>You must be logged in to use this feature.<%
 					}
 				%>
 			</h2>
@@ -109,8 +108,7 @@
 					
 					//These are only here for debugging purposes. Please disregard for now. 
 					DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-				    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
-				    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+				    List<Entity> users = Facade.getUsers();
 				    for (Entity datastore_user: users) {
 				    	User next_user = (User)datastore_user.getProperty("user");
 				    	System.out.println("This user is in the datastore: " + ((User)datastore_user.getProperty("user")).getEmail());

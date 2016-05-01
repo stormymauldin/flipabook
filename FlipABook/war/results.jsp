@@ -4,7 +4,6 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
-<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
@@ -46,6 +45,7 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		List<Post> posts = HomePage.searchResults;
+		FlipABookUser flipABookUser = null;
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -53,26 +53,8 @@
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
- 		//GO AWAY OBJECTIFY YOU SUCK ASS
-// 		int index = -1;
-// 		for (int i = 0; i < HomePage.users.size(); i++) {
-// 			if (HomePage.users.get(i).compareTo(user) == 0) {
-// 				index = i;
-// 				break;
-// 			}
-// 		}
-// 		ObjectifyService.register(FlipABookUser.class);
-// 		FlipABookUser flipABookUser = null;
-// 		if (index == -1) {
-// 			HomePage.users.add(user);
-// 			flipABookUser = new FlipABookUser(user);
-// 			ObjectifyService.ofy().save().entity(flipABookUser).now();
-// 			HomePage.flipABookUsers.add(flipABookUser);
-// 		} else {
-// 			flipABookUser = HomePage.flipABookUsers.get(index);
-// 		}
  		pageContext.setAttribute("user", user);
-// 		pageContext.setAttribute("flipabookuser", flipABookUser);
+ 		flipABookUser = Facade.getFlipABookUser(user);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a

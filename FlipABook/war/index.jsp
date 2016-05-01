@@ -7,14 +7,15 @@
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
-<%@ page import="com.google.appengine.api.datastore.Query" %>
-<%@ page import="com.google.appengine.api.datastore.Entity" %>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
-<%@ page import="com.google.appengine.api.datastore.Key" %>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
-<%@ page import="java.util.Date" %>
+<%@ page
+	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
+<%@ page import="com.google.appengine.api.datastore.Query"%>
+<%@ page import="com.google.appengine.api.datastore.Entity"%>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
+<%@ page import="com.google.appengine.api.datastore.Key"%>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
+<%@ page import="java.util.Date"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -62,26 +63,10 @@
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
- 		int index = -1;
- 		for (int i = 0; i < HomePage.users.size(); i++) {
- 			if (HomePage.users.get(i).compareTo(user) == 0) {
- 				index = i;
- 				break;
- 			}
- 		}
- 		FlipABookUser flipABookUser = null;
- 		if (index == -1) {
- 			HomePage.users.add(user);
- 			flipABookUser = new FlipABookUser(user);
-			Key userkey = KeyFactory.createKey("Post", user.getEmail());
- 			Entity user_datastore = new Entity("User", userkey);
-			user_datastore.setProperty("user", user);
- 			HomePage.flipABookUsers.add(flipABookUser);
- 		} else {
- 			flipABookUser = HomePage.flipABookUsers.get(index);
- 		}
- 		pageContext.setAttribute("user", user);
- 		pageContext.setAttribute("flipabookuser", flipABookUser);
+
+ 		FlipABookUser flipABookUser = Facade.getFlipABookUser(user);
+
+ 		//TODO do we need to update the datastore here?
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -160,24 +145,25 @@
 					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
 					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
-				
-	<%			
-				if (!user.equals((User)post.getProperty("user"))){
-					
-	%>
 
-		<form action ="/message" method ="post">
-		<div><input type="submit" value="Message user" align="middle"/>
-		</div>
-		<input type="hidden" name="message_seller" value="${fn:escapeXml(seller)}"/>
-		<input type="hidden" name="message_isbn" value="${fn:escapeXml(isbn)}"/>
-		</form>
-			<%			
-				}
-			%>
-	
-				
-				
+				<%
+					if (!user.equals((User) post.getProperty("user"))) {
+				%>
+
+				<form action="/message" method="post">
+					<div>
+						<input type="submit" value="Message user" align="middle" />
+					</div>
+					<input type="hidden" name="message_seller"
+						value="${fn:escapeXml(seller)}" /> <input type="hidden"
+						name="message_isbn" value="${fn:escapeXml(isbn)}" />
+				</form>
+				<%
+					}
+				%>
+
+
+
 			</div>
 			<!-- /.blog-post -->
 			<%
@@ -189,11 +175,12 @@
 		<!-- /.row -->
 		<%
 			}
-					%>
-	<input type="button" value="Create a post" 
-		style="font-size: 50px; height:75px; width: 400px" onClick="window.location='createpost.jsp';">
-								
-<%					
+		%>
+		<input type="button" value="Create a post"
+			style="font-size: 50px; height: 75px; width: 400px"
+			onClick="window.location='createpost.jsp';">
+
+		<%
 			} else {
 		%>
 		<div class="blog-main">
