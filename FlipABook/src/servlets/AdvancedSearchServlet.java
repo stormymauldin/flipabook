@@ -10,6 +10,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+import objects.Facade;
 import objects.FlipABookUser;
 import objects.HomePage;
 
@@ -19,9 +20,9 @@ public class AdvancedSearchServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		User user = Facade.getCurrentUser(userService);
 		HomePage.getInstance();
-		FlipABookUser flipABookUser = HomePage.getUser(user);
+		FlipABookUser flipABookUser = Facade.getFlipABookUser(user);
 
 		String title = req.getParameter("title");
 		String isbn = req.getParameter("isbn").replaceAll("\\D", "");
@@ -35,7 +36,7 @@ public class AdvancedSearchServlet extends HttpServlet {
 		}
 
 		if (!nullFields) {
-			HomePage.advancedSearch(title, author, isbn, keywords);
+			Facade.advancedSearch(title, author, isbn, keywords);
 			resp.sendRedirect("results.jsp");
 		} else {
 			resp.sendRedirect("advancedsearch.jsp");

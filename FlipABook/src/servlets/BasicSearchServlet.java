@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
+import objects.Facade;
 import objects.HomePage;
 
 @SuppressWarnings("serial")
@@ -17,7 +17,7 @@ public class BasicSearchServlet extends HttpServlet {
 
 		String keywords = req.getParameter("keywords");
 
-		HomePage.basicSearch(keywords);
+		Facade.basicSearch(keywords);
 		resp.sendRedirect("results.jsp");
 	}
 }

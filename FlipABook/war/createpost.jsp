@@ -57,9 +57,8 @@
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-					class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-					Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-					Info</a> <a class="blog-nav-item"
+					class="blog-nav-item" href="../account.jsp">Account Info</a> <a
+					class="blog-nav-item"
 					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
 					Out</a> <%
  	} else {

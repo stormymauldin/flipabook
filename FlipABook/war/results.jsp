@@ -1,12 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.ArrayList"%>
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
+<%@ page import="com.google.appengine.api.datastore.Query"%>
+<%@ page import="com.google.appengine.api.datastore.Entity"%>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
+<%@ page import="com.google.appengine.api.datastore.Key"%>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -43,8 +51,8 @@
 	<%
 		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
-		List<Post> posts = HomePage.searchResults;
+		User user = Facade.getCurrentUser();
+		List<Entity> posts = Facade.searchResults;
 		FlipABookUser flipABookUser = null;
 	%>
 	<div class="blog-masthead">
@@ -58,9 +66,8 @@
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-					class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-					Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-					Info</a> <a class="blog-nav-item"
+					class="blog-nav-item" href="../account.jsp">Account Info</a> <a
+					class="blog-nav-item"
 					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
 					Out</a> <%
  	} else {
@@ -102,13 +109,14 @@
 			<%
 				} else {
 						for (int i = 0; i < posts.size(); i++) {
-							pageContext.setAttribute("title", posts.get(i).getTitle());
-							pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getEmail());
-							pageContext.setAttribute("date", posts.get(i).getDate());
-							pageContext.setAttribute("author", posts.get(i).getAuthor());
-							pageContext.setAttribute("isbn", posts.get(i).getIsbn());
-							pageContext.setAttribute("price", posts.get(i).getPrice());
-							pageContext.setAttribute("description", posts.get(i).getDescription());
+							Entity post = posts.get(i);
+							pageContext.setAttribute("title", post.getProperty("title"));
+							pageContext.setAttribute("seller", post.getProperty("user"));
+							pageContext.setAttribute("date", post.getProperty("date"));
+							pageContext.setAttribute("author", post.getProperty("author"));
+							pageContext.setAttribute("isbn", post.getProperty("isbn"));
+							pageContext.setAttribute("price", post.getProperty("price"));
+							pageContext.setAttribute("description", post.getProperty("description"));
 			%>
 			<div class="blog-post">
 				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
@@ -121,22 +129,23 @@
 					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
 					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
-	<%			
-				if (!user.equals((User)posts.get(i).getSeller().getUserInfo())){
-					
-	%>
-	
-		<form action ="/message" method ="post">
-		<div><input type="submit" value="Message user" align="middle"/>
-		</div>
-		<input type="hidden" name="message_seller" value="${fn:escapeXml(seller)}"/>
-		<input type="hidden" name="message_isbn" value="${fn:escapeXml(isbn)}"/>
-		</form>
-			<%			
-				}
-			%>
+				<%
+					if (!user.equals((User) post.getProperty("user"))) {
+				%>
 
-				
+				<form action="/message" method="post">
+					<div>
+						<input type="submit" value="Message user" align="middle" />
+					</div>
+					<input type="hidden" name="message_seller"
+						value="${fn:escapeXml(seller)}" /> <input type="hidden"
+						name="message_isbn" value="${fn:escapeXml(isbn)}" />
+				</form>
+				<%
+					}
+				%>
+
+
 			</div>
 			<!-- /.blog-post -->
 			<%
