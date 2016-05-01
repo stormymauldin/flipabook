@@ -4,15 +4,15 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
-<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
-<%@ page import="com.google.appengine.api.datastore.Query" %>
-<%@ page import="com.google.appengine.api.datastore.Entity" %>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
+<%@ page
+	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
+<%@ page import="com.google.appengine.api.datastore.Query"%>
+<%@ page import="com.google.appengine.api.datastore.Entity"%>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
 
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
@@ -49,7 +49,7 @@
 <body>
 	<%
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		User user = Facade.getCurrentUser(userService);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -60,9 +60,8 @@
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-					class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-					Meetings</a> <a class="blog-nav-item active" href="../account.jsp">Account
-					Info</a> <a class="blog-nav-item"
+					class="blog-nav-item active" href="../account.jsp">Account Info</a>
+				<a class="blog-nav-item"
 					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
 					Out</a> <%
  	} else {
@@ -86,7 +85,7 @@
 					if (user != null) {
 				%>Account<%
 					} else {
-				%>Uh Oh!<%
+				%>You must be logged in to use this feature.<%
 					}
 				%>
 			</h2>
@@ -101,27 +100,25 @@
 
 			<div class="blog-post">
 				<h2 class="blog-post-title">User Information</h2>
-		<%
+				<%
 					FlipABookUser current_user = HomePage.getUser(user);
-					pageContext.setAttribute("username", user.getEmail());
-					//pageContext.setAttribute("totalPosts", current_user.getNumTotalPosts());
-					pageContext.setAttribute("currentPosts", current_user.getNumCurrentPosts());
-					
-					//These are only here for debugging purposes. Please disregard for now. 
-					DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-				    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
-				    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
-				    for (Entity datastore_user: users) {
-				    	User next_user = (User)datastore_user.getProperty("user");
-				    	System.out.println("This user is in the datastore: " + ((User)datastore_user.getProperty("user")).getEmail());
-				    }
+						pageContext.setAttribute("username", user.getEmail());
+						//pageContext.setAttribute("totalPosts", current_user.getNumTotalPosts());
+						pageContext.setAttribute("currentPosts", current_user.getNumCurrentPosts());
 
-					
-		%>
+						//These are only here for debugging purposes. Please disregard for now. 
+						DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+						List<Entity> users = Facade.getUsers();
+						for (Entity datastore_user : users) {
+							User next_user = (User) datastore_user.getProperty("user");
+							System.out.println(
+									"This user is in the datastore: " + ((User) datastore_user.getProperty("user")).getEmail());
+						}
+				%>
 
 				<ul style="text-align: left">
 					<li>Username: ${fn:escapeXml(username)}</li>
-					<li>Total Posts: ${fn:escapeXml(currentPosts)}</li>
+					<li>Current Posts: ${fn:escapeXml(currentPosts)}</li>
 				</ul>
 
 			</div>

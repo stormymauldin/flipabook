@@ -1,6 +1,5 @@
 package objects;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,28 +9,16 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.*;
 
-@Entity
-@Serialize
-public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6021876930283938945L;
-	@Id
-	Long id;
+public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
+
 	User user;
-//	@Container
 	ArrayList<Post> posts;
-//	@Container
 	ArrayList<Conversation> conversations;
-//	@Container
 	ArrayList<Message> unreadMessages;
-//	@Container
 	ArrayList<Message> sentMessagesNotRead;
-	int totalSales; 
-	int totalPosts; 
+	int totalSales;
+	int totalPosts;
 	boolean repeatPostAttempt = false;
 	boolean wrongPrice = false;
 	boolean nullFields = false;
@@ -49,26 +36,28 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 		conversations = new ArrayList<Conversation>();
 		unreadMessages = new ArrayList<Message>();
 		sentMessagesNotRead = new ArrayList<Message>();
-		
-		boolean exists = false;	
+
+		boolean exists = false;
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-//		Entity user_datastore = new Entity("User");
-//	    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
-//	    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
-//	    for (Entity datastore_user: users) {
-//	    	User next_user = (User)datastore_user.getProperty("user");
-//	    	if (next_user.equals(user)){
-//	    		exists = true;
-//	    		break;
-//	    	}
-//	    }
-//		if (!exists){
-//			user_datastore.setProperty("user", user);
-//			user_datastore.setProperty("name", user.getNickname());
-//			user_datastore.setProperty("totalposts", totalPosts);
-//	        datastore.put(user_datastore);
-//	        System.out.println("Added user to datastore: " + user.getEmail());
-//		}
+		// Entity user_datastore = new Entity("User");
+		// Query user_query = new Query("User").addSort("name",
+		// Query.SortDirection.DESCENDING);
+		// List<Entity> users =
+		// datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+		// for (Entity datastore_user: users) {
+		// User next_user = (User)datastore_user.getProperty("user");
+		// if (next_user.equals(user)){
+		// exists = true;
+		// break;
+		// }
+		// }
+		// if (!exists){
+		// user_datastore.setProperty("user", user);
+		// user_datastore.setProperty("name", user.getNickname());
+		// user_datastore.setProperty("totalposts", totalPosts);
+		// datastore.put(user_datastore);
+		// System.out.println("Added user to datastore: " + user.getEmail());
+		// }
 	}
 
 	public User getUserInfo() {
@@ -78,36 +67,40 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	public String getEmail() {
 		return user.getEmail();
 	}
-	
+
 	public void addPost(Post addedPost) {
 		posts.add(addedPost);
 		totalPosts++;
-//		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-//	    Query user_query = new Query("User").addSort("name", Query.SortDirection.DESCENDING);
-//	    List<Entity> users = datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
-//	    Entity temp = null;
-//	    for (Entity datastore_user: users) {
-//	    	User next_user = (User)datastore_user.getProperty("user");
-//	    	if (next_user.equals(user)){
-//				datastore_user.setProperty("totalposts", totalPosts); //Temporarily not this (allows whole datastore to be re-init
-//				datastore_user.setProperty("totalposts", posts.size()); 
-//				datastore.delete(datastore_user.getKey());
-//				datastore.put(datastore_user);
-//				break;
-//	    	}
-//	    }
+		// DatastoreService datastore =
+		// DatastoreServiceFactory.getDatastoreService();
+		// Query user_query = new Query("User").addSort("name",
+		// Query.SortDirection.DESCENDING);
+		// List<Entity> users =
+		// datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
+		// Entity temp = null;
+		// for (Entity datastore_user: users) {
+		// User next_user = (User)datastore_user.getProperty("user");
+		// if (next_user.equals(user)){
+		// datastore_user.setProperty("totalposts", totalPosts); //Temporarily
+		// not this (allows whole datastore to be re-init
+		// datastore_user.setProperty("totalposts", posts.size());
+		// datastore.delete(datastore_user.getKey());
+		// datastore.put(datastore_user);
+		// break;
+		// }
+		// }
 
 	}
-	
-	public int getNumCurrentPosts(){
+
+	public int getNumCurrentPosts() {
 		return posts.size();
-		
+
 	}
-	
-	public int getNumTotalPosts(){
+
+	public int getNumTotalPosts() {
 		return totalPosts;
 	}
-	
+
 	public ArrayList<Post> getPosts() {
 		return posts;
 	}
@@ -139,9 +132,11 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	public boolean wrongPrice() {
 		return wrongPrice;
 	}
-	public void setTotalPosts(int numPosts){
-		totalPosts = numPosts; 
+
+	public void setTotalPosts(int numPosts) {
+		totalPosts = numPosts;
 	}
+
 	public void setWrongPrice() {
 		wrongPrice = true;
 	}
@@ -149,7 +144,7 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	public void removeWrongPrice() {
 		wrongPrice = false;
 	}
-	
+
 	public boolean nullFields() {
 		return nullFields;
 	}
@@ -161,28 +156,28 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 	public void removeNullFields() {
 		nullFields = false;
 	}
-	
-	public boolean wrongIsbn(){
+
+	public boolean wrongIsbn() {
 		return wrongIsbn;
 	}
-	
-	public void setWrongIsbn(){
+
+	public void setWrongIsbn() {
 		wrongIsbn = true;
 	}
-	
-	public void removeWrongIsbn(){
+
+	public void removeWrongIsbn() {
 		wrongIsbn = false;
 	}
-	
-	public boolean conductingSearch(){
+
+	public boolean conductingSearch() {
 		return conductingSearch;
 	}
-	
-	public void setConductingSearch(){
+
+	public void setConductingSearch() {
 		conductingSearch = true;
 	}
-	
-	public void removeConductingSearch(){
+
+	public void removeConductingSearch() {
 		conductingSearch = false;
 	}
 
@@ -195,7 +190,9 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 		}
 		return -1;
 	}
-	//Sorry this looks too hard and it's 4am and I can't understand it, please refactor later
+
+	// Sorry this looks too hard and it's 4am and I can't understand it, please
+	// refactor later
 	public void sendMessage(int buyingOrSelling, Post post, FlipABookUser buyer, String content) {
 		Conversation curConversation = null;
 		int indexOfConversation;
@@ -213,7 +210,7 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer, Seria
 			indexOfConversation = getConversationIndex(post, buyer);
 			curConversation = conversations.get(indexOfConversation);
 		}
-//		curConversation.newMessage(content);
+		// curConversation.newMessage(content);
 		int messageIndex = curConversation.getMessages().size() - 1;
 		sentMessagesNotRead.add(curConversation.getMessages().get(messageIndex));
 		// Note: creating the message automatically adds both parties as

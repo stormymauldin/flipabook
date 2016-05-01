@@ -1,7 +1,5 @@
 package servlets;
 
-//import static com.googlecode.objectify.ObjectifyService.ofy;
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -29,11 +27,6 @@ import objects.Post;
 
 @SuppressWarnings("serial")
 public class CreatePostServlet extends HttpServlet {
-
-//	static {
-//		ObjectifyService.register(FlipABookUser.class);
-//		ObjectifyService.register(Post.class);
-//	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		UserService userService = UserServiceFactory.getUserService();
