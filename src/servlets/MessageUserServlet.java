@@ -67,12 +67,18 @@ public class MessageUserServlet extends HttpServlet{
 			resp.sendRedirect("index.jsp");
 			return;
 		}
-		
-		
-		Conversation convo = new Conversation(reqPost, temp_flip_user);
-		HomePage.conversations.add(convo);
-		
-		System.out.println("Message sent to user: " + req.getParameter("message_seller"));
+		String convoID = reqPost.getIsbn() + buyer.getEmail() + seller.getEmail();
+		Conversation existing_convo = HomePage.getConversation(convoID);
+		if (existing_convo != null) {
+			System.out.println("Conversation: " + convoID + " already exists!");
+			resp.sendRedirect("messages.jsp");
+		}
+		else {
+			Conversation convo = new Conversation(reqPost, temp_flip_user);
+			HomePage.conversations.add(convo);
+			System.out.println("Message sent to user: " + req.getParameter("message_seller"));
+			resp.sendRedirect("messages.jsp");
+		}
 		resp.sendRedirect("messages.jsp");
 	}
 }
