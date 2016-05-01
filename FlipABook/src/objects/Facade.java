@@ -168,22 +168,30 @@ public class Facade {
 	private static void searchEachPostField(HashSet<String> title, HashSet<String> author, HashSet<String> isbn,
 			HashSet<String> keywords, Entity post) {
 		if (!title.isEmpty()) {
-			HashSet<String> postTitle = breakup((String) (post.getProperty("title")));
+			String thisTitle = (String) (post.getProperty("title"));
+			thisTitle = thisTitle.toLowerCase();
+			HashSet<String> postTitle = breakup(thisTitle);
 			compareSets(title, postTitle, post);
 		}
 
 		if (!author.isEmpty()) {
-			HashSet<String> postAuthor = breakup((String) (post.getProperty("author")));
+			String thisAuthor = (String) (post.getProperty("author"));
+			thisAuthor = thisAuthor.toLowerCase();
+			HashSet<String> postAuthor = breakup(thisAuthor);
 			compareSets(author, postAuthor, post);
 		}
 
 		if (!isbn.isEmpty()) {
-			HashSet<String> postIsbn = breakup((String) (post.getProperty("isbn")));
+			String thisIsbn = (String) (post.getProperty("isbn"));
+			thisIsbn = thisIsbn.toLowerCase();
+			HashSet<String> postIsbn = breakup(thisIsbn);
 			compareSets(isbn, postIsbn, post);
 		}
 
 		if (!keywords.isEmpty()) {
-			HashSet<String> postDescription = breakup((String) (post.getProperty("description")));
+			String thisDescription = (String) (post.getProperty("description"));
+			thisDescription = thisDescription.toLowerCase();
+			HashSet<String> postDescription = breakup(thisDescription);
 			compareSets(keywords, postDescription, post);
 		}
 	}
@@ -203,7 +211,7 @@ public class Facade {
 	}
 
 	public static boolean verifyEmail(User user) {
-		if(user == null){
+		if (user == null) {
 			return false;
 		}
 		String[] parsedEmail = user.getEmail().split("@");
