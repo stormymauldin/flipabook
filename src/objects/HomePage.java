@@ -104,12 +104,6 @@ public class HomePage {
 					}
 				}
 				if (!foundPost) {
-//					Date temp_date = (Date)conversation.getProperty("date");
-//					String temp_author = (String)conversation.getProperty("author");
-//					String temp_description = (String)conversation.getProperty("description");
-//					String temp_price = (String)conversation.getProperty("price");
-//					Post post_obj = new Post(temp_seller, temp_title, temp_author, temp_isbn, temp_price, temp_description, temp_date);
-//					HomePage.conversations.add(new Conversation(post_obj, temp_buyer, false));
 					System.out.println("Zombie Conversation found: " + temp_title);
 					delete_convos.add(conversation.getKey());
 				}
@@ -117,7 +111,8 @@ public class HomePage {
 			datastore.delete(delete_convos);
 			//Initializes all messages on the server
 		    Query message_query = new Query("Message").addSort("convoID", Query.SortDirection.DESCENDING);
-			List<Entity> datastore_messages = datastore.prepare(message_query).asList(FetchOptions.Builder.withLimit(1000));
+			List<Entity> datastore_messages = datastore.prepare(message_query).asList(FetchOptions.Builder.withLimit(100000));
+			ArrayList<Key> deleted_keys = new ArrayList<Key>();
 			for (Entity message: datastore_messages){
 				Date messDate = (Date) message.getProperty("date");
 				User sender = (User) message.getProperty("sender");
@@ -129,8 +124,12 @@ public class HomePage {
 					messages.add(temp_message);
 					temp_convo.messages.add(temp_message);
 				}
+				else {
+					deleted_keys.add(message.getKey());
+					System.out.println("Zombie message found: " + message.getProperty("content"));
+				}
 			}
-
+			datastore.delete(deleted_keys);
 			System.out.println("Number of Posts: " + HomePage.posts.size());
 			init = true; 
 		}
@@ -339,9 +338,5 @@ public class HomePage {
 				posts.remove(posts.indexOf(curPost));
 			}
 		}
-	}
-
-	public void displayPosts() {
-		// TODO: print out posts to view
 	}
 }
