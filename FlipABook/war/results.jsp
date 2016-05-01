@@ -8,7 +8,8 @@
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
+<%@ page
+	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
 <%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
 <%@ page import="com.google.appengine.api.datastore.Query"%>
 <%@ page import="com.google.appengine.api.datastore.Entity"%>
@@ -53,16 +54,15 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = Facade.getCurrentUser();
 		List<Entity> posts = Facade.searchResults;
-		FlipABookUser flipABookUser = null;
+		boolean valid = Facade.verifyEmail(user);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
- 	if (user != null) {
+ 	if (user != null && valid) {
  		pageContext.setAttribute("user", user);
- 		flipABookUser = Facade.getFlipABookUser(user);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -89,7 +89,7 @@
 			</h1>
 			<h2 class="lead blog-description">Search Results</h2>
 			<%
-				if (user != null) {
+				if (user != null && valid) {
 			%>
 			<input type="button" value="Start another search"
 				onClick="window.location='advancedsearch.jsp';"> <input
@@ -102,7 +102,7 @@
 
 		<div class="blog-main">
 			<%
-				if (user != null) {
+				if (user != null && valid) {
 					if (posts.isEmpty()) {
 			%>
 			<p>No matching posts found.</p>
@@ -164,7 +164,7 @@
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in</a> to use FlipABook.
+						in</a> (with a valid UT email) to use FlipABook.
 				</h3>
 			</div>
 		</div>

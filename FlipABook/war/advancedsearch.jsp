@@ -45,13 +45,14 @@
 		User user = Facade.getCurrentUser(userService);
 		HomePage.getInstance();
 		FlipABookUser flipABookUser = null;
+		boolean valid = Facade.verifyEmail(user);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
- 	if (user != null) {
+ 	if (user != null && valid) {
  		pageContext.setAttribute("user", user);
  		flipABookUser = Facade.getFlipABookUser(user);
  %> <a class="blog-nav-item active" href="../advancedsearch.jsp">Advanced
@@ -83,7 +84,7 @@
 
 
 			<%
-				if (flipABookUser != null) {
+				if (flipABookUser != null && valid) {
 					if (flipABookUser.nullFields()) {
 						flipABookUser.removeNullFields();
 			%>
@@ -137,7 +138,7 @@
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in</a> to use FlipABook.
+						in</a> (with a valid UT email) to use FlipABook.
 				</h3>
 			</div>
 		</div>

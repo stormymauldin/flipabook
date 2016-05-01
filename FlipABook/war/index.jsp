@@ -56,17 +56,14 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = Facade.getCurrentUser(userService);
 		List<Entity> posts = Facade.getPosts();
+		boolean valid = Facade.verifyEmail(user);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
- 	if (user != null) {
-
- 		FlipABookUser flipABookUser = Facade.getFlipABookUser(user);
-
- 		//TODO do we need to update the datastore here?
+ 	if (user != null && valid) {
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -94,7 +91,7 @@
 			<h2 class="lead blog-description">The University of Texas'
 				Premier Book Exchange Service</h2>
 			<%
-				if (user != null) {
+				if (user != null && valid) {
 			%>
 			<form class="navbar-form navbar-CENTER" action="/basicsearch"
 				method="post">
@@ -117,7 +114,7 @@
 
 		<div class="blog-main">
 			<%
-				if (user != null) {
+				if (user != null && valid) {
 					if (posts.isEmpty()) {
 			%>
 			<p>There are no recent posts.</p>
@@ -187,7 +184,7 @@
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in</a> to use FlipABook.
+						in</a> (with a valid UT email) to use FlipABook.
 				</h3>
 			</div>
 		</div>

@@ -102,7 +102,8 @@ public class Facade {
 		HashSet<String> filteredAuthor = breakup(author);
 		HashSet<String> filteredIsbn = breakup(isbn);
 		HashSet<String> filteredKeywords = breakupNoArticleRemoval(keywords);
-		//formatSearches(title, author, isbn, keywords, filteredTitle, filteredAuthor, filteredIsbn, filteredKeywords);
+		// formatSearches(title, author, isbn, keywords, filteredTitle,
+		// filteredAuthor, filteredIsbn, filteredKeywords);
 		resetSearchWeights();
 		List<Entity> posts = getPosts();
 		for (Entity post : posts) {
@@ -124,7 +125,6 @@ public class Facade {
 			}
 		}
 	}
-
 
 	private static Entity getMinWeightIndex() {
 		int min = 0;
@@ -154,7 +154,7 @@ public class Facade {
 
 	private static HashSet<String> breakupNoArticleRemoval(String original) {
 		original.toLowerCase();
-		String originalKeyWords[] = original.split("\\P{Alpha}+");
+		String originalKeyWords[] = original.split("\\P{Alnum}+");
 		HashSet<String> filtered = new HashSet<String>();
 		filtered.addAll(Arrays.asList(originalKeyWords));
 		return filtered;
@@ -199,6 +199,18 @@ public class Facade {
 					weights.put(post, weights.get(post) + 1);
 				}
 			}
+		}
+	}
+
+	public static boolean verifyEmail(User user) {
+		if(user == null){
+			return false;
+		}
+		String[] parsedEmail = user.getEmail().split("@");
+		if (parsedEmail.length != 2 || !parsedEmail[1].equals("utexas.edu")) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 }

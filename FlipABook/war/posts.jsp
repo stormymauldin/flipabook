@@ -57,6 +57,7 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
+		boolean valid = Facade.verifyEmail(user);
 
 		//	    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
 		//		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(100.));
@@ -69,7 +70,7 @@
 				String temp_isbn = userPost.getIsbn();
 				Key userKey = KeyFactory.createKey("Post", temp_isbn + user.getEmail());
 				Query query = new Query("Post", userKey).addSort("date", Query.SortDirection.DESCENDING);
-				posts.addAll(datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10)));
+				posts.addAll(datastore.prepare(query).asList(FetchOptions.Builder.withLimit(1000)));
 			}
 		}
 	%>
@@ -78,7 +79,7 @@
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
- 	if (user != null) {
+ 	if (user != null && valid) {
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item active" href="../posts.jsp">Your
 					Posts</a> <a class="blog-nav-item" href="../messages.jsp">Messages</a>
@@ -104,15 +105,18 @@
 			</h1>
 			<h2 class="lead blog-description">
 				<%
-					if (user != null) {
+					if (user != null && valid) {
 				%>Your Posts<%
-					} else {
-				%>Uh Oh!<%
+					} else if(user != null && !valid) {
+						%>You must be a UT student to use FlipABook.<%
+					}
+					else {
+				%>You must be logged in to use this feature.<%
 					}
 				%>
 			</h2>
 			<%
-				if (user != null) {
+				if (user != null && valid) {
 			%>
 			<form class="navbar-form navbar-CENTER" role="search">
 				<div class="input-group">
@@ -130,7 +134,7 @@
 			%>
 		</div>
 		<%
-			if (user != null) {
+			if (user != null && valid) {
 
 				if (posts.isEmpty()) {
 		%>

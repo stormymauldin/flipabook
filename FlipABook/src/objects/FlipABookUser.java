@@ -71,25 +71,6 @@ public class FlipABookUser implements Comparable<FlipABookUser>, Observer {
 	public void addPost(Post addedPost) {
 		posts.add(addedPost);
 		totalPosts++;
-		// DatastoreService datastore =
-		// DatastoreServiceFactory.getDatastoreService();
-		// Query user_query = new Query("User").addSort("name",
-		// Query.SortDirection.DESCENDING);
-		// List<Entity> users =
-		// datastore.prepare(user_query).asList(FetchOptions.Builder.withLimit(1000));
-		// Entity temp = null;
-		// for (Entity datastore_user: users) {
-		// User next_user = (User)datastore_user.getProperty("user");
-		// if (next_user.equals(user)){
-		// datastore_user.setProperty("totalposts", totalPosts); //Temporarily
-		// not this (allows whole datastore to be re-init
-		// datastore_user.setProperty("totalposts", posts.size());
-		// datastore.delete(datastore_user.getKey());
-		// datastore.put(datastore_user);
-		// break;
-		// }
-		// }
-
 	}
 
 	public int getNumCurrentPosts() {
