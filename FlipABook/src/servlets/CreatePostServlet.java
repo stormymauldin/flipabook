@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Collections;
-import java.util.Date;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +17,6 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-
-//import com.googlecode.objectify.ObjectifyService;
 
 import objects.FlipABookUser;
 import objects.HomePage;
@@ -66,8 +63,7 @@ public class CreatePostServlet extends HttpServlet {
 		}
 		Post post = new Post(flipABookUser, title, author, isbn, price, description);
 		boolean postExists = false;
-		
-//		List<Post> posts = ObjectifyService.ofy().load().type(Post.class).list();
+
 		List<Post> posts = HomePage.posts;
 		for (Post curPost : posts) {
 			if (curPost.compareTo(post) == 0) {
@@ -80,12 +76,12 @@ public class CreatePostServlet extends HttpServlet {
 		if (postExists || wrongPrice || nullFields || wrongIsbn) {
 			resp.sendRedirect("createpost.jsp");
 		} else {
-			//This will add the post to the datastore (YES WE ARE USING THE DATASTORE NOW BECAUSE OBJECTIFY IS EVIL) 
 			HomePage.posts.add(post);
 			flipABookUser.addPost(post);
 			Collections.sort(HomePage.posts);
-			//Key will be the ISBN of the book followed by the USERNAME (please remember this)
-			String specific_post_key = isbn + user.getEmail(); 
+			// Key will be the ISBN of the book followed by the USERNAME (please
+			// remember this)
+			String specific_post_key = isbn + user.getEmail();
 			Key postkey = KeyFactory.createKey("Post", specific_post_key);
 			Entity post_datastore = new Entity("Post", postkey);
 			post_datastore.setProperty("title", title);
@@ -95,9 +91,8 @@ public class CreatePostServlet extends HttpServlet {
 			post_datastore.setProperty("author", author);
 			post_datastore.setProperty("description", description);
 			post_datastore.setProperty("price", price);
-	        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-	        datastore.put(post_datastore);
-//			ofy().save().entity(post).now();
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+			datastore.put(post_datastore);
 			resp.sendRedirect("/home");
 		}
 	}

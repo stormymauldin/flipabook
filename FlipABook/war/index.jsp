@@ -56,14 +56,17 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = Facade.getCurrentUser(userService);
 		List<Entity> posts = Facade.getPosts();
-		boolean valid = Facade.verifyEmail(user);
+		
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
- 	if (user != null && valid) {
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -91,7 +94,7 @@
 			<h2 class="lead blog-description">The University of Texas'
 				Premier Book Exchange Service</h2>
 			<%
-				if (user != null && valid) {
+				if (user != null) {
 			%>
 			<form class="navbar-form navbar-CENTER" action="/basicsearch"
 				method="post">
@@ -114,7 +117,7 @@
 
 		<div class="blog-main">
 			<%
-				if (user != null && valid) {
+				if (user != null) {
 					if (posts.isEmpty()) {
 			%>
 			<p>There are no recent posts.</p>

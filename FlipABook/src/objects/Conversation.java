@@ -8,8 +8,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.users.User;
 
-
-public class Conversation implements Comparable<Conversation>{
+public class Conversation implements Comparable<Conversation> {
 
 	Post post;
 	// note: participant 0 is seller, participant 1 is buyer.
@@ -31,8 +30,8 @@ public class Conversation implements Comparable<Conversation>{
 		this.post = post;
 		this.buyer = buyer;
 		messages = new ArrayList<Message>();
-		//Please note, convoID is the postID + buyer + seller IN THAT ORDER
-		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail(); 
+		// Please note, convoID is the postID + buyer + seller IN THAT ORDER
+		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail();
 		Entity convo = new Entity("Conversation");
 		convo.setProperty("convoID", convoID);
 		convo.setProperty("buyer", buyer.getUserInfo());
@@ -45,8 +44,8 @@ public class Conversation implements Comparable<Conversation>{
 		convo.setProperty("price", post.getPrice());
 		convo.setProperty("date", new Date());
 		convo.setProperty("meetup", meetingIsScheduled);
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        datastore.put(convo);
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		datastore.put(convo);
 	}
 
 	public Conversation(Post post, FlipABookUser buyer, boolean flag) {
@@ -54,15 +53,15 @@ public class Conversation implements Comparable<Conversation>{
 		this.post = post;
 		this.buyer = buyer;
 		messages = new ArrayList<Message>();
-		//Please note, convoID is the postID + buyer + seller IN THAT ORDER
-		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail(); 
-		
+		// Please note, convoID is the postID + buyer + seller IN THAT ORDER
+		convoID = post.getIsbn() + buyer.getUserInfo().getEmail() + post.getSeller().getEmail();
+
 	}
-	
-	public String getConvoID(){
+
+	public String getConvoID() {
 		return convoID;
 	}
-	
+
 	public Post getPost() {
 		return post;
 	}
@@ -89,7 +88,6 @@ public class Conversation implements Comparable<Conversation>{
 
 	public void transactionWasSuccessful() {
 		transactionWasSuccessful = true;
-		// TODO: call function to delete post
 	}
 
 	public void transactionWasNotSuccesful() {
@@ -111,22 +109,5 @@ public class Conversation implements Comparable<Conversation>{
 			return 0;
 		}
 		return -1;
-	}
-
-	public void deleteConversation(int deletionType) {
-		if (deletionType == POST_DELETED) {
-			for (Message message : messages) {
-				message.removeObserver(message.getSender());
-				message.removeObserver(message.getRecipient());
-			}
-		} else {
-			for (Message message : messages) {
-				if (buyer.compareTo(message.getSender()) == 0) {
-					message.removeObserver(message.getSender());
-				} else {
-					message.removeObserver(message.getRecipient());
-				}
-			}
-		}
 	}
 }

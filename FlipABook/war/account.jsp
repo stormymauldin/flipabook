@@ -50,14 +50,16 @@
 	<%
 		UserService userService = UserServiceFactory.getUserService();
 		User user = Facade.getCurrentUser(userService);
-		boolean valid = Facade.verifyEmail(user);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
- 	if (user != null && valid) {
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+ 			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+ 		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -83,19 +85,16 @@
 			</h1>
 			<h2 class="lead blog-description">
 				<%
-					if (user != null && valid) {
+					if (user != null) {
 				%>Account<%
-					} else if(user != null && !valid) {
-						%>You must be a UT student to use FlipABook.<%
-					}
-					else {
+					} else {
 				%>You must be logged in to use this feature.<%
 					}
 				%>
 			</h2>
 		</div>
 		<%
-			if (user != null && valid) {
+			if (user != null) {
 		%>
 
 		<!-- <div class="row"> -->

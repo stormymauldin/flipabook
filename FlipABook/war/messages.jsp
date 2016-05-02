@@ -45,7 +45,6 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
-		boolean valid = Facade.verifyEmail(user);
 
 		ArrayList<Conversation> conversations = new ArrayList<Conversation>();
 		if (HomePage.conversations != null && user != null) {
@@ -61,7 +60,10 @@
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
- 	if (user != null && valid) {
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item active" href="../messages.jsp">Messages</a>
@@ -87,18 +89,16 @@
 			</h1>
 			<h2 class="lead blog-description">
 				<%
-					if (user != null && valid) {
+					if (user != null) {
 				%>Messages<%
-					} else if(user != null && !valid) {
-						%>You must be a UT student to use FlipABook.<%
 					}
 					else {
-				%>You must be logged in to use this feature.<%
+				%>You have been logged out.<%
 					}
 				%>
 			</h2>
 			<%
-				if (user != null && valid) {
+				if (user != null) {
 					if (conversations.isEmpty()) {
 			%>
 			<p>You have no active conversations.</p>

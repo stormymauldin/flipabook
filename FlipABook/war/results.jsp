@@ -54,14 +54,16 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = Facade.getCurrentUser();
 		List<Entity> posts = Facade.searchResults;
-		boolean valid = Facade.verifyEmail(user);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
- 	if (user != null && valid) {
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  		pageContext.setAttribute("user", user);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
@@ -89,7 +91,7 @@
 			</h1>
 			<h2 class="lead blog-description">Search Results</h2>
 			<%
-				if (user != null && valid) {
+				if (user != null) {
 			%>
 			<input type="button" value="Start another search"
 				onClick="window.location='advancedsearch.jsp';"> <input
@@ -102,7 +104,7 @@
 
 		<div class="blog-main">
 			<%
-				if (user != null && valid) {
+				if (user != null) {
 					if (posts.isEmpty()) {
 			%>
 			<p>No matching posts found.</p>

@@ -102,8 +102,6 @@ public class Facade {
 		HashSet<String> filteredAuthor = breakup(author);
 		HashSet<String> filteredIsbn = breakup(isbn);
 		HashSet<String> filteredKeywords = breakupNoArticleRemoval(keywords);
-		// formatSearches(title, author, isbn, keywords, filteredTitle,
-		// filteredAuthor, filteredIsbn, filteredKeywords);
 		resetSearchWeights();
 		List<Entity> posts = getPosts();
 		for (Entity post : posts) {

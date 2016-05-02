@@ -52,6 +52,9 @@
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  		pageContext.setAttribute("user", user);
  		flipABookUser = Facade.getFlipABookUser(user);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
