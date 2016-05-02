@@ -3,21 +3,24 @@ package servlets;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 
-import objects.*;
+import objects.FlipABookUser;
+import objects.HomePage;
+import objects.Post;
 
 @SuppressWarnings("serial")
 public class CreatePostServlet extends HttpServlet {
@@ -27,7 +30,7 @@ public class CreatePostServlet extends HttpServlet {
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
 		FlipABookUser flipABookUser = HomePage.getUser(user);
-		Entity flipABookUserEntity = flipABookUser.flipABookUser;
+
 		String title = req.getParameter("title");
 		String isbn = req.getParameter("isbn").replaceAll("\\D", "");
 		String author = req.getParameter("author");
@@ -58,10 +61,12 @@ public class CreatePostServlet extends HttpServlet {
 			flipABookUser.setWrongPrice();
 			wrongPrice = true;
 		}
+		Post post = new Post(flipABookUser, title, author, isbn, price, description);
 		boolean postExists = false;
+
 		List<Post> posts = HomePage.posts;
 		for (Post curPost : posts) {
-			if (curPost.getIsbn().equals(isbn)) {
+			if (curPost.compareTo(post) == 0) {
 				flipABookUser.setRepeatPostAttempt();
 				postExists = true;
 				break;
@@ -71,8 +76,23 @@ public class CreatePostServlet extends HttpServlet {
 		if (postExists || wrongPrice || nullFields || wrongIsbn) {
 			resp.sendRedirect("createpost.jsp");
 		} else {
-			Post newPost = new Post(flipABookUserEntity, title, author, isbn, price, description);
-			flipABookUser.addPost(newPost.post);
+			HomePage.posts.add(post);
+			flipABookUser.addPost(post);
+			Collections.sort(HomePage.posts);
+			// Key will be the ISBN of the book followed by the USERNAME (please
+			// remember this)
+			String specific_post_key = isbn + user.getEmail();
+			Key postkey = KeyFactory.createKey("Post", specific_post_key);
+			Entity post_datastore = new Entity("Post", postkey);
+			post_datastore.setProperty("title", title);
+			post_datastore.setProperty("user", user);
+			post_datastore.setProperty("date", post.getDate());
+			post_datastore.setProperty("isbn", isbn);
+			post_datastore.setProperty("author", author);
+			post_datastore.setProperty("description", description);
+			post_datastore.setProperty("price", price);
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+			datastore.put(post_datastore);
 			resp.sendRedirect("/home");
 		}
 	}

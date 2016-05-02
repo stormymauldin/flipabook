@@ -13,9 +13,7 @@
 <%@ page import="com.google.appengine.api.datastore.Query"%>
 <%@ page import="com.google.appengine.api.datastore.Entity"%>
 <%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
-<%@ page import="com.google.appengine.api.datastore.Key"%>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
-<%@ page import="java.util.Date"%>
+
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -50,44 +48,23 @@
 
 <body>
 	<%
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
-		FlipABookUser flipABookUser = null;
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			userIndex = HomePage.users.indexOf(user);
-			if (userIndex == -1) {
-				new FlipABookUser(user);
-				userIndex = HomePage.users.size() - 1;
-			}
-
-			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
-				blockedUser = true;
-			} else {
-				flipABookUser = HomePage.flipABookUsers.get(userIndex);
-				blockedUser = false;
-			}
-		} else {
-			nullUser = true;
-		}
+		User user = Facade.getCurrentUser(userService);
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
- 	if (!nullUser && !blockedUser) {
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+ 			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+ 		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-					class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-					Meetings</a> <a class="blog-nav-item active" href="../account.jsp">Account
-					Info</a> <a class="blog-nav-item"
+					class="blog-nav-item active" href="../account.jsp">Account Info</a>
+				<a class="blog-nav-item"
 					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
 					Out</a> <%
  	} else {
@@ -108,16 +85,16 @@
 			</h1>
 			<h2 class="lead blog-description">
 				<%
-					if (!nullUser) {
+					if (user != null) {
 				%>Account<%
 					} else {
-				%>You have been logged out.<%
+				%>You must be logged in to use this feature.<%
 					}
 				%>
 			</h2>
 		</div>
 		<%
-			if (!nullUser) {
+			if (user != null) {
 		%>
 
 		<!-- <div class="row"> -->
@@ -125,48 +102,45 @@
 		<div class="blog-main">
 
 			<div class="blog-post">
-				<h2 class="blog-post-title">Panel</h2>
+				<h2 class="blog-post-title">User Information</h2>
+				<%
+					FlipABookUser current_user = HomePage.getUser(user);
+						pageContext.setAttribute("username", user.getEmail());
+						//pageContext.setAttribute("totalPosts", current_user.getNumTotalPosts());
+						pageContext.setAttribute("currentPosts", current_user.getNumCurrentPosts());
 
-				<p>Your information...</p>
+						//These are only here for debugging purposes. Please disregard for now. 
+						DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+						List<Entity> users = Facade.getUsers();
+						for (Entity datastore_user : users) {
+							User next_user = (User) datastore_user.getProperty("user");
+							System.out.println(
+									"This user is in the datastore: " + ((User) datastore_user.getProperty("user")).getEmail());
+						}
+				%>
+
+				<ul style="text-align: left">
+					<li>Username: ${fn:escapeXml(username)}</li>
+					<li>Current Posts: ${fn:escapeXml(currentPosts)}</li>
+				</ul>
 
 			</div>
 
-			<nav>
-			<ul class="pager">
-				<li><a href="#">Previous</a></li>
-				<li><a href="#">Next</a></li>
-			</ul>
-			</nav>
 
 		</div>
 		<!-- /.blog-main -->
 		<!--</div>-->
 		<!-- /.row -->
 		<%
-			} else if (nullUser) {
+			} else {
 		%>
 		<div class="blog-main">
 
 			<div class="blog-post">
 				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in </a> to use FlipABook.
-				</h3>
-			</div>
-		</div>
-		<%
-			} else if (blockedUser) {
-		%>
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h3>
-					<font color="red">ERROR: Only those with valid @utexas.edu
-						emails are allowed to use FlipABook.</font>
-				</h3>
-				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in with a valid @utexas.edu email</a> to use FlipABook.
+					<a href="../index.jsp">Return home</a> or <a
+						href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+						back in</a>
 				</h3>
 			</div>
 		</div>

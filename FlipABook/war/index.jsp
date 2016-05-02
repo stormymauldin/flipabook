@@ -51,53 +51,27 @@
 <body>
 	<%
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage homePage = HomePage.getInstance();
+		HomePage.getInstance();
+		HomePage.initialize();
 		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
-		FlipABookUser flipABookUser = null;
-		List<Entity> flipABookUserEntities = datastore.prepare(new Query("FlipABookUser"))
-				.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
-
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			for (int i = 0; i < flipABookUserEntities.size(); i++) {
-				String thisUserEmail = ((User) (flipABookUserEntities.get(i).getProperty("user"))).getEmail();
-				if (user.getEmail().equals(thisUserEmail)) {
-					flipABookUser = new FlipABookUser(flipABookUserEntities.get(i));
-					break;
-				}
-			}
-			if (flipABookUser == null) {
-				new FlipABookUser(user);
-			}
-
-			if (flipABookUser.validEmail) {
-				blockedUser = true;
-			} else {
-				blockedUser = false;
-			}
-		} else {
-			nullUser = true;
-		}
-
-		List<Post> posts = null;
+		User user = Facade.getCurrentUser(userService);
+		List<Entity> posts = Facade.getPosts();
+		
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
- 	if (!nullUser && !blockedUser) {
- 		posts = HomePage.posts;
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
-					class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-					Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-					Info</a> <a class="blog-nav-item"
+					class="blog-nav-item" href="../account.jsp">Account Info</a> <a
+					class="blog-nav-item"
 					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
 					Out</a> <%
  	} else {
@@ -120,7 +94,7 @@
 			<h2 class="lead blog-description">The University of Texas'
 				Premier Book Exchange Service</h2>
 			<%
-				if (!nullUser && !blockedUser) {
+				if (user != null) {
 			%>
 			<form class="navbar-form navbar-CENTER" action="/basicsearch"
 				method="post">
@@ -143,22 +117,21 @@
 
 		<div class="blog-main">
 			<%
-				if (!nullUser && !blockedUser) {
+				if (user != null) {
 					if (posts.isEmpty()) {
 			%>
 			<p>There are no recent posts.</p>
 			<%
 				} else {
-						//Collections.sort(posts);
-						//Collections.reverse(posts);
-						for (Post post : posts) {
-							pageContext.setAttribute("title", post.getTitle());
-							pageContext.setAttribute("seller", post.getSeller());
-							pageContext.setAttribute("date", post.getDate());
-							pageContext.setAttribute("author", post.getAuthor());
-							pageContext.setAttribute("isbn", post.getIsbn());
-							pageContext.setAttribute("price", post.getPrice());
-							pageContext.setAttribute("description", post.getDescription());
+						for (int i = 0; i < posts.size(); i++) {
+							Entity post = posts.get(i);
+							pageContext.setAttribute("title", post.getProperty("title"));
+							pageContext.setAttribute("seller", post.getProperty("user"));
+							pageContext.setAttribute("date", post.getProperty("date"));
+							pageContext.setAttribute("author", post.getProperty("author"));
+							pageContext.setAttribute("isbn", post.getProperty("isbn"));
+							pageContext.setAttribute("price", post.getProperty("price"));
+							pageContext.setAttribute("description", post.getProperty("description"));
 			%>
 			<div class="blog-post">
 				<h2 class="blog-post-title">${fn:escapeXml(title)}</h2>
@@ -171,6 +144,25 @@
 					<li>Asking Price: $ ${fn:escapeXml(price)}</li>
 					<li>Description: ${fn:escapeXml(description)}</li>
 				</ul>
+
+				<%
+					if (!user.equals((User) post.getProperty("user"))) {
+				%>
+
+				<form action="/message" method="post">
+					<div>
+						<input type="submit" value="Message user" align="middle" />
+					</div>
+					<input type="hidden" name="message_seller"
+						value="${fn:escapeXml(seller)}" /> <input type="hidden"
+						name="message_isbn" value="${fn:escapeXml(isbn)}" />
+				</form>
+				<%
+					}
+				%>
+
+
+
 			</div>
 			<!-- /.blog-post -->
 			<%
@@ -184,34 +176,18 @@
 			}
 		%>
 		<input type="button" value="Create a post"
-			style="font-size: 20px; height: 50px; width: 200px"
+			style="font-size: 50px; height: 75px; width: 400px"
 			onClick="window.location='createpost.jsp';">
 
 		<%
-			} else if (nullUser) {
+			} else {
 		%>
 		<div class="blog-main">
 
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in </a> to use FlipABook.
-				</h3>
-			</div>
-		</div>
-		<%
-			} else if (blockedUser) {
-		%>
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h3>
-					<font color="red">ERROR: Only those with valid @utexas.edu
-						emails are allowed to use FlipABook.</font>
-				</h3>
-				<h3>
-					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in with a valid @utexas.edu email</a> to use FlipABook.
+						in</a> (with a valid UT email) to use FlipABook.
 				</h3>
 			</div>
 		</div>

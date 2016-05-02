@@ -1,20 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.ArrayList"%>
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
-<%@ page import="com.google.appengine.api.datastore.Query" %>
-<%@ page import="com.google.appengine.api.datastore.Entity" %>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
-<%@ page import="com.google.appengine.api.datastore.Key" %>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
-<%@ page import="java.util.Date" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -49,59 +42,42 @@
 
 <body>
 	<%
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		HomePage.getInstance();
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		FlipABookUser flipABookUser = null;
-		boolean nullUser = true;
-		boolean blockedUser = true;
-		int userIndex = -1;
-		if (user != null) {
-			nullUser = false;
-			userIndex = HomePage.users.indexOf(user);
-			if (userIndex == -1) {
-				new FlipABookUser(user);
-				userIndex = HomePage.users.size() - 1;
-			}
+		HomePage.getInstance();
 
-			if (!HomePage.flipABookUsers.get(userIndex).validEmail) {
-				blockedUser = true;
-			} else {
-				flipABookUser = HomePage.flipABookUsers.get(userIndex);
-				blockedUser = false;
+		ArrayList<Conversation> conversations = new ArrayList<Conversation>();
+		if (HomePage.conversations != null && user != null) {
+			for (Conversation convo : HomePage.conversations) {
+				if (convo.getConvoID().contains(user.getEmail())) {
+					conversations.add(convo); //Only if you're in the convoID would you be involved in this conversation
+				}
 			}
-		} else {
-			nullUser = true;
 		}
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
-					href="../index.jsp">Home</a> 
-					<%
-					if (!nullUser && !blockedUser) {
-				 		pageContext.setAttribute("user", user);
-				 		pageContext.setAttribute("flipABookUser", flipABookUser);
-					%>
-						<a class="blog-nav-item"
-						href="../advancedsearch.jsp">Advanced Search</a> <a
-						class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
-						class="blog-nav-item active" href="../messages.jsp">Messages</a> <a
-						class="blog-nav-item" href="../scheduledmeetings.jsp">Scheduled
-						Meetings</a> <a class="blog-nav-item" href="../account.jsp">Account
-						Info</a>
-						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
-					<%
-					} else {
-					%>
-						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
-					<%
-					}
-					%>
-				 </nav>
-	
+					href="../index.jsp">Home</a> <%
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
+ %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
+					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
+				<a class="blog-nav-item active" href="../messages.jsp">Messages</a>
+				<a class="blog-nav-item" href="../account.jsp">Account Info</a> <a
+					class="blog-nav-item"
+					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
+					Out</a> <%
+ 	} else {
+ %> <a class="blog-nav-item"
+					href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+					In</a> <%
+ 	}
+ %> </nav>
+
 			</div>
 		</div>
 	</div>
@@ -111,108 +87,118 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description"><%if(user!=null){ %>Messages<%}else{%>Uh Oh!<%}%></h2>
-			<%if(user!=null){ %>
-			<form class="navbar-form navbar-CENTER" role="search">
-				<div class="input-group">
-					<input type="text" class="form-control"
-						placeholder="Search your posts..."> <span
-						class="input-group-btn">
-						<button type="submit" class="btn btn-default">
-							<span class="glyphicon glyphicon-search"></span>
-						</button>
-					</span>
-				</div>
-			</form>
-			<%} %>
-		</div>
-		<%
-		if (!nullUser) { 
-		%>
-
-		<!-- <div class="row"> -->
-
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Conversation C</h2>
-				<p class="blog-post-meta">
-					with <a href="#">Keith Cozart</a>
-				</p>
-
-				<p>Message 5</p>
-				<p>Message 4</p>
-				<p>Message 3</p>
-				<p>Message 2</p>
-				<p>Message 1</p>
-
-			</div>
-			<!-- /.blog-post -->
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Conversation B</h2>
-				<p class="blog-post-meta">
-					with <a href="#">Dave Cookies</a>
-				</p>
-				<p>Message 5</p>
-				<p>Message 4</p>
-				<p>Message 3</p>
-				<p>Message 2</p>
-				<p>Message 1</p>
-			</div>
-			<!-- /.blog-post -->
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Conversation A</h2>
-				<p class="blog-post-meta">
-					with <a href="#">Billy Osteoporosis</a>
-				</p>
-
-				<p>Message 5</p>
-				<p>Message 4</p>
-				<p>Message 3</p>
-				<p>Message 2</p>
-				<p>Message 1</p>
-
-			</div>
-			<!-- /.blog-post -->
-
-			<nav>
-			<ul class="pager">
-				<li><a href="#">Previous</a></li>
-				<li><a href="#">Next</a></li>
-			</ul>
-			</nav>
-
-		</div>
-		<!-- /.blog-main -->
-		<!--</div>-->
-		<!-- /.row -->
-		<%
-		} else if (nullUser) {
+			<h2 class="lead blog-description">
+				<%
+					if (user != null) {
+				%>Messages<%
+					}
+					else {
+				%>You have been logged out.<%
+					}
+				%>
+			</h2>
+			<%
+				if (user != null) {
+					if (conversations.isEmpty()) {
 			%>
+			<p>You have no active conversations.</p>
+			<%
+				} else {
+						//Back end is implemented! 
+						//Please implement front-end asap
+						for (Conversation current_convo : conversations) {
+							pageContext.setAttribute("title", current_convo.getPost().getTitle());
+							String seller = current_convo.getPost().getSeller().getEmail();
+							String buyer = current_convo.getBuyer().getEmail();
+							pageContext.setAttribute("seller", current_convo.getPost().getSeller().getEmail());
+							pageContext.setAttribute("buyer", current_convo.getBuyer().getEmail());
+							pageContext.setAttribute("convoID", current_convo.getConvoID());
+							if (user.getEmail().equals(seller)) {
+								pageContext.setAttribute("buyer_or_seller", "SELLER");
+								pageContext.setAttribute("other_user", buyer);
+							} else {
+								pageContext.setAttribute("buyer_or_seller", "BUYER");
+								pageContext.setAttribute("other_user", seller);
+							}
+			%>
+
+			<!-- <div class="row"> -->
+
 			<div class="blog-main">
 
 				<div class="blog-post">
-					<h3>
-						<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-							in </a> to use FlipABook.
-					</h3>
+					<h2 class="blog-post-title">Conversation:
+						${fn:escapeXml(title)}</h2>
+					<p class="blog-post-meta">
+						with <a href="#">${fn:escapeXml(other_user)}</a>
+					</p>
+					<p>***You are the ${fn:escapeXml(buyer_or_seller)}***</p>
+
+					<%
+						ArrayList<Message> messages = current_convo.getMessages();
+									Collections.sort(messages); //Sorts messages by date
+									for (Message message : messages) {
+										pageContext.setAttribute("message_content", message.getContent());
+										pageContext.setAttribute("message_sender", message.getSender().getUserInfo());
+										//FlipABookUser sender = message.getSender();
+					%>
+					<p>${fn:escapeXml(message_sender)}said:
+						${fn:escapeXml(message_content)}</p>
+
+
+					<%
+						if (message.getSender().getUserInfo().equals(user)) {
+											//Messages should be displayed one way if you are sender
+					%>
+
+
+
+					<%
+						} else {
+											//Messages should be displayed a different way if you are receiver
+
+										}
+
+									}
+					%>
+					<form action="/message" method="get">
+						<div>
+							<textarea name="content" rows="1" cols="60" required></textarea>
+						</div>
+						<p></p>
+						<div>
+							<input type="submit" value="Send Message" align="middle" />
+						</div>
+						<input type="hidden" name="conversation"
+							value="${fn:escapeXml(convoID)}" /> <input type="hidden"
+							name="sender" value="${fn:escapeXml(user)}" />
+
+					</form>
+
 				</div>
+
+
+				<!-- /.blog-post -->
+
+
 			</div>
 			<%
-				} else if (blockedUser) {
+				}
+			%>
+			<!-- /.blog-main -->
+			<!--</div>-->
+			<!-- /.row -->
+			<%
+				}
+				} else {
 			%>
 			<div class="blog-main">
 
 				<div class="blog-post">
 					<h3>
-						<font color="red">ERROR: Only those with valid @utexas.edu
-							emails are allowed to use FlipABook.</font>
-					</h3>
-					<h3>
-						<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-							in with a valid @utexas.edu email</a> to use FlipABook.
+						<a href="../index.jsp">Return home</a> or <a
+							href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+							back in</a>
 					</h3>
 				</div>
 			</div>
@@ -220,34 +206,34 @@
 				}
 			%>
 
-	</div>
-	<!-- /.container -->
+		</div>
+		<!-- /.container -->
 
-	<footer class="blog-footer">
-	<p>Created by Tye Macon, William "Stormy" Mauldin, Daniel
-		Officewala, and Daniel Zhang.</p>
-	<p>
-		Blog template built for <a href="http://getbootstrap.com">Bootstrap</a>
-		by <a href="https://twitter.com/mdo">@mdo</a>.
-	</p>
-	<p>
-		<a href="#">Back to top</a>
-	</p>
-	</footer>
+		<footer class="blog-footer">
+		<p>Created by Tye Macon, William "Stormy" Mauldin, Daniel
+			Officewala, and Daniel Zhang.</p>
+		<p>
+			Blog template built for <a href="http://getbootstrap.com">Bootstrap</a>
+			by <a href="https://twitter.com/mdo">@mdo</a>.
+		</p>
+		<p>
+			<a href="#">Back to top</a>
+		</p>
+		</footer>
 
 
-	<!-- Bootstrap core JavaScript
+		<!-- Bootstrap core JavaScript
     ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<script
-		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script>
-		window.jQuery
-				|| document
-						.write('<script src="bootstrap/assets/js/vendor/jquery.min.js"><\/script>')
-	</script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	<script src="bootstrap/assets/js/ie10-viewport-bug-workaround.js"></script>
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script
+			src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script>
+			window.jQuery
+					|| document
+							.write('<script src="bootstrap/assets/js/vendor/jquery.min.js"><\/script>')
+		</script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="bootstrap/assets/js/ie10-viewport-bug-workaround.js"></script>
 </body>
 </html>
