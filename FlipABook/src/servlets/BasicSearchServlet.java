@@ -15,7 +15,7 @@ public class BasicSearchServlet extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		HomePage.getInstance();
 
-		String keywords = req.getParameter("keywords");
+		String keywords = req.getParameter("keywords").toLowerCase();
 
 		Facade.basicSearch(keywords);
 		resp.sendRedirect("results.jsp");

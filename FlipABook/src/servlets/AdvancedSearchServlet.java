@@ -24,10 +24,10 @@ public class AdvancedSearchServlet extends HttpServlet {
 		HomePage.getInstance();
 		FlipABookUser flipABookUser = Facade.getFlipABookUser(user);
 
-		String title = req.getParameter("title");
-		String isbn = req.getParameter("isbn").replaceAll("\\D", "");
-		String author = req.getParameter("author");
-		String keywords = req.getParameter("keywords");
+		String title = req.getParameter("title").toLowerCase();
+		String isbn = req.getParameter("isbn").replaceAll("\\D", "").toLowerCase();
+		String author = req.getParameter("author").toLowerCase();
+		String keywords = req.getParameter("keywords").toLowerCase();
 		boolean nullFields = false;
 		if ((title == null || title.equals("")) && (isbn == null || isbn.equals(""))
 				&& (author == null || author.equals("")) && (keywords == null || keywords.equals(""))) {

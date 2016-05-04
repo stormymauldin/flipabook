@@ -105,22 +105,22 @@
 			<form action="/advancedsearch" method="post">
 				<div>
 					<h4>Search by title...</h4>
-					<textarea name="title" rows="1" cols="60" required></textarea>
+					<textarea name="title" rows="1" cols="60"></textarea>
 				</div>
 
 				<div>
 					<h4>Search by author...</h4>
-					<textarea name="author" rows="1" cols="60" required></textarea>
+					<textarea name="author" rows="1" cols="60"></textarea>
 				</div>
 
 				<div>
 					<h4>Search by ISBN...</h4>
-					<textarea name="isbn" rows="1" cols="60" required></textarea>
+					<textarea name="isbn" rows="1" cols="60"></textarea>
 				</div>
 
 				<div>
 					<h4>Search by key words...</h4>
-					<textarea name="keywords" rows="3" cols="60" required></textarea>
+					<textarea name="keywords" rows="3" cols="60"></textarea>
 				</div>
 
 				<div>

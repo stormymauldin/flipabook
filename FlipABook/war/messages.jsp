@@ -142,7 +142,7 @@
 										pageContext.setAttribute("message_sender", message.getSender().getUserInfo());
 										//FlipABookUser sender = message.getSender();
 					%>
-					<p>${fn:escapeXml(message_sender)}said:
+					<p>${fn:escapeXml(message_sender)} said:
 						${fn:escapeXml(message_content)}</p>
 
 
