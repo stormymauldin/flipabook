@@ -1,23 +1,12 @@
 package objects;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Calendar; 
-import com.googlecode.objectify.annotation.*;
 
-@Entity
-@Serialize
-public class Post implements Comparable<Post>, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5085203634956354791L;
-	@Id
+public class Post implements Comparable<Post> {
 	Long id;
 	String description;
-//	@Container
 	FlipABookUser seller;
-//	@Container
 	Book book;
 	String price;
 	Date date;

@@ -8,7 +8,8 @@
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
+<%@ page
+	import="com.google.appengine.api.datastore.DatastoreServiceFactory"%>
 <%@ page import="com.google.appengine.api.datastore.DatastoreService"%>
 <%@ page import="com.google.appengine.api.datastore.Query"%>
 <%@ page import="com.google.appengine.api.datastore.Entity"%>
@@ -53,7 +54,6 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = Facade.getCurrentUser();
 		List<Entity> posts = Facade.searchResults;
-		FlipABookUser flipABookUser = null;
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -61,8 +61,10 @@
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  		pageContext.setAttribute("user", user);
- 		flipABookUser = Facade.getFlipABookUser(user);
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -164,7 +166,7 @@
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in</a> to use FlipABook.
+						in</a> (with a valid UT email) to use FlipABook.
 				</h3>
 			</div>
 		</div>

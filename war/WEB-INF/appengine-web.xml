@@ -25,7 +25,7 @@
 
     With this feature enabled, there is a very small chance your app will see
     stale session data. For details, see
-    http://code.google.com/appengine/docs/java/config/appconfig.html#Enabling_Sessions
+    https://cloud.google.com/appengine/docs/java/config/appconfig#Java_appengine_web_xml_Enabling_sessions
   -->
 
 </appengine-web-app>

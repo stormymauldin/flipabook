@@ -5,7 +5,6 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="objects.*"%>
 <%@ page import="servlets.*"%>
-<%@ page import="com.googlecode.objectify.*"%>
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
@@ -46,11 +45,11 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
-		
+
 		ArrayList<Conversation> conversations = new ArrayList<Conversation>();
 		if (HomePage.conversations != null && user != null) {
-			for (Conversation convo: HomePage.conversations){
-				if (convo.getConvoID().contains(user.getEmail())){
+			for (Conversation convo : HomePage.conversations) {
+				if (convo.getConvoID().contains(user.getEmail())) {
 					conversations.add(convo); //Only if you're in the convoID would you be involved in this conversation
 				}
 			}
@@ -60,35 +59,25 @@
 		<div class="blog-masthead">
 			<div class="container">
 				<nav class="blog-nav"> <a class="blog-nav-item"
-					href="../index.jsp">Home</a> 
-					<%
-					if (user != null) { 
-							%>
-					
+					href="../index.jsp">Home</a> <%
+ 	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
+ %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
+					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
+				<a class="blog-nav-item active" href="../messages.jsp">Messages</a>
+				<a class="blog-nav-item" href="../account.jsp">Account Info</a> <a
+					class="blog-nav-item"
+					href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log
+					Out</a> <%
+ 	} else {
+ %> <a class="blog-nav-item"
+					href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+					In</a> <%
+ 	}
+ %> </nav>
 
-			
-						<a class="blog-nav-item"
-						href="../advancedsearch.jsp">Advanced Search</a> <a
-						class="blog-nav-item" href="../posts.jsp">Your Posts</a> <a
-						class="blog-nav-item active" href="../messages.jsp">Messages</a>  <a class="blog-nav-item" href="../account.jsp">Account
-						Info</a>
-						<a class="blog-nav-item" href="<%=userService.createLogoutURL(request.getRequestURI())%>">Log Out</a>
-						
-						
-						
-						
-						
-						
-						
-					<%
-					} else {
-					%>
-						<a class="blog-nav-item" href="<%=userService.createLoginURL(request.getRequestURI())%>">Log In</a>
-					<%
-					}
-					%>
-				 </nav>
-	
 			</div>
 		</div>
 	</div>
@@ -98,161 +87,152 @@
 			<h1 class="blog-title">
 				<img src="bootstrap/assets/img/FlipABook.png">
 			</h1>
-			<h2 class="lead blog-description"><%if(user!=null){ %>Messages<%}else{%>Uh Oh!<%}%></h2>
-			<%if(user!=null){ 
-			%>
-			<form class="navbar-form navbar-CENTER" role="search">
-				<div class="input-group">
-					<input type="text" class="form-control"
-						placeholder="Search your posts..."> <span
-						class="input-group-btn">
-						<button type="submit" class="btn btn-default">
-							<span class="glyphicon glyphicon-search"></span>
-						</button>
-					</span>
-				</div>
-			</form>
-			<%} %>
-		</div>
-		<%
-		if (user != null) { 
-			if (conversations.isEmpty()) {
-				%>	
-				<p>You have no active conversations.</p>
-		<%
-			} else {
-				//Back end is implemented! 
-				//Please implement front-end asap
-				for (Conversation current_convo: conversations){
-					pageContext.setAttribute("title", current_convo.getPost().getTitle());
-					String seller = current_convo.getPost().getSeller().getEmail();
-					String buyer = current_convo.getBuyer().getEmail();
-					pageContext.setAttribute("seller", current_convo.getPost().getSeller().getEmail());
-					pageContext.setAttribute("buyer", current_convo.getBuyer().getEmail());
-					pageContext.setAttribute("convoID", current_convo.getConvoID());
-					if (user.getEmail().equals(seller)){
-						pageContext.setAttribute("buyer_or_seller", "SELLER");
-						pageContext.setAttribute("other_user", buyer);
-					}
-					else {
-						pageContext.setAttribute("buyer_or_seller", "BUYER");
-						pageContext.setAttribute("other_user", seller);
-					}
-
-				
-				
-				
-			
-		%>
-
-		<!-- <div class="row"> -->
-
-		<div class="blog-main">
-
-			<div class="blog-post">
-				<h2 class="blog-post-title">Conversation: ${fn:escapeXml(title)}</h2>
-				<p class="blog-post-meta">
-					with <a href="#">${fn:escapeXml(other_user)}</a>
-				</p>
-				<p>***You are the ${fn:escapeXml(buyer_or_seller)}***</p>
-				
+			<h2 class="lead blog-description">
 				<%
-				ArrayList<Message> messages = current_convo.getMessages();
-				Collections.sort(messages); //Sorts messages by date
-				for (Message message: messages){
-					pageContext.setAttribute("message_content", message.getContent());
-					pageContext.setAttribute("message_sender", message.getSender().getUserInfo());
-					//FlipABookUser sender = message.getSender();
-					
-					
-					%>
-					<p>${fn:escapeXml(message_sender)} said:  ${fn:escapeXml(message_content)}</p>
-						
-					
-					<%		
-					if (message.getSender().getUserInfo().equals(user)){
-						//Messages should be displayed one way if you are sender
-						%>
-							
-						
-						
-						<%
-
+					if (user != null) {
+				%>Messages<%
 					}
 					else {
-						//Messages should be displayed a different way if you are receiver
-						
+				%>You have been logged out.<%
 					}
-					
-				}
-				%>				
-				<form action ="/message" method ="get">
-				<div>
-					<textarea name="content" rows="1" cols="60" required></textarea>
+				%>
+			</h2>
+			<%
+				if (user != null) {
+					if (conversations.isEmpty()) {
+			%>
+			<p>You have no active conversations.</p>
+			<%
+				} else {
+						//Back end is implemented! 
+						//Please implement front-end asap
+						for (Conversation current_convo : conversations) {
+							pageContext.setAttribute("title", current_convo.getPost().getTitle());
+							String seller = current_convo.getPost().getSeller().getEmail();
+							String buyer = current_convo.getBuyer().getEmail();
+							pageContext.setAttribute("seller", current_convo.getPost().getSeller().getEmail());
+							pageContext.setAttribute("buyer", current_convo.getBuyer().getEmail());
+							pageContext.setAttribute("convoID", current_convo.getConvoID());
+							if (user.getEmail().equals(seller)) {
+								pageContext.setAttribute("buyer_or_seller", "SELLER");
+								pageContext.setAttribute("other_user", buyer);
+							} else {
+								pageContext.setAttribute("buyer_or_seller", "BUYER");
+								pageContext.setAttribute("other_user", seller);
+							}
+			%>
+
+			<!-- <div class="row"> -->
+
+			<div class="blog-main">
+
+				<div class="blog-post">
+					<h2 class="blog-post-title">Conversation:
+						${fn:escapeXml(title)}</h2>
+					<p class="blog-post-meta">
+						with <a href="#">${fn:escapeXml(other_user)}</a>
+					</p>
+					<p>***You are the ${fn:escapeXml(buyer_or_seller)}***</p>
+
+					<%
+						ArrayList<Message> messages = current_convo.getMessages();
+									Collections.sort(messages); //Sorts messages by date
+									for (Message message : messages) {
+										pageContext.setAttribute("message_content", message.getContent());
+										pageContext.setAttribute("message_sender", message.getSender().getUserInfo());
+										//FlipABookUser sender = message.getSender();
+					%>
+					<p>${fn:escapeXml(message_sender)} said: ${fn:escapeXml(message_content)}</p>
+
+
+					<%
+						if (message.getSender().getUserInfo().equals(user)) {
+											//Messages should be displayed one way if you are sender
+					%>
+
+
+
+					<%
+						} else {
+											//Messages should be displayed a different way if you are receiver
+
+										}
+
+									}
+					%>
+					<form action="/message" method="get">
+						<div>
+							<textarea name="content" rows="1" cols="60" required></textarea>
+						</div>
+						<p></p>
+						<div>
+							<input type="submit" value="Send Message" align="middle" />
+						</div>
+						<input type="hidden" name="conversation"
+							value="${fn:escapeXml(convoID)}" /> <input type="hidden"
+							name="sender" value="${fn:escapeXml(user)}" />
+
+					</form>
+
 				</div>
-				<p>
-				</p>
-				<div><input type="submit" value="Send Message" align="middle"/>
-				</div>
-				<input type="hidden" name="conversation" value="${fn:escapeXml(convoID)}"/>
-				<input type="hidden" name="sender" value="${fn:escapeXml(user)}"/>
-				
-				</form>
+
+
+				<!-- /.blog-post -->
+
 
 			</div>
-			
-	
-			<!-- /.blog-post -->
+			<%
+				}
+			%>
+			<!-- /.blog-main -->
+			<!--</div>-->
+			<!-- /.row -->
+			<%
+				}
+				} else {
+			%>
+			<div class="blog-main">
 
+				<div class="blog-post">
+					<h3>
+						<a href="../index.jsp">Return home</a> or <a
+							href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
+							back in</a>
+					</h3>
+				</div>
+			</div>
+			<%
+				}
+			%>
 
 		</div>
-		<%	
-			}
-		%>
-		<!-- /.blog-main -->
-		<!--</div>-->
-		<!-- /.row -->
-		<%
-			}} else { 
-		%>
-			<div class="blog-main">
-	
-				<div class="blog-post">
-					<h3><a href="../index.jsp">Return home</a> or <a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log back in</a></h3>
-				</div>
-			</div>
-		<%
-		} 
-		%>
+		<!-- /.container -->
 
-	</div>
-	<!-- /.container -->
-
-	<footer class="blog-footer">
-	<p>Created by Tye Macon, William "Stormy" Mauldin, Daniel
-		Officewala, and Daniel Zhang.</p>
-	<p>
-		Blog template built for <a href="http://getbootstrap.com">Bootstrap</a>
-		by <a href="https://twitter.com/mdo">@mdo</a>.
-	</p>
-	<p>
-		<a href="#">Back to top</a>
-	</p>
-	</footer>
+		<footer class="blog-footer">
+		<p>Created by Tye Macon, William "Stormy" Mauldin, Daniel
+			Officewala, and Daniel Zhang.</p>
+		<p>
+			Blog template built for <a href="http://getbootstrap.com">Bootstrap</a>
+			by <a href="https://twitter.com/mdo">@mdo</a>.
+		</p>
+		<p>
+			<a href="#">Back to top</a>
+		</p>
+		</footer>
 
 
-	<!-- Bootstrap core JavaScript
+		<!-- Bootstrap core JavaScript
     ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<script
-		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script>
-		window.jQuery
-				|| document
-						.write('<script src="bootstrap/assets/js/vendor/jquery.min.js"><\/script>')
-	</script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	<script src="bootstrap/assets/js/ie10-viewport-bug-workaround.js"></script>
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script
+			src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script>
+			window.jQuery
+					|| document
+							.write('<script src="bootstrap/assets/js/vendor/jquery.min.js"><\/script>')
+		</script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="bootstrap/assets/js/ie10-viewport-bug-workaround.js"></script>
 </body>
 </html>

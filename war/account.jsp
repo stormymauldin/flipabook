@@ -57,6 +57,9 @@
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+ 			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+ 		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -118,7 +121,7 @@
 
 				<ul style="text-align: left">
 					<li>Username: ${fn:escapeXml(username)}</li>
-					<li>Current Posts: ${fn:escapeXml(currentPosts)}</li>
+					<li>Total Posts: ${fn:escapeXml(currentPosts)}</li>
 				</ul>
 
 			</div>

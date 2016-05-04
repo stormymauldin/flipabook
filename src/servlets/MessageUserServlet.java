@@ -16,10 +16,6 @@ import objects.HomePage;
 import objects.Post;
 
 public class MessageUserServlet extends HttpServlet{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5038565026519203051L;
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		//This method simply adds a message to an existing conversation. 
 		String convo = req.getParameter("conversation");

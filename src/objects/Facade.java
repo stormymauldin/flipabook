@@ -19,7 +19,8 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 public class Facade {
-	public static final int MAX_NUM_IN_LIST = 1000;
+	public static final int MAX_NUM_IN_LIST = 100000;
+	public static final int MAX_POSTS = 100;
 	public static ArrayList<Entity> searchResults;
 	private static HashMap<Entity, Integer> weights;
 
@@ -41,7 +42,7 @@ public class Facade {
 
 	public static List<Entity> getPosts() {
 		Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
-		return datastore().prepare(query).asList(FetchOptions.Builder.withLimit(MAX_NUM_IN_LIST));
+		return datastore().prepare(query).asList(FetchOptions.Builder.withLimit(MAX_POSTS));
 	}
 
 	public static List<Entity> getBooks() {
@@ -87,7 +88,7 @@ public class Facade {
 	}
 
 	public static void basicSearch(String term) {
-		HashSet<String> filteredTerm = breakup(term);
+		HashSet<String> filteredTerm = breakup(term.toLowerCase());
 		resetSearchWeights();
 		List<Entity> posts = getPosts();
 		for (Entity post : posts) {
@@ -98,11 +99,10 @@ public class Facade {
 	}
 
 	public static void advancedSearch(String title, String author, String isbn, String keywords) {
-		HashSet<String> filteredTitle = breakup(title);
-		HashSet<String> filteredAuthor = breakup(author);
+		HashSet<String> filteredTitle = breakup(title.toLowerCase());
+		HashSet<String> filteredAuthor = breakup(author.toLowerCase());
 		HashSet<String> filteredIsbn = breakup(isbn);
-		HashSet<String> filteredKeywords = breakupNoArticleRemoval(keywords);
-		//formatSearches(title, author, isbn, keywords, filteredTitle, filteredAuthor, filteredIsbn, filteredKeywords);
+		HashSet<String> filteredKeywords = breakupNoArticleRemoval(keywords.toLowerCase());
 		resetSearchWeights();
 		List<Entity> posts = getPosts();
 		for (Entity post : posts) {
@@ -124,7 +124,6 @@ public class Facade {
 			}
 		}
 	}
-
 
 	private static Entity getMinWeightIndex() {
 		int min = 0;
@@ -154,7 +153,7 @@ public class Facade {
 
 	private static HashSet<String> breakupNoArticleRemoval(String original) {
 		original.toLowerCase();
-		String originalKeyWords[] = original.split("\\P{Alpha}+");
+		String originalKeyWords[] = original.split("\\P{Alnum}+");
 		HashSet<String> filtered = new HashSet<String>();
 		filtered.addAll(Arrays.asList(originalKeyWords));
 		return filtered;
@@ -168,22 +167,30 @@ public class Facade {
 	private static void searchEachPostField(HashSet<String> title, HashSet<String> author, HashSet<String> isbn,
 			HashSet<String> keywords, Entity post) {
 		if (!title.isEmpty()) {
-			HashSet<String> postTitle = breakup((String) (post.getProperty("title")));
+			String thisTitle = (String) (post.getProperty("title"));
+			thisTitle = thisTitle.toLowerCase();
+			HashSet<String> postTitle = breakup(thisTitle);
 			compareSets(title, postTitle, post);
 		}
 
 		if (!author.isEmpty()) {
-			HashSet<String> postAuthor = breakup((String) (post.getProperty("author")));
+			String thisAuthor = (String) (post.getProperty("author"));
+			thisAuthor = thisAuthor.toLowerCase();
+			HashSet<String> postAuthor = breakup(thisAuthor);
 			compareSets(author, postAuthor, post);
 		}
 
 		if (!isbn.isEmpty()) {
-			HashSet<String> postIsbn = breakup((String) (post.getProperty("isbn")));
+			String thisIsbn = (String) (post.getProperty("isbn"));
+			thisIsbn = thisIsbn.toLowerCase();
+			HashSet<String> postIsbn = breakup(thisIsbn);
 			compareSets(isbn, postIsbn, post);
 		}
 
 		if (!keywords.isEmpty()) {
-			HashSet<String> postDescription = breakup((String) (post.getProperty("description")));
+			String thisDescription = (String) (post.getProperty("description"));
+			thisDescription = thisDescription.toLowerCase();
+			HashSet<String> postDescription = breakup(thisDescription);
 			compareSets(keywords, postDescription, post);
 		}
 	}
@@ -199,6 +206,18 @@ public class Facade {
 					weights.put(post, weights.get(post) + 1);
 				}
 			}
+		}
+	}
+
+	public static boolean verifyEmail(User user) {
+		if (user == null) {
+			return false;
+		}
+		String[] parsedEmail = user.getEmail().split("@");
+		if (parsedEmail.length != 2 || !parsedEmail[1].equals("utexas.edu")) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 }

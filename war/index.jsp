@@ -56,6 +56,7 @@
 		UserService userService = UserServiceFactory.getUserService();
 		User user = Facade.getCurrentUser(userService);
 		List<Entity> posts = Facade.getPosts();
+		
 	%>
 	<div class="blog-masthead">
 		<div class="blog-masthead">
@@ -63,10 +64,9 @@
 				<nav class="blog-nav"> <a class="blog-nav-item active"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
-
- 		FlipABookUser flipABookUser = Facade.getFlipABookUser(user);
-
- 		//TODO do we need to update the datastore here?
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item" href="../posts.jsp">Your Posts</a>
 				<a class="blog-nav-item" href="../messages.jsp">Messages</a> <a
@@ -187,7 +187,7 @@
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in</a> to use FlipABook.
+						in</a> (with a valid UT email) to use FlipABook.
 				</h3>
 			</div>
 		</div>

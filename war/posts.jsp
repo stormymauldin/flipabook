@@ -58,9 +58,6 @@
 		User user = userService.getCurrentUser();
 		HomePage.getInstance();
 
-		//	    Query query = new Query("Post").addSort("date", Query.SortDirection.DESCENDING);
-		//		List<Entity> posts = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(100.));
-
 		List<Entity> posts = new ArrayList<Entity>();
 		for (Post userPost : HomePage.posts) {
 			if (userPost.getSeller().getUserInfo().equals(user)) {
@@ -79,6 +76,9 @@
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+ 			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+ 		}
  %> <a class="blog-nav-item" href="../advancedsearch.jsp">Advanced
 					Search</a> <a class="blog-nav-item active" href="../posts.jsp">Your
 					Posts</a> <a class="blog-nav-item" href="../messages.jsp">Messages</a>
@@ -107,7 +107,7 @@
 					if (user != null) {
 				%>Your Posts<%
 					} else {
-				%>Uh Oh!<%
+				%>You have been logged out.<%
 					}
 				%>
 			</h2>
@@ -139,9 +139,6 @@
 			<p>There are no recent posts.</p>
 			<%
 				} else {
-						//Collections.sort(posts);
-						//Collections.reverse(posts);
-						//Collections.sort(posts);
 						for (int i = 0; i < posts.size(); i++) {
 							Entity post = posts.get(i);
 							pageContext.setAttribute("title", post.getProperty("title"));
@@ -151,16 +148,6 @@
 							pageContext.setAttribute("isbn", post.getProperty("isbn"));
 							pageContext.setAttribute("price", post.getProperty("price"));
 							pageContext.setAttribute("description", post.getProperty("description"));
-
-							//				}
-							//				for (int i = 0; i < posts.size(); i++) {
-							//					pageContext.setAttribute("title", posts.get(i).getTitle());
-							//					pageContext.setAttribute("seller", posts.get(i).getSeller().getUserInfo().getNickname());
-							//					pageContext.setAttribute("date", posts.get(i).getDate());
-							//					pageContext.setAttribute("author", posts.get(i).getAuthor());
-							//					pageContext.setAttribute("isbn", posts.get(i).getIsbn());
-							//					pageContext.setAttribute("price", posts.get(i).getPrice());
-							//					pageContext.setAttribute("description", posts.get(i).getDescription());
 			%>
 			<div class="blog-main">
 				<div class="blog-post">

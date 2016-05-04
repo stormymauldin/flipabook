@@ -7,7 +7,6 @@
 <%@ page import="com.google.appengine.api.users.User"%>
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -52,6 +51,9 @@
 				<nav class="blog-nav"> <a class="blog-nav-item"
 					href="../index.jsp">Home</a> <%
  	if (user != null) {
+ 		if (!Facade.verifyEmail(user)) {
+			response.sendRedirect(userService.createLogoutURL(request.getRequestURI()));
+		}
  		pageContext.setAttribute("user", user);
  		flipABookUser = Facade.getFlipABookUser(user);
  %> <a class="blog-nav-item active" href="../advancedsearch.jsp">Advanced
@@ -102,22 +104,22 @@
 			<form action="/advancedsearch" method="post">
 				<div>
 					<h4>Search by title...</h4>
-					<textarea name="title" rows="1" cols="60"></textarea>
+					<textarea name="title" rows="1" cols="60" required></textarea>
 				</div>
 
 				<div>
 					<h4>Search by author...</h4>
-					<textarea name="author" rows="1" cols="60"></textarea>
+					<textarea name="author" rows="1" cols="60" required></textarea>
 				</div>
 
 				<div>
 					<h4>Search by ISBN...</h4>
-					<textarea name="isbn" rows="1" cols="60"></textarea>
+					<textarea name="isbn" rows="1" cols="60" required></textarea>
 				</div>
 
 				<div>
 					<h4>Search by key words...</h4>
-					<textarea name="keywords" rows="3" cols="60"></textarea>
+					<textarea name="keywords" rows="3" cols="60" required></textarea>
 				</div>
 
 				<div>
@@ -137,7 +139,7 @@
 			<div class="blog-post">
 				<h3>
 					<a href="<%=userService.createLoginURL(request.getRequestURI())%>">Log
-						in</a> to use FlipABook.
+						in</a> (with a valid UT email) to use FlipABook.
 				</h3>
 			</div>
 		</div>
