@@ -87,7 +87,7 @@ public class Facade {
 	}
 
 	public static void basicSearch(String term) {
-		HashSet<String> filteredTerm = breakup(term);
+		HashSet<String> filteredTerm = breakup(term.toLowerCase());
 		resetSearchWeights();
 		List<Entity> posts = getPosts();
 		for (Entity post : posts) {
@@ -98,10 +98,10 @@ public class Facade {
 	}
 
 	public static void advancedSearch(String title, String author, String isbn, String keywords) {
-		HashSet<String> filteredTitle = breakup(title);
-		HashSet<String> filteredAuthor = breakup(author);
-		HashSet<String> filteredIsbn = breakup(isbn);
-		HashSet<String> filteredKeywords = breakupNoArticleRemoval(keywords);
+		HashSet<String> filteredTitle = breakup(title.toLowerCase());
+		HashSet<String> filteredAuthor = breakup(author.toLowerCase());
+		HashSet<String> filteredIsbn = breakup(isbn.toLowerCase());
+		HashSet<String> filteredKeywords = breakupNoArticleRemoval(keywords.toLowerCase());
 		resetSearchWeights();
 		List<Entity> posts = getPosts();
 		for (Entity post : posts) {
